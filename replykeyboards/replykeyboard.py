@@ -24,7 +24,7 @@ class ReplyKeyboard(object):
             return self.__get_phone_number_keyboard(reply_keyboard_types[keyb_type][lang])
 
     @staticmethod
-    def __get_menu_keyboard(lang, keyb_type):
+    def __get_menu_keyboard(button, keyb_type):
 
         emoji_1 = '\U0001F4DA'
         emoji_2 = '\U0001F4C4'
@@ -37,29 +37,29 @@ class ReplyKeyboard(object):
 
         return ReplyKeyboardMarkup([
 
-            [KeyboardButton(f'{emoji_1} {lang[1]}')],
-            [KeyboardButton(f'{emoji_2} {lang[2]}')],
-            [KeyboardButton(f'{emoji_3} {lang[3]}')],
+            [KeyboardButton(f'{emoji_1} {button[1]}')],
+            [KeyboardButton(f'{emoji_2} {button[2]}')],
+            [KeyboardButton(f'{emoji_3} {button[3]}')],
             # [KeyboardButton(f'\U00002699 {lang[4]}')],
 
         ], resize_keyboard=True, one_time_keyboard=True)
 
     @staticmethod
-    def __get_settings_keyboard(lang):
+    def __get_settings_keyboard(button):
 
         return ReplyKeyboardMarkup([
 
-            [KeyboardButton(f'\U0001F4D4 {lang[1]}')],
-            [KeyboardButton(f'\U0001F310 {lang[2]}')],
-            [KeyboardButton(f'\U00002B05 {lang[3]}')],
+            [KeyboardButton(f'\U0001F4D4 {button[1]}')],
+            [KeyboardButton(f'\U0001F310 {button[2]}')],
+            [KeyboardButton(f'\U00002B05 {button[3]}')],
 
         ], resize_keyboard=True)
 
     @staticmethod
-    def __get_phone_number_keyboard(lang):
+    def __get_phone_number_keyboard(button):
         return ReplyKeyboardMarkup([
             [
-                KeyboardButton(f'\U0001F464 {lang[1]}', request_contact=True)]
+                KeyboardButton(f'\U0001F464 {button[1]}', request_contact=True)]
         ], resize_keyboard=True)
 
     def get_keyboard(self):
