@@ -1,7 +1,5 @@
 from telegram import Update
-from telegram.ext import (CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters,
-                          CallbackQueryHandler)
-
+from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters
 from filters import *
 from DB import insert_data
 from helpers import set_user_data
@@ -9,8 +7,6 @@ from languages import LANGS
 from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
-# from inlinekeyboards import InlineKeyboard
-# from inlinekeyboards.inlinekeyboardvariables import *
 from helpers import wrap_tags
 import logging
 
@@ -157,9 +153,8 @@ registration_conversation_handler = ConversationHandler(
 
         FULLNAME: [MessageHandler(Filters.text, fullname_callback)],
     },
-    fallbacks=[
-        # CommandHandler('cancel', do_cancel)
-    ],
+    fallbacks=[],
+
     persistent=True,
     name='registration_conversation'
 )
