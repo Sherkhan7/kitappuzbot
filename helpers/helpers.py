@@ -15,9 +15,6 @@ def set_user_data(user_id, user_data):
 
 
 def wrap_tags(*args):
-    symbol = ''
-
-    if len(args) > 1:
-        symbol = ' '
+    symbol = ' ' if len(args) > 1 else ''
 
     return f'<b><i><u>{symbol.join(args)}</u></i></b>'

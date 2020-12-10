@@ -19,5 +19,9 @@ reply_keyboard_types = {
         "uz": {1: "Kontaktimni yuborish"},
         "cy": {1: "Контактимни юбориш"},
         "ru": {1: "Отправить мой контакт"}
+    },
+
+    location_keyboard: {
+        "uz": {1: 'keyingisi', 2: 'Geolokatsiyamni yuborish'}
     }
 }

@@ -1,3 +1,5 @@
 from .inlinekeyboardhandler import inline_keyboard_handler
 from .messagehandler import message_handler
 from .registrationconversation import registration_conversation_handler
+from .booksconversation import books_conversation_handler
+from .receiveconversation import receive_conversation_handler

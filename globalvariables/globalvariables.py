@@ -1,17 +1,17 @@
-USER_ID, TG_ID, IS_ADMIN, FULLNAME, USERNAME, FROM_REGION, FROM_DISTRICT, FROM_LOCATION = \
-    ('user_id', 'tg_id', 'is_admin', 'fullname', 'username', 'from_region', 'from_district', 'from_location')
+USER_ID, TG_ID, IS_ADMIN, FULLNAME, USERNAME, TITLE, AUTHOR, PUBLISHING_HOUSE = \
+    ('user_id', 'tg_id', 'is_admin', 'fullname', 'username', 'title', 'author', 'publishing_house')
 
-TO_REGION, TO_DISTRICT, TO_LOCATION, WEIGHT_UNIT, WEIGHT, VOLUME_UNIT, USER_INPUT_DATA = \
-    ('to_region', 'to_district', 'to_location', 'weight_unit', 'weight', 'volume_unit', 'user_input_data')
+TRANSLATOR, INSCRIPTION, COVER_TYPE, PRICE, YEAR, USER_INPUT_DATA, GEOLOCATION, USER_TG_ID = \
+    ('translator', 'inscription', 'cover_type', 'price', 'year', 'user_input_data', 'geolocation', 'user_tg_id')
 
-VOLUME, DEFINITION, PHOTO, DATE, TIME, USER_PHONE_NUMBER, CONFIRMATION, EDIT, MESSAGE_ID = \
-    ('volume', 'definition', 'photo', 'date', 'time', 'user_phone_number', 'confirmation', 'edit', 'message_id')
+VOLUME, DEFINITION, PHOTO, DATE, PRICE_TEXT, PHONE_NUMBER, CONFIRMATION, EDIT, MESSAGE_ID = \
+    ('volume', 'definition', 'photo', 'date', 'price_text', 'phone_number', 'confirmation', 'edit', 'message_id')
 
-FROM_TEXT, TO_TEXT, WEIGHT_TEXT, VOLUME_TEXT, DEFINITION_TEXT, DATE_TEXT, POST_ID = \
-    ('from_text', 'to_text', 'weight_text', 'volume_text', 'definition_text', 'date_text', 'post_id')
+TITLE_TEXT, AUTHOR_TEXT, PUBLISHING_HOUSE_TEXT, LANG_TEXT, TRANSLATOR_TEXT, INSCRIPTION_TEXT = \
+    ('title_text', 'author_text', 'publishing_house_text', 'lang_text', 'translator_text', 'inscription_text')
 
-TIME_TEXT, USER_TEXT, USER_PHONE_NUMBER_TEXT, STATE, REGION_NAME, ID, LANG = \
-    ('time_text', 'user_text', 'user_phone_number_text', 'state', 'region_name', 'id', 'lang')
+COVER_TYPE_TEXT, YEAR_TEXT, USER_PHONE_NUMBER_TEXT, STATE, ADDRESS, ID, LANG, STATUS, ORDER_ID= \
+    ('cover_type_text', 'year_text', 'user_phone_number_text', 'state', 'address', 'id', 'lang', 'status', 'order_id')
 
 STATUS_TEXT, OPENED_STATUS, CLOSED_STATUS, NOT_CONFIRMED_STATUS, TG_ACCOUNT_TEXT, UNDEFINED_TEXT = \
     ('status_text', 'opened_status', 'closed_status', 'not_confirmed_status', 'tg_account_text', 'undifened_text')

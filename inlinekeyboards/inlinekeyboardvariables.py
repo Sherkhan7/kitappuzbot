@@ -1,0 +1,8 @@
+books_keyboard = 'books_keyboard'
+book_keyboard = 'book_keyboard'
+confirm_keyboard = 'confirm_keyboard'
+order_keyboard = 'order_keyboard'
+orders_keyboard = 'orders_keyboard'
+basket_keyboard = 'basket_keyboard'
+choose_keyboard = 'choose_keyboard'
+delivery_keyboard = 'delivery_keyboard'
