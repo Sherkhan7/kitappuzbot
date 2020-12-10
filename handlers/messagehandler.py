@@ -39,17 +39,16 @@ def message_handler_callback(update: Update, context: CallbackContext):
             #     update.message.reply_text(full_text, reply_markup=reply_keyboard)
 
         else:
-            # print(update.message.text)
-            if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][1]:
 
-
+            if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][2]:
                 # update.message.reply_text('Kitoblar')
+                update.message.reply_text()
 
+            elif text == reply_keyboard_types[user_menu_keyboard][user[LANG]][3]:
+                update.message.reply_text("Biz bilan bog;lanish uchun: +998 XX XXXXXXX ga go'qngiroq qiling")
+            else:
                 thinking_emoji = '\U0001F914'
-
-                # reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
-
-            # update.message.reply_text(thinking_emoji, quote=True, reply_markup=reply_keyboard)
+                update.message.reply_text(thinking_emoji, quote=True)
 
     else:
 

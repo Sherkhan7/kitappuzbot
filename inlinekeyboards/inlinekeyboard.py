@@ -46,6 +46,10 @@ class InlineKeyboard(object):
 
             return self.__get_delivery_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
+        elif keyb_type == paginate_keyboard:
+
+            return self.__get_paginate_keyboard(data)
+
     @staticmethod
     def __get_books_keyboard(data):
 
@@ -184,6 +188,53 @@ class InlineKeyboard(object):
         ])
 
         return InlineKeyboardMarkup(inline_keyboard)
+
+    @staticmethod
+    def __get_paginate_keyboard(data):
+
+        wanted, user_cargoes = data
+
+        length = len(user_cargoes)
+        wanted_cargo_data = user_cargoes[wanted - 1]
+
+        if wanted == 1 and length == 1:
+            button1_text = '.'
+            button1_data = 'dot_1'
+
+            button3_text = '.'
+            button3_data = 'dot_2'
+
+        elif wanted == 1 and length > 1:
+            button1_text = '.'
+            button1_data = 'dot'
+
+            button3_text = '\U000023E9'
+            button3_data = f'w_{wanted + 1}'
+
+        elif wanted == length:
+            button1_text = '\U000023EA'
+            button1_data = f'w_{wanted - 1}'
+
+            button3_text = '.'
+            button3_data = 'dot'
+
+        else:
+            button1_text = '\U000023EA'
+            button1_data = f'w_{wanted - 1}'
+
+            button3_text = '\U000023E9'
+            button3_data = f'w_{wanted + 1}'
+
+        button2_text = f'{wanted}/{length}'
+        button2_data = 'None'
+
+        return InlineKeyboardMarkup([
+            [
+                InlineKeyboardButton(button1_text, callback_data=button1_data),
+                InlineKeyboardButton(button2_text, callback_data=button2_data),
+                InlineKeyboardButton(button3_text, callback_data=button3_data),
+            ],
+        ])
 
     def get_keyboard(self):
 
