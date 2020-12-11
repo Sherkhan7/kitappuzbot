@@ -14,6 +14,7 @@ from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from layouts import get_book_layout, get_basket_layout
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -333,34 +334,37 @@ def confirmation_callback(update: Update, context: CallbackContext):
     if data == 'cancel':
         state = user_data[USER_INPUT_DATA][STATE]
     else:
+        geo = user_data[USER_INPUT_DATA][GEOLOCATION]
+        geo = json.dumps(geo) if geo else None
 
         order_data = {
             USER_ID: user['id'],
             STATUS: 'waiting',
             MESSAGE_ID: user_data[USER_INPUT_DATA][MESSAGE_ID],
+            ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
+            GEOLOCATION: geo,
+            PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             USER_TG_ID: user[TG_ID]
         }
         order_id = insert_data(order_data, 'orders')
 
-        order_itmes_data = {
+        order_items_data = {
             ORDER_ID: order_id,
-            ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
-            GEOLOCATION: user_data[USER_INPUT_DATA][GEOLOCATION],
-            PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             BASKET: user_data[USER_INPUT_DATA][BASKET]
         }
-        result = insert_order_items(dict(order_itmes_data), 'order_items')
+        result = insert_order_items(dict(order_items_data), 'order_items')
 
         if result > 0:
             callback_query.edit_message_reply_markup(None)
-            text = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG], data='Yangi buyurtma')
+
+            text = get_basket_layout(order_items_data[BASKET], user[LANG], data='Yangi buyurtma')
             text += f'\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
-                    f'Manzil: {wrap_tags(user_data[USER_INPUT_DATA][ADDRESS])}\n' \
-                    f'Tel: {user_data[USER_INPUT_DATA][PHONE_NUMBER]}\n'
+                    f'Manzil: {wrap_tags(order_data[ADDRESS])}\n' \
+                    f'Tel: {order_data[PHONE_NUMBER]}\n'
             text += f'Telegram: {user[USERNAME]}' if user[USERNAME] else ''
             text += f'\nStatus: {order_data[STATUS]}'
             inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
-                                             data=[order_itmes_data[GEOLOCATION], order_id]).get_keyboard()
+                                             data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
 
             context.bot.send_message(ADMINS[0], text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 

@@ -19,12 +19,12 @@ def main():
 
     updater.dispatcher.add_handler(inline_keyboard_handler)
 
-    # updater.start_polling()
-    # updater.idle()
-
-    updater.start_webhook(listen='127.0.0.1', port=5004, url_path=TOKEN)
-    updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    updater.start_polling()
     updater.idle()
+
+    # updater.start_webhook(listen='127.0.0.1', port=5004, url_path=TOKEN)
+    # updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    # updater.idle()
 
 
 if __name__ == '__main__':
