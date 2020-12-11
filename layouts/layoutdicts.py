@@ -3,11 +3,10 @@ from globalvariables import *
 BOOK_DICT = {
     "uz": {
         TITLE_TEXT: "Kitob nomi",
-        AUTHOR_TEXT: "Avtor",
-        PUBLISHING_HOUSE_TEXT: "Bosmachi",
+        AUTHOR_TEXT: "Muallif(lar)",
+        AMOUNT_TEXT: "Hajmi",
         LANG_TEXT: "Til",
         TRANSLATOR_TEXT: "Tarjimon",
-        INSCRIPTION_TEXT: "Yozuv",
         COVER_TYPE_TEXT: "Muqovasi",
         PRICE_TEXT: "Narxi",
         YEAR_TEXT: "Yil",
@@ -15,7 +14,7 @@ BOOK_DICT = {
     "ru": {
         TITLE_TEXT: "Откуда",
         AUTHOR_TEXT: "Куда",
-        PUBLISHING_HOUSE_TEXT: "Вес груза",
+        AMOUNT_TEXT: "Вес груза",
         LANG_TEXT: "Объем груза",
         TRANSLATOR_TEXT: "Описание груза",
         INSCRIPTION_TEXT: "Дата отправки груза",
@@ -34,7 +33,7 @@ BOOK_DICT = {
     "cy": {
         TITLE_TEXT: "Қаердан",
         AUTHOR_TEXT: "Қаерга",
-        PUBLISHING_HOUSE_TEXT: "Юк оғирлиги",
+        AMOUNT_TEXT: "Юк оғирлиги",
         LANG_TEXT: "Юк ҳажми",
         TRANSLATOR_TEXT: "Юк тавсифи",
         INSCRIPTION_TEXT: "Юкни жўнатиш куни",

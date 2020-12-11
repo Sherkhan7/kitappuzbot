@@ -6,24 +6,22 @@ from DB import get_books
 def get_book_layout(book_data, user_lang):
     title = book_data[TITLE]
     author = book_data[AUTHOR]
-    publishing_house = book_data[PUBLISHING_HOUSE]
+    amount = str(book_data[AMOUNT]) + " bet"
     lang = book_data[LANG]
-    translator = book_data[TRANSLATOR]
-    inscription = book_data[INSCRIPTION]
+    translator = str(book_data[TRANSLATOR])
     cover_type = book_data[COVER_TYPE]
-    price = str(book_data[PRICE])
+    price = str(book_data[PRICE]) + " so'm"
     year = str(book_data[YEAR])
 
     layout = [
         f'\U0001F3F7	 {BOOK_DICT[user_lang][TITLE_TEXT]}: {wrap_tags(title)}',
         f'\U0001F464   {BOOK_DICT[user_lang][AUTHOR_TEXT]}: {wrap_tags(author)}',
-        f'\U0001F3E2   {BOOK_DICT[user_lang][PUBLISHING_HOUSE_TEXT]}: {wrap_tags(publishing_house)}',
+        f'\U0001F3E2   {BOOK_DICT[user_lang][AMOUNT_TEXT]}: {wrap_tags(amount)}',
         f'\U0001F30F	 {BOOK_DICT[user_lang][LANG_TEXT]}: {wrap_tags(lang)}',
         f'\U0001F464   {BOOK_DICT[user_lang][TRANSLATOR_TEXT]}: {wrap_tags(translator)}',
-        f'\U00002712	 {BOOK_DICT[user_lang][INSCRIPTION_TEXT]}: {wrap_tags(inscription)}',
         f'\U0001F4D5   {BOOK_DICT[user_lang][COVER_TYPE_TEXT]}: {wrap_tags(cover_type)}',
         f'\U0001F4C5   {BOOK_DICT[user_lang][YEAR_TEXT]}: {wrap_tags(year)}',
-        f'\U0001F4B0   {BOOK_DICT[user_lang][PRICE_TEXT]}: {wrap_tags(price, "sum")}\n',
+        f'\U0001F4B0   {BOOK_DICT[user_lang][PRICE_TEXT]}: {wrap_tags(price)}\n',
         f'\U0001F916   @kitappuzbot \U000000A9',
     ]
 

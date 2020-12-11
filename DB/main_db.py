@@ -1,6 +1,5 @@
 import pymysql.cursors
 from contextlib import closing
-import json
 from config import DB_CONFIG
 
 
@@ -35,13 +34,13 @@ def insert_data(data, table_name):
 
     value = cursor.lastrowid
 
-    print(f'{table_name}: +1(last_row_id = {value})')
+    print(f'{table_name}: +{cursor.rowcount}(last_row_id = {value})')
+
     return value
 
 
 def insert_order_items(items_data, table_name):
     basket = items_data.pop('basket')
-    items_data['geolocation'] = json.dumps(items_data['geolocation']) if items_data['geolocation'] else None
     data_keys = list(items_data.keys())
     data_keys += ['book_id', 'quantity']
     data_values = tuple(items_data.values())
