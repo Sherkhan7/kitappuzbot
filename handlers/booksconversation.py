@@ -1,10 +1,9 @@
 from telegram import Update, InputMediaPhoto, ParseMode, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters, \
     CallbackQueryHandler
-from filters import *
+from filters import phone_number_filter
 from DB import insert_data, get_book, insert_order_items
 from helpers import set_user_data
-from layouts import get_basket_layout, get_phone_number_layout
 from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
@@ -12,7 +11,8 @@ from helpers import wrap_tags
 from config import PHOTOS_URL
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
-from layouts import get_book_layout, get_basket_layout
+from layouts import get_book_layout, get_basket_layout, get_phone_number_layout
+
 import logging
 import json
 
@@ -382,6 +382,12 @@ def confirmation_callback(update: Update, context: CallbackContext):
     return state
 
 
+def cancel_callback(update: Update, context: CallbackContext):
+    update.message.reply_text('\U0000274C Bekor qilindi !')
+
+    return ConversationHandler.END
+
+
 books_conversation_handler = ConversationHandler(
     entry_points=[MessageHandler(Filters.regex('Kitoblar$'), books_conversation_callback)],
     states={
@@ -403,7 +409,9 @@ books_conversation_handler = ConversationHandler(
         CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern=r'^(confirm|cancel)$')]
 
     },
-    fallbacks=[],
+    fallbacks=[
+        CommandHandler('cancel', cancel_callback)
+    ],
 
     persistent=True,
     name='book_conversation'
