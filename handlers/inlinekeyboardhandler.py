@@ -1,14 +1,11 @@
 from telegram.ext import CallbackQueryHandler, CallbackContext
-from telegram import Update, InputMediaPhoto, ParseMode
-from telegram.utils.helpers import DefaultValue
+from telegram import Update, ParseMode, InlineKeyboardMarkup
+from helpers import wrap_tags
 from helpers import set_user_data
-from languages import LANGS
-from config import PHOTOS_URL
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
-from DB import get_order_items, update_order_status, get_user
-from layouts import get_book_layout
+from DB import *
 import json
 import re
 import logging
@@ -18,6 +15,8 @@ logger = logging.getLogger()
 
 
 def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
+    # with open('jsons/callback_query.json', 'w') as callback_query_file:
+    #     callback_query_file.write(callback_query.to_json())
     user_data = context.user_data
     set_user_data(update.effective_user.id, user_data)
     user = user_data['user_data']
@@ -25,56 +24,149 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    print('inline_keyboards_handler_callback', data)
+    if user[TG_ID] in ADMINS:
 
-    # with open('jsons/callback_query.json', 'w') as callback_query_file:
-    #     callback_query_file.write(callback_query.to_json())
+        match_obj = re.search(r'^[rc]_\d+$', data)
+        match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
+        match_obj_3 = re.search(r'^w_\d+$', data)
 
-    match_obj = re.search(r'^[rcd]_\d+$', data)
-    match_obj_2 = re.search(r'[rcd]_[yn]_\d+$', data)
-    new_text = ''
+        new_text = ''
 
-    if match_obj:
-        data = match_obj.string.split('_')
-        keyboard = choose_keyboard
+        if match_obj or match_obj_2:
 
-    elif match_obj_2:
-        data = match_obj_2.string.split('_')
-        order = get_order_items(data[-1])
-        geo = json.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
+            if match_obj:
+                data = match_obj.string.split('_')
+                keyboard = choose_keyboard
 
-        if data[1] == 'n':
-            keyboard = orders_keyboard if data[0] == 'r' or data[0] == 'c' else delivery_keyboard
-            data = [geo, data[-1]]
+            elif match_obj_2:
+                data = match_obj_2.string.split('_')
+                order = get_order(data[-1])
 
+                geo = json.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
+
+                if data[1] == 'n':
+                    keyboard = orders_keyboard
+                    data = [geo, data[-1]]
+
+                else:
+                    status = 'canceled' if data[0] == 'c' else 'received'
+                    update_result = update_order_status(status, data[-1])
+
+                    new_text = callback_query.message.text.split('\n')
+                    new_text[0] = ' '.join(new_text[0].split()[:2])
+                    new_text[-1] = f'Status: {status}'
+                    new_text = '\n'.join(new_text)
+
+                    if update_result == 'updated':
+                        client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi'
+                        client_text = wrap_tags(client_text + f' [\U0001F194 {order["id"]}]')
+
+                        context.bot.send_message(order[USER_TG_ID], client_text,
+                                                 parse_mode=ParseMode.HTML, reply_to_message_id=order[MESSAGE_ID])
+
+                    data, keyboard = (geo, geo_keyboard) if geo else (None, None)
+
+            callback_query.answer()
+
+            if new_text:
+                if keyboard:
+                    inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
+                else:
+                    inline_keyboard = None
+
+                callback_query.edit_message_text(new_text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            else:
+                inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
+                callback_query.edit_message_reply_markup(inline_keyboard)
+
+        elif match_obj_3:
+            received_orders = get_orders_by_status(status='received')
+            wanted = int(data.split('_')[-1])
+            order = received_orders[wanted - 1]
+            order_itmes = get_order_items(order['id'])
+            new_dict = dict()
+
+            for item in order_itmes:
+                new_dict.update({item['book_id']: item['quantity']})
+
+            books_ids = [str(item['book_id']) for item in order_itmes]
+            books = get_books(books_ids)
+            books_text = ''
+
+            for book in books:
+                books_text += f'Kitob nomi: {book["title"]}\n' \
+                              f'Soni: {new_dict[book["id"]]}\n' \
+                              f'------------------\n'
+            inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, received_orders]) \
+                .get_keyboard()
+
+            if order[GEOLOCATION]:
+                geo = json.loads(order[GEOLOCATION])
+                inline_keyboard = inline_keyboard.inline_keyboard
+                keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
+                inline_keyboard += keyboard
+                inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
+
+            received_user = get_user(order['user_id'])
+
+            text = [
+                f'\U0001F194 {order["id"]}',
+                f'Status: {wrap_tags(order["status"])}',
+                f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                f'Tel: {order["phone_number"]}',
+                f'Manzil: {order["address"]}',
+                f'Ism: {received_user["fullname"]}',
+            ]
+
+            if received_user["username"]:
+                text = text + [f'Telegram: @{received_user["username"]}']
+
+            text = '\n'.join(text)
+            text += f'\n\n{books_text}'
+            # print(inline_keyboard)
+            # print(received_user)
+            # print(order)
+            # exit()
+            callback_query.answer()
+            callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
         else:
-            status = 'delivered' if data[0] == 'd' else 'canceled' if data[0] == 'c' else 'received'
-            update_order_status(status, data[-1])
-            keyboard = delivery_keyboard if data[0] == 'r' else None
+            callback_query.answer()
 
-            new_text = callback_query.message.text.split('\n')
-            new_text[-1] = f'Status: {status}'
-            new_text = '\n'.join(new_text)
-
-            if data[0] == 'r':
-                context.bot.send_message(order[USER_TG_ID], 'Buyurtma qabul qilindi',
-                                         parse_mode=ParseMode.HTML, reply_to_message_id=order[MESSAGE_ID])
-            data = [data[0], data[-1]] if keyboard == choose_keyboard else [geo, data[-1]]
-
-    if new_text:
-        if keyboard:
-            inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
-        else:
-            inline_keyboard = None
-
-        callback_query.edit_message_text(new_text, reply_markup=inline_keyboard, parse_mode=ParseMode.MARKDOWN)
     else:
-        inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
-        callback_query.edit_message_reply_markup(inline_keyboard)
+        match_obj = re.search(r'^w_\d+$', data)
+        callback_query.answer()
 
-    callback_query.answer()
+        if match_obj:
+            wanted = int(match_obj.string.split('_')[-1])
 
-    logger.info('user_data: %s', user_data)
+            user_orders = get_user_orders(user[ID])
+            order = user_orders[wanted - 1]
+            order_itmes = get_order_items(order['id'])
+            new_dict = dict()
+            for item in order_itmes:
+                new_dict.update({item['book_id']: item['quantity']})
+
+            books_ids = [str(item['book_id']) for item in order_itmes]
+            books = get_books(books_ids)
+            books_text = ''
+            for book in books:
+                books_text += f'Kitob nomi: {book["title"]}\n' \
+                              f'Soni: {new_dict[book["id"]]}\n' \
+                              f'------------------\n'
+
+            inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
+                .get_keyboard()
+            text = [
+                f'\U0001F194 {order["id"]}',
+                f'Status: {wrap_tags(order["status"])}',
+                f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}'
+            ]
+            text = '\n'.join(text)
+            text += f'\n\n{books_text}'
+            # print(inline_keyboard.to_dict())
+            callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+    # logger.info('user_data: %s', user_data)
 
 
 inline_keyboard_handler = CallbackQueryHandler(inline_keyboards_handler_callback)

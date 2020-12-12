@@ -46,7 +46,7 @@ def get_basket_layout(orders, lang, data=None):
                   f'\n----------------------\n'
 
     data = data if data else 'Savat'
-    layout = wrap_tags(f'{data} :\n\n') + layout
+    layout = wrap_tags(f'{data}:\n\n') + layout
     layout += f"\nJami: {total} so'm"
 
     return layout

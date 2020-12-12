@@ -50,6 +50,10 @@ class InlineKeyboard(object):
 
             return self.__get_paginate_keyboard(data)
 
+        elif keyb_type == geo_keyboard:
+
+            return self.__get_geo_keyboard(data)
+
     @staticmethod
     def __get_books_keyboard(data):
 
@@ -158,6 +162,21 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
+    def __get_geo_keyboard(data):
+        button2_text = "Manzilni xaritadan ko'rish"
+        # button1_text = f'\U0001F4CD {button1_text}'
+        button2_text = f'\U0001F3C1 {button2_text}'
+
+        from_latitude = data['latitude']
+        from_longitude = data['longitude']
+
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(button2_text,
+                                  url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
+                                      f'@{from_latitude},{from_longitude},12z')]
+        ])
+
+    @staticmethod
     def __get_choose_keyboard(buttons, data):
 
         return InlineKeyboardMarkup([
@@ -192,10 +211,8 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_paginate_keyboard(data):
 
-        wanted, user_cargoes = data
-
-        length = len(user_cargoes)
-        wanted_cargo_data = user_cargoes[wanted - 1]
+        wanted, orders = data
+        length = len(orders)
 
         if wanted == 1 and length == 1:
             button1_text = '.'
