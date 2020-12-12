@@ -114,34 +114,38 @@ def message_handler_callback(update: Update, context: CallbackContext):
         else:
 
             if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][2]:
-                # update.message.reply_text('Kitoblar')
-                wanted = 1
                 user_orders = get_user_orders(user[ID])
-                order = user_orders[wanted - 1]
-                order_itmes = get_order_items(order['id'])
-                new_dict = dict()
-                for item in order_itmes:
-                    new_dict.update({item['book_id']: item['quantity']})
 
-                books_ids = [str(item['book_id']) for item in order_itmes]
-                books = get_books(books_ids)
-                books_text = ''
-                for book in books:
-                    books_text += f'Kitob nomi: {book["title"]}\n' \
-                                  f'Soni: {new_dict[book["id"]]}\n' \
-                                  f'------------------\n'
+                if user_orders:
+                    wanted = 1
+                    order = user_orders[wanted - 1]
+                    order_itmes = get_order_items(order['id'])
+                    new_dict = dict()
+                    for item in order_itmes:
+                        new_dict.update({item['book_id']: item['quantity']})
 
-                inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
-                    .get_keyboard()
-                text = [
-                    f'\U0001F194 {order["id"]}',
-                    f'Status: {wrap_tags(order["status"])}',
-                    f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}'
-                ]
-                text = '\n'.join(text)
-                text += f'\n\n{books_text}'
-                # print(inline_keyboard.to_dict())
-                update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+                    books_ids = [str(item['book_id']) for item in order_itmes]
+                    books = get_books(books_ids)
+                    books_text = ''
+                    for book in books:
+                        books_text += f'Kitob nomi: {book["title"]}\n' \
+                                      f'Soni: {new_dict[book["id"]]}\n' \
+                                      f'------------------\n'
+
+                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
+                        .get_keyboard()
+                    text = [
+                        f'\U0001F194 {order["id"]}',
+                        f'Status: {wrap_tags(order["status"])}',
+                        f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}'
+                    ]
+                    text = '\n'.join(text)
+                    text += f'\n\n{books_text}'
+                    # print(inline_keyboard.to_dict())
+                    update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+                else:
+                    update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
 
             elif text == reply_keyboard_types[user_menu_keyboard][user[LANG]][3]:
                 update.message.reply_text("Biz bilan bog;lanish uchun: +998 XX XXXXXXX ga go'qngiroq qiling")
