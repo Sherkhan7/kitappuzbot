@@ -2,7 +2,7 @@ from replykeyboards.replykeyboardvariables import *
 
 reply_keyboard_types = {
 
-    user_menu_keyboard: {
+    client_menu_keyboard: {
         "uz": {1: "Kitoblar", 2: "Buyurtmalarim", 3: "Biz bilan bog'lanish", 4: "Sozlamalar"},
     },
     admin_menu_keyboard: {

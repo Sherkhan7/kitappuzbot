@@ -113,7 +113,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
         else:
 
-            if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][2]:
+            if text == reply_keyboard_types[client_menu_keyboard][user[LANG]][2]:
                 # update.message.reply_text('Kitoblar')
                 wanted = 1
                 user_orders = get_user_orders(user[ID])
@@ -143,7 +143,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 # print(inline_keyboard.to_dict())
                 update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
-            elif text == reply_keyboard_types[user_menu_keyboard][user[LANG]][3]:
+            elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
                 update.message.reply_text("Biz bilan bog;lanish uchun: +998 XX XXXXXXX ga go'qngiroq qiling")
 
             else:

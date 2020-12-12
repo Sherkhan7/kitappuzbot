@@ -10,10 +10,8 @@ VOLUME, DEFINITION, PHOTO, DATE, PRICE_TEXT, PHONE_NUMBER, CONFIRMATION, EDIT, M
 TITLE_TEXT, AUTHOR_TEXT, AMOUNT_TEXT, LANG_TEXT, TRANSLATOR_TEXT, INSCRIPTION_TEXT = \
     ('title_text', 'author_text', 'amount_text', 'lang_text', 'translator_text', 'inscription_text')
 
-COVER_TYPE_TEXT, YEAR_TEXT, USER_PHONE_NUMBER_TEXT, STATE, ADDRESS, ID, LANG, STATUS, ORDER_ID= \
+COVER_TYPE_TEXT, YEAR_TEXT, USER_PHONE_NUMBER_TEXT, STATE, ADDRESS, ID, LANG, STATUS, ORDER_ID = \
     ('cover_type_text', 'year_text', 'user_phone_number_text', 'state', 'address', 'id', 'lang', 'status', 'order_id')
 
 STATUS_TEXT, OPENED_STATUS, CLOSED_STATUS, NOT_CONFIRMED_STATUS, TG_ACCOUNT_TEXT, UNDEFINED_TEXT = \
     ('status_text', 'opened_status', 'closed_status', 'not_confirmed_status', 'tg_account_text', 'undifened_text')
-
-ADMINS = [197256155, 844256927]

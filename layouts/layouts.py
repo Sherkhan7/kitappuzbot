@@ -40,14 +40,16 @@ def get_basket_layout(orders, lang, data=None):
 
     for book in books:
         total += book['price'] * orders[book["id"]]["quantity"]
+        quantity_price = str(orders[book["id"]]["quantity"]) + " X " + str(book["price"]) + " so'm"
 
-        layout += f'{wrap_tags(book["title"])}: ' \
-                  f'{wrap_tags(str(orders[book["id"]]["quantity"]) + " X " + str(book["price"]))}' \
+        layout += f'\U0001F4D5 {wrap_tags(book["title"])}:\n' \
+                  f'{quantity_price}' \
                   f'\n----------------------\n'
 
     data = data if data else 'Savat'
-    layout = wrap_tags(f'{data}:\n\n') + layout
-    layout += f"\nJami: {total} so'm"
+
+    layout = wrap_tags(data) + "\n\n" + layout
+    layout += f"Jami: {total} so'm\n\n"
 
     return layout
 
