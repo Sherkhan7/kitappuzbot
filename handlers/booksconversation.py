@@ -332,7 +332,18 @@ def confirmation_callback(update: Update, context: CallbackContext):
     callback_query.answer()
 
     if data == 'cancel':
-        state = user_data[USER_INPUT_DATA][STATE]
+        edit_text = callback_query.message.text.split('\n')
+        edit_text[0] += wrap_tags(edit_text[0] + f' [Bekor qilingan]')
+        edit_text = '\n'.join(edit_text)
+
+        callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
+
+        reply_keyboard = ReplyKeyboard(user_menu_keyboard, user[LANG]).get_keyboard()
+        callback_query.message.reply_text('\U0000274C Buyurma bekor qilindi !', reply_markup=reply_keyboard)
+
+        state = ConversationHandler.END
+        # logger.info('user_data: %s', user_data)
+
     else:
         geo = user_data[USER_INPUT_DATA][GEOLOCATION]
         geo = json.dumps(geo) if geo else None
@@ -366,10 +377,10 @@ def confirmation_callback(update: Update, context: CallbackContext):
             text_for_admin += f'Telegram: @{user[USERNAME]}' if user[USERNAME] else ''
             text_for_admin += f'\nStatus: {order_data[STATUS]}'
 
-            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
-                                             data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
+            reply_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
+                                            data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
 
-            context.bot.send_message(ADMINS[0], text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            context.bot.send_message(ADMINS[0], text_for_admin, reply_markup=reply_keyboard, parse_mode=ParseMode.HTML)
 
             callback_query.edit_message_text(text_for_clien, parse_mode=ParseMode.HTML)
 
