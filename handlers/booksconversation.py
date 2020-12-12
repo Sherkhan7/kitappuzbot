@@ -369,7 +369,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
             inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
                                              data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
 
-            context.bot.send_message(ADMINS[0], text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            context.bot.send_message(ADMINS[-1], text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
             callback_query.edit_message_text(text_for_clien, parse_mode=ParseMode.HTML)
 
