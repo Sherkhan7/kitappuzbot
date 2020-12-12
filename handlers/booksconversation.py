@@ -1,10 +1,9 @@
 from telegram import Update, InputMediaPhoto, ParseMode, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters, \
     CallbackQueryHandler
-from filters import *
+from filters import phone_number_filter
 from DB import insert_data, get_book, insert_order_items
 from helpers import set_user_data
-from layouts import get_basket_layout, get_phone_number_layout
 from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
@@ -12,8 +11,10 @@ from helpers import wrap_tags
 from config import PHOTOS_URL
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
-from layouts import get_book_layout, get_basket_layout
+from layouts import get_book_layout, get_basket_layout, get_phone_number_layout
+
 import logging
+import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
@@ -333,36 +334,44 @@ def confirmation_callback(update: Update, context: CallbackContext):
     if data == 'cancel':
         state = user_data[USER_INPUT_DATA][STATE]
     else:
+        geo = user_data[USER_INPUT_DATA][GEOLOCATION]
+        geo = json.dumps(geo) if geo else None
 
         order_data = {
             USER_ID: user['id'],
             STATUS: 'waiting',
             MESSAGE_ID: user_data[USER_INPUT_DATA][MESSAGE_ID],
+            ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
+            GEOLOCATION: geo,
+            PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             USER_TG_ID: user[TG_ID]
         }
         order_id = insert_data(order_data, 'orders')
 
-        order_itmes_data = {
+        order_items_data = {
             ORDER_ID: order_id,
-            ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
-            GEOLOCATION: user_data[USER_INPUT_DATA][GEOLOCATION],
-            PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             BASKET: user_data[USER_INPUT_DATA][BASKET]
         }
-        result = insert_order_items(dict(order_itmes_data), 'order_items')
+        result = insert_order_items(dict(order_items_data), 'order_items')
 
         if result > 0:
             callback_query.edit_message_reply_markup(None)
-            text = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG], data='Yangi buyurtma')
-            text += f'\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
-                    f'Manzil: {wrap_tags(user_data[USER_INPUT_DATA][ADDRESS])}\n' \
-                    f'Tel: {user_data[USER_INPUT_DATA][PHONE_NUMBER]}\n'
-            text += f'Telegram: {user[USERNAME]}' if user[USERNAME] else ''
-            text += f'\nStatus: {order_data[STATUS]}'
-            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
-                                             data=[order_itmes_data[GEOLOCATION], order_id]).get_keyboard()
+            data = f'\U0001F194 {order_id} [Yangi buyurtma]'
+            text_for_admin = text_for_clien = get_basket_layout(order_items_data[BASKET], user[LANG], data=data)
 
-            context.bot.send_message(ADMINS[0], text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            text_for_admin += f'\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
+                              f'Manzil: {wrap_tags(order_data[ADDRESS])}\n' \
+                              f'Tel: {order_data[PHONE_NUMBER]}\n'
+
+            text_for_admin += f'Telegram: @{user[USERNAME]}' if user[USERNAME] else ''
+            text_for_admin += f'\nStatus: {order_data[STATUS]}'
+
+            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
+                                             data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
+
+            context.bot.send_message(ADMINS[0], text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+            callback_query.edit_message_text(text_for_clien, parse_mode=ParseMode.HTML)
 
             text = "Buyurtmangiz administratorga yetkazildi.\nQo'ngi'rog'imizni kuting \U0000263A"
             callback_query.message.reply_text(text)
@@ -376,6 +385,12 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
     # logger.info('user_data: %s', user_data)
     return state
+
+
+def cancel_callback(update: Update, context: CallbackContext):
+    update.message.reply_text('\U0000274C Bekor qilindi !')
+
+    return ConversationHandler.END
 
 
 books_conversation_handler = ConversationHandler(
@@ -399,7 +414,9 @@ books_conversation_handler = ConversationHandler(
         CONFIRMATION: [CallbackQueryHandler(confirmation_callback, pattern=r'^(confirm|cancel)$')]
 
     },
-    fallbacks=[],
+    fallbacks=[
+        CommandHandler('cancel', cancel_callback)
+    ],
 
     persistent=True,
     name='book_conversation'
