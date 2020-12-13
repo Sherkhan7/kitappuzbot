@@ -134,10 +134,10 @@ def get_orders_by_status(status):
     return cursor.fetchall()
 
 
-def update_order_status(statsus, order_id):
+def update_order_status(status, order_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (statsus, order_id))
+            cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (status, order_id))
             connection.commit()
 
     return_value = 'not updated'

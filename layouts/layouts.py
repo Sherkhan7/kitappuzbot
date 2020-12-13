@@ -44,7 +44,7 @@ def get_basket_layout(orders, lang, data=None):
 
         layout += f'\U0001F4D5 {wrap_tags(book["title"])}:\n' \
                   f'{quantity_price}' \
-                  f'\n----------------------\n'
+                  f'\n{wrap_tags("".ljust(22, "-"))}\n'
 
     data = data if data else 'Savat'
 
