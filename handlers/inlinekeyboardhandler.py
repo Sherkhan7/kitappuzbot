@@ -26,7 +26,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     if user[IS_ADMIN]:
-
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
         match_obj_3 = re.search(r'^w_\d+$', data)
