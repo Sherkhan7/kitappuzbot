@@ -80,7 +80,7 @@ def books_callback(update: Update, context: CallbackContext):
 
     user_data[USER_INPUT_DATA][STATE] = state
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
     return state
 
 
@@ -106,7 +106,7 @@ def book_callback(update: Update, context: CallbackContext):
         state = BOOKS
 
     elif data == 'ordering':
-        book_id = user_data[USER_INPUT_DATA][BOOK]['id']
+        book_id = user_data[USER_INPUT_DATA][BOOK][ID]
 
         inline_keyboard = InlineKeyboard(order_keyboard, user[LANG], data=book_id).get_keyboard()
         callback_query.edit_message_reply_markup(inline_keyboard)
@@ -115,7 +115,7 @@ def book_callback(update: Update, context: CallbackContext):
 
     user_data[USER_INPUT_DATA][STATE] = state
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
     return state
 
 
@@ -138,8 +138,11 @@ def order_callback(update: Update, context: CallbackContext):
                 callback_query.answer()
                 button.text = counter
                 button.callback_data = str(counter)
+
                 callback_query.edit_message_reply_markup(update.callback_query.message.reply_markup)
+
             else:
+
                 alert_text = "Kechirasiz siz bitta kitobga kamida 1 ta, " \
                              "ko'pi bilan 5 ta gacha buyurtma bera olasiz \U0001F60C"
                 callback_query.answer(alert_text, show_alert=True)
@@ -156,38 +159,41 @@ def order_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_reply_markup(inline_keyboard)
 
         state = BOOK
+
+    # order_\d+
     else:
 
-        book = user_data[USER_INPUT_DATA].get(BOOK)
+        book = user_data[USER_INPUT_DATA][BOOK]
         quantity = int(callback_query.message.reply_markup.inline_keyboard[0][1].text)
 
-        order = {book["id"]: {'quantity': quantity}}
+        basket = {book[ID]: quantity}
 
         if BASKET not in user_data[USER_INPUT_DATA]:
             user_data[USER_INPUT_DATA][BASKET] = dict()
-            user_data[USER_INPUT_DATA][BASKET].update(order)
+            user_data[USER_INPUT_DATA][BASKET].update(basket)
+
         else:
 
-            if book['id'] in user_data[USER_INPUT_DATA][BASKET]:
+            if book[ID] in user_data[USER_INPUT_DATA][BASKET]:
 
-                old_quantity = user_data[USER_INPUT_DATA][BASKET][book['id']]['quantity']
-                new_quantitty = old_quantity + quantity
+                old_quantity = user_data[USER_INPUT_DATA][BASKET][book[ID]]
+                new_quantity = old_quantity + quantity
 
-                if new_quantitty > 5:
+                if new_quantity > 5:
                     alert_text = "Kechirasiz siz bitta kitobga kamida 1 ta, " \
                                  "ko'pi bilan 5 ta gacha buyurtma bera olasiz \U0001F60C"
-                    alert_text += f"\n\nSavatchangizda {book['title']} kitobidan {old_quantity} ta bor !!!"
+                    alert_text += f"\n\nSavatchangizda {wrap_tags(book['title'])} kitobidan " \
+                                  f"{wrap_tags(str(old_quantity))} ta bor !"
+
                     callback_query.answer(alert_text, show_alert=True)
 
-                    state = user_data[USER_INPUT_DATA][STATE]
-                    user_data[USER_INPUT_DATA][STATE] = state
-
-                    return state
+                    return user_data[USER_INPUT_DATA][STATE]
 
                 else:
-                    user_data[USER_INPUT_DATA][BASKET][book['id']]['quantity'] = new_quantitty
+                    user_data[USER_INPUT_DATA][BASKET][book[ID]] = new_quantity
+
             else:
-                user_data[USER_INPUT_DATA][BASKET].update(order)
+                user_data[USER_INPUT_DATA][BASKET].update(basket)
 
         callback_query.answer()
 
@@ -200,7 +206,7 @@ def order_callback(update: Update, context: CallbackContext):
 
     user_data[USER_INPUT_DATA][STATE] = state
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
     return state
 
 
@@ -221,20 +227,27 @@ def basket_callback(update: Update, context: CallbackContext):
 
         callback_query.edit_message_media(InputMediaPhoto(photo), reply_markup=inline_keyboard)
         state = BOOKS
+
     elif data == 'confirmation':
-        callback_query.edit_message_reply_markup(None)
+        callback_query.edit_message_caption(callback_query.message.caption_html, parse_mode=ParseMode.HTML)
 
-        text = "To'liq manzilingizni yuboring:\n"
-        example = wrap_tags('Masalan: Toshkent shahri, Chilonzor tumani, XX-uy, XX-xonadon')
-        text += example
+        text = "Siz bilan bog'lanishimiz uchun telefon raqamingizni yuboring\n"
+        layout = get_phone_number_layout(user[LANG])
+        repky_keyboard = ReplyKeyboard(phone_number_keyboard, user[LANG]).get_keyboard()
+        text += layout
 
-        callback_query.message.reply_html(text)
+        # text = "To'liq manzilingizni yuboring:\n"
+        # example = wrap_tags('Masalan: Toshkent shahri, Chilonzor tumani, XX-uy, XX-xonadon')
+        # text += example
 
-        state = ADDRESS
+        callback_query.message.reply_html(text, reply_markup=repky_keyboard)
+
+        # Move the PHONE_NUMBER STATE
+        state = PHONE_NUMBER
 
     user_data[USER_INPUT_DATA][STATE] = state
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
     return state
 
 
@@ -307,14 +320,15 @@ def phone_callback(update: Update, context: CallbackContext):
     else:
         user_data[USER_INPUT_DATA][PHONE_NUMBER] = phone_number
 
-        geo = user_data[USER_INPUT_DATA][GEOLOCATION] if GEOLOCATION in user_data[USER_INPUT_DATA] else None
+        # geo = user_data[USER_INPUT_DATA][GEOLOCATION] if GEOLOCATION in user_data[USER_INPUT_DATA] else None
+        geo = None
+
         text = 'Buyurtmangizni tasdiqlang'
         update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
 
         layout = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
 
         layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
-                  f'Manzil: {wrap_tags(user_data[USER_INPUT_DATA][ADDRESS])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
         layout += f'Telegram: {wrap_tags("@" + user[USERNAME])}' if user[USERNAME] else ''
 
@@ -341,7 +355,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
     callback_query.answer()
 
     if data == 'cancel':
-        edit_text = callback_query.message.text.split('\n')
+        edit_text = callback_query.message.text_html.split('\n')
         edit_text[0] = wrap_tags(edit_text[0] + f' [Bekor qilingan]')
         edit_text = '\n'.join(edit_text)
 
@@ -355,15 +369,16 @@ def confirmation_callback(update: Update, context: CallbackContext):
         # logger.info('user_data: %s', user_data)
 
     elif data == 'confirm':
-        geo = user_data[USER_INPUT_DATA][GEOLOCATION]
-        geo = json.dumps(geo) if geo else None
+        # geo = user_data[USER_INPUT_DATA][GEOLOCATION]
+        # geo = json.dumps(geo) if geo else None
+        geo = None
 
         order_data = {
             USER_ID: user['id'],
             STATUS: 'waiting',
             MESSAGE_ID: user_data[USER_INPUT_DATA][MESSAGE_ID],
-            ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
-            GEOLOCATION: geo,
+            # ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
+            # GEOLOCATION: geo,
             PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             USER_TG_ID: user[TG_ID]
         }
@@ -386,10 +401,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
             text_for_admin = '\n'.join(text_for_admin)
             text_for_client = text_for_admin
 
-            # print(text_for_admin)
-            # exit()
-            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG],
-                                             data=[user_data[USER_INPUT_DATA][GEOLOCATION], order_id]).get_keyboard()
+            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG], data=[geo, order_id]).get_keyboard()
 
             context.bot.send_message(ADMIN, text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 

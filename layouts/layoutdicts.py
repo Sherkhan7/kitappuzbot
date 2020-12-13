@@ -6,7 +6,7 @@ BOOK_DICT = {
         AUTHOR_TEXT: "Muallif(lar)",
         AMOUNT_TEXT: "Hajmi",
         LANG_TEXT: "Til",
-        TRANSLATOR_TEXT: "Tarjimon",
+        TRANSLATOR_TEXT: "Tarjimon(lar)",
         COVER_TYPE_TEXT: "Muqovasi",
         PRICE_TEXT: "Narxi",
         YEAR_TEXT: "Yil",

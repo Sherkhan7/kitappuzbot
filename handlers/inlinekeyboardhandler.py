@@ -6,7 +6,6 @@ from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
 from DB import *
-from config import ADMIN
 import json
 import re
 import logging
@@ -26,6 +25,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     data = callback_query.data
 
     if user[IS_ADMIN]:
+
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
         match_obj_3 = re.search(r'^w_\d+$', data)
@@ -51,11 +51,12 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
                 elif data[1] == 'y':
                     status = 'canceled' if data[0] == 'c' else 'received'
+
                     update_result = update_order_status(status, data[-1])
 
-                    if update_result == 'updated':
-                        client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi.'
-                        client_text = wrap_tags(client_text) + f' [ \U0001F194 {order["id"]} ]'
+                    if update_result == 'updated' and order[STATUS]:
+                        client_text = 'Buyurtma rad qilindi.' if status == 'canceled' else 'Buyurtma qabul qilindi.'
+                        client_text = wrap_tags(client_text) + f' [ \U0001F194 {order[ID]} ]'
 
                         if status == 'received':
                             client_text += '\nBuyurtma yetkazilganidan keyin ' \
@@ -71,7 +72,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     data, keyboard = (geo, geo_keyboard) if geo else (None, None)
 
                     status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
-                    new_text = callback_query.message.text.split('\n')
+                    new_text = callback_query.message.text_html.split('\n')
                     new_text[0] = ' '.join(new_text[0].split()[:2])
                     new_text[-1] = f'Status: {wrap_tags(status_text)}'
                     new_text = '\n'.join(new_text)
@@ -85,6 +86,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     inline_keyboard = None
 
                 callback_query.edit_message_text(new_text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
             else:
                 inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
                 callback_query.edit_message_reply_markup(inline_keyboard)
@@ -95,16 +97,19 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 orders_list = get_orders_by_status(status='delivered')
                 history = True
                 label = '[Tarix]'
+                status = 'yetkazilgan'
             else:
                 orders_list = get_orders_by_status(status='received')
                 history = None
-                label = None
+                label = ''
+                status = 'qabul qilingan'
 
             if orders_list:
-
                 wanted = int(data.split('_')[-1])
+                if wanted > len(orders_list):
+                    wanted = 1
                 order = orders_list[wanted - 1]
-                order_itmes = get_order_items(order['id'])
+                order_itmes = get_order_items(order[ID])
                 new_dict = dict()
 
                 for item in order_itmes:
@@ -115,11 +120,11 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 books_text = ''
 
                 for book in books:
-                    books_text += f'Kitob nomi: {book["title"]}\n' \
-                                  f'Soni: {new_dict[book["id"]]}\n' \
-                                  f'------------------\n'
-                inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders_list], history=history) \
-                    .get_keyboard()
+                    books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
+                                  f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
+                                  f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+                inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders_list],
+                                                 history=history).get_keyboard()
 
                 if order[GEOLOCATION]:
                     geo = json.loads(order[GEOLOCATION])
@@ -128,19 +133,17 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     inline_keyboard += keyboard
                     inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
-                received_user = get_user(order['user_id'])
+                client = get_user(order[USER_ID])
 
                 text = [
-                    f'\U0001F194 {order["id"]} {label}',
-                    f'Status: {wrap_tags(order["status"])}',
-                    f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
-                    f'Tel: {order["phone_number"]}',
-                    f'Manzil: {order["address"]}',
-                    f'Ism: {received_user["fullname"]}',
+                    f'\U0001F194 {order[ID]} {label}',
+                    f'Status: {wrap_tags(status)}',
+                    f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
+                    f'Ism: {wrap_tags(client[FULLNAME])}',
+                    f'Tel: {wrap_tags(order[PHONE_NUMBER])}',
+                    f'Telegram: {wrap_tags("@" + client[USERNAME])}' if client[USERNAME] else ''
+                    # f'Manzil: {order["address"]}',
                 ]
-
-                if received_user["username"]:
-                    text = text + [f'Telegram: @{received_user["username"]}']
 
                 text = '\n'.join(text)
                 text += f'\n\n{books_text}'
@@ -155,6 +158,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             callback_query.answer()
 
     else:
+
         match_obj = re.search(r'^w_\d+$', data)
         match_obj_2 = re.search(r'^d_\d+$', data)
         callback_query.answer()
@@ -163,7 +167,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             wanted = int(match_obj.string.split('_')[-1])
             user_orders = get_user_orders(user[ID])
             order = user_orders[wanted - 1]
-            order_itmes = get_order_items(order['id'])
+            order_itmes = get_order_items(order[ID])
             new_dict = dict()
             books_ids = []
             books_text = ''
@@ -174,14 +178,16 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
             books = get_books(books_ids)
             for book in books:
-                books_text += f'Kitob nomi: {wrap_tags(book["title"])}\n' \
-                              f'Soni: {wrap_tags(str(new_dict[book["id"]]) + " ta")}' \
-                              f'\n{wrap_tags("".ljust(22, "-"))}\n'
+                books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
+                              f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
+                              f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
 
-            status = 'qabul qilingan' if order["status"] == 'received' else 'rad etilgan' \
-                if order["status"] == 'canceled' else 'yetkazilgan'
+            status = 'qabul qilingan' if order[STATUS] == 'received' else 'rad etilgan' \
+                if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' \
+                if order[STATUS] == 'waiting' else 'yetkazilgan'
+
             text = [
-                f'\U0001F194 {order["id"]}',
+                f'\U0001F194 {order[ID]}',
                 f'Status: {wrap_tags(status)}',
                 f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
             ]
@@ -191,6 +197,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
                 .get_keyboard()
             callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
         elif match_obj_2:
             order_id = data.split('_')[-1]
             status = 'delivered'

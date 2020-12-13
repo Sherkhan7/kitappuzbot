@@ -59,25 +59,36 @@ class InlineKeyboard(object):
     def __get_books_keyboard(data):
 
         inline_keyboard = [
-            [InlineKeyboardButton(f'{book["title"]}', callback_data=f'book_{book["id"]}')]
+            [InlineKeyboardButton(f'\U0001F4D5  {book["title"]}', callback_data=f'book_{book["id"]}')]
             for book in get_all_books()
         ]
 
         if data:
-            inline_keyboard.append([InlineKeyboardButton('savat', callback_data='basket')])
+            inline_keyboard.append([InlineKeyboardButton('\U0001F6D2  Savat', callback_data='basket')])
 
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
     def __get_book_keyboard(buttons, book_data):
 
+        button1_text = f'\U0001F4D6  {buttons[1]}'
+        button1_url = book_data['description_url']
+
+        button2_text = f'\U0001F4E6  {buttons[2]}'
+        button2_data = 'ordering'
+
+        button3_text = f'\U00002B05  {buttons[3]}'
+        button3_data = 'back'
+
         inline_keyboard = [
-            [InlineKeyboardButton(buttons[2], callback_data=f'ordering')],
-            [InlineKeyboardButton(buttons[3], callback_data='back')],
+            [InlineKeyboardButton(button2_text, callback_data=button2_data)],
+            [InlineKeyboardButton(button3_text, callback_data=button3_data)],
         ]
 
         if book_data['description_url']:
-            inline_keyboard.insert(0, [InlineKeyboardButton(buttons[1], url=book_data['description_url'])])
+            inline_keyboard.insert(0, [
+                InlineKeyboardButton(button1_text, url=button1_url)
+            ])
 
         return InlineKeyboardMarkup(inline_keyboard)
 
@@ -85,38 +96,48 @@ class InlineKeyboard(object):
     def __get_order_keyboard(buttons, book_id):
 
         button1_data = f'order_{book_id}'
+        button1_text = f'\U0001F6D2  {buttons[1]}'
+
         button2_data = 'back'
+        button2_text = f'\U00002B05  {buttons[2]}'
+
+        minus_sign = '\U00002796'
+        pilus_sign = '\U00002795'
 
         return InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton('-', callback_data='-'),
+                    InlineKeyboardButton(f'{minus_sign}', callback_data='-'),
                     InlineKeyboardButton('1', callback_data='1'),
-                    InlineKeyboardButton('+', callback_data='+'),
+                    InlineKeyboardButton(f'{pilus_sign}', callback_data='+'),
                 ],
 
-                [InlineKeyboardButton(buttons[1], callback_data=button1_data)],
+                [InlineKeyboardButton(button1_text, callback_data=button1_data)],
 
-                [InlineKeyboardButton(buttons[2], callback_data=button2_data)],
+                [InlineKeyboardButton(button2_text, callback_data=button2_data)],
             ]
         )
 
     @staticmethod
     def __get_basket_keyboard(buttons):
 
+        button1_text = f'\U0001F501  {buttons[1]}'
+        button1_data = 'continue'
+
+        button2_text = f'\U00002705  {buttons[2]}'
+        button2_data = 'confirmation'
+
         return InlineKeyboardMarkup([
 
-            [InlineKeyboardButton(buttons[1], callback_data='continue')],
-            [InlineKeyboardButton(buttons[2], callback_data='confirmation')]
+            [InlineKeyboardButton(button1_text, callback_data=button1_data)],
+            [InlineKeyboardButton(button2_text, callback_data=button2_data)]
         ])
 
     @staticmethod
     def __get_confirm_keyboard(buttons, data):
 
         inline_keyboard = []
-        button1_text = 'Geolokatsiyam'
-        button1_text = f'\U0001F4CD {button1_text}'
-        # button2_text = f'\U0001F3C1 {button2_text}'
+        button1_text = f'\U0001F4CD Geolokatsiyam'
 
         if data:
             from_latitude = data['latitude']
@@ -127,11 +148,14 @@ class InlineKeyboard(object):
                                           f'@{from_latitude},{from_longitude},12z')])
 
         button2_text = f'\U00002705 {buttons[0]}'
+        button2_data = 'confirm'
+
         button3_text = f'\U0000274C {buttons[1]}'
+        button3_data = 'cancel'
 
         inline_keyboard.extend([
-            [InlineKeyboardButton(button2_text, callback_data='confirm')],
-            [InlineKeyboardButton(button3_text, callback_data='cancel')]
+            [InlineKeyboardButton(button2_text, callback_data=button2_data)],
+            [InlineKeyboardButton(button3_text, callback_data=button3_data)]
         ])
 
         return InlineKeyboardMarkup(inline_keyboard)
@@ -140,9 +164,7 @@ class InlineKeyboard(object):
     def __get_orders_keyboard(buttons, data):
 
         inline_keyboard = []
-        button2_text = "Manzilni xaritadan ko'rish"
-        # button1_text = f'\U0001F4CD {button1_text}'
-        button2_text = f'\U0001F3C1 {button2_text}'
+        button2_text = f"\U0001F3C1 Manzilni xaritadan ko'rish"
 
         if data[0]:
             from_latitude = data[0]['latitude']
