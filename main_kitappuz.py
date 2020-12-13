@@ -9,11 +9,12 @@ def main():
 
     updater = Updater(TOKEN, persistence=my_persistence)
 
-    updater.dispatcher.add_handler(registration_conversation_handler)
     #
     # updater.dispatcher.add_handler(changedataconversation_handler)
     #
     updater.dispatcher.add_handler(books_conversation_handler)
+
+    updater.dispatcher.add_handler(registration_conversation_handler)
 
     updater.dispatcher.add_handler(message_handler)
 
