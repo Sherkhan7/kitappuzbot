@@ -6,6 +6,7 @@ from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
 from DB import *
+from config import ADMIN
 import json
 import re
 import logging
@@ -24,7 +25,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    if user[TG_ID] in ADMINS:
+    if user[TG_ID] == ADMIN:
 
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
@@ -48,23 +49,24 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     keyboard = orders_keyboard
                     data = [geo, data[-1]]
 
-                else:
+                elif data[1] == 'y':
                     status = 'canceled' if data[0] == 'c' else 'received'
                     update_result = update_order_status(status, data[-1])
 
-                    new_text = callback_query.message.text.split('\n')
-                    new_text[0] = ' '.join(new_text[0].split()[:2])
-                    new_text[-1] = f'Status: {status}'
-                    new_text = '\n'.join(new_text)
-
                     if update_result == 'updated':
                         client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi'
-                        client_text = wrap_tags(client_text + f' [\U0001F194 {order["id"]}]')
+                        client_text = wrap_tags(client_text) + f' [\U0001F194 {order["id"]}]'
 
                         context.bot.send_message(order[USER_TG_ID], client_text,
                                                  parse_mode=ParseMode.HTML, reply_to_message_id=order[MESSAGE_ID])
 
                     data, keyboard = (geo, geo_keyboard) if geo else (None, None)
+
+                    status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
+                    new_text = callback_query.message.text.split('\n')
+                    new_text[0] = ' '.join(new_text[0].split()[:2])
+                    new_text[-1] = f'Status: {wrap_tags(status_text)}'
+                    new_text = '\n'.join(new_text)
 
             callback_query.answer()
 

@@ -112,7 +112,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
 
         else:
-
+                                       
             if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][2]:
                 user_orders = get_user_orders(user[ID])
 
@@ -147,7 +147,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 else:
                     update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
 
-            elif text == reply_keyboard_types[user_menu_keyboard][user[LANG]][3]:
+            elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
                 update.message.reply_text("Biz bilan bog;lanish uchun: +998 XX XXXXXXX ga go'qngiroq qiling")
 
             else:

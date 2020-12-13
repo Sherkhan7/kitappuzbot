@@ -51,7 +51,7 @@ def do_command(update: Update, context: CallbackContext):
 
                 text = f'\U0001F4D6 {reply_text}'
 
-            menu_keyboard = admin_menu_keyboard if user_data['user_data'][IS_ADMIN] else user_menu_keyboard
+            menu_keyboard = admin_menu_keyboard if user_data['user_data'][IS_ADMIN] else client_menu_keyboard
 
             reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
             update.message.reply_text(text, reply_markup=reply_keyboard)
@@ -106,7 +106,7 @@ def fullname_callback(update: Update, context: CallbackContext):
             menu_keyboard = admin_menu_keyboard
         else:
             text += "Kitob buyurtma qilishingiz mumkin"
-            menu_keyboard = user_menu_keyboard
+            menu_keyboard = client_menu_keyboard
 
         text = '\U0001F44F\U0001F44F\U0001F44F ' + text
 

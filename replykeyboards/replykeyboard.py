@@ -13,7 +13,7 @@ class ReplyKeyboard(object):
 
     def __create_reply_keyboard(self, keyb_type, lang):
 
-        if keyb_type == user_menu_keyboard or keyb_type == admin_menu_keyboard:
+        if keyb_type == client_menu_keyboard or keyb_type == admin_menu_keyboard:
             return self.__get_menu_keyboard(reply_keyboard_types[keyb_type][lang], keyb_type)
 
         elif keyb_type == settings_keyboard:
