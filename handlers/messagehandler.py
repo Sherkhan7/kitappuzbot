@@ -1,5 +1,5 @@
 from telegram.ext import Filters, MessageHandler, CallbackContext
-from telegram import Update, ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, ParseMode, InlineKeyboardMarkup
 from helpers import set_user_data
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
@@ -62,7 +62,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     text = [
                         f'\U0001F194 {order["id"]}',
                         f'Status: {wrap_tags(order["status"])}',
-                        f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                        f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
                         f'Tel: {order["phone_number"]}',
                         f'Manzil: {order["address"]}',
                         f'Ism: {received_user["fullname"]}',
@@ -112,43 +112,52 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
 
         else:
-                                       
-            if text == reply_keyboard_types[user_menu_keyboard][user[LANG]][2]:
+
+            if text == reply_keyboard_types[client_menu_keyboard][user[LANG]][2]:
                 user_orders = get_user_orders(user[ID])
 
                 if user_orders:
                     wanted = 1
                     order = user_orders[wanted - 1]
-                    order_itmes = get_order_items(order['id'])
+                    order_itmes = get_order_items(order[ID])
                     new_dict = dict()
+                    books_ids = []
+                    books_text = ''
+
                     for item in order_itmes:
                         new_dict.update({item['book_id']: item['quantity']})
+                        books_ids += [str(item['book_id'])]
 
-                    books_ids = [str(item['book_id']) for item in order_itmes]
                     books = get_books(books_ids)
-                    books_text = ''
                     for book in books:
-                        books_text += f'Kitob nomi: {book["title"]}\n' \
-                                      f'Soni: {new_dict[book["id"]]}\n' \
-                                      f'------------------\n'
+                        books_text += f'Kitob nomi: {wrap_tags(book["title"])}\n' \
+                                      f'Soni: {wrap_tags(str(new_dict[book["id"]]) + " ta")}' \
+                                      f'\n{wrap_tags("".ljust(22, "-"))}\n'
 
-                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
-                        .get_keyboard()
+                    status = 'qabul qilingan' if order["status"] == 'received' else 'rad etilgan' \
+                        if order["status"] == 'canceled' else 'yetkazilgan'
                     text = [
                         f'\U0001F194 {order["id"]}',
-                        f'Status: {wrap_tags(order["status"])}',
-                        f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}'
+                        f'Status: {wrap_tags(status)}',
+                        f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
                     ]
                     text = '\n'.join(text)
                     text += f'\n\n{books_text}'
-                    # print(inline_keyboard.to_dict())
-                    update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
+                        .get_keyboard()
+
+                    update.message.reply_html(text, reply_markup=inline_keyboard)
 
                 else:
                     update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
 
             elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
-                update.message.reply_text("Biz bilan bog;lanish uchun: +998 XX XXXXXXX ga go'qngiroq qiling")
+
+                text = f"Kitapp premium admini bilan boglanish uchun {wrap_tags('@kitapp_admin')} ga " \
+                       f"yoki {wrap_tags('+998999131099')} telefon raqamiga bogʻlanishingiz mumkin."
+
+                update.message.reply_html(text)
 
             else:
                 thinking_emoji = '\U0001F914'

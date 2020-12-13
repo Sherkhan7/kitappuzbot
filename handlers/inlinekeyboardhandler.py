@@ -114,7 +114,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             text = [
                 f'\U0001F194 {order["id"]}',
                 f'Status: {wrap_tags(order["status"])}',
-                f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
                 f'Tel: {order["phone_number"]}',
                 f'Manzil: {order["address"]}',
                 f'Ism: {received_user["fullname"]}',
@@ -140,32 +140,35 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
         if match_obj:
             wanted = int(match_obj.string.split('_')[-1])
-
             user_orders = get_user_orders(user[ID])
             order = user_orders[wanted - 1]
             order_itmes = get_order_items(order['id'])
             new_dict = dict()
+            books_ids = []
+            books_text = ''
+
             for item in order_itmes:
                 new_dict.update({item['book_id']: item['quantity']})
+                books_ids += [str(item['book_id'])]
 
-            books_ids = [str(item['book_id']) for item in order_itmes]
             books = get_books(books_ids)
-            books_text = ''
             for book in books:
-                books_text += f'Kitob nomi: {book["title"]}\n' \
-                              f'Soni: {new_dict[book["id"]]}\n' \
-                              f'------------------\n'
+                books_text += f'Kitob nomi: {wrap_tags(book["title"])}\n' \
+                              f'Soni: {wrap_tags(str(new_dict[book["id"]]) + " ta")}' \
+                              f'\n{wrap_tags("".ljust(22, "-"))}\n'
 
-            inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
-                .get_keyboard()
+            status = 'qabul qilingan' if order["status"] == 'received' else 'rad etilgan' \
+                if order["status"] == 'canceled' else 'yetkazilgan'
             text = [
                 f'\U0001F194 {order["id"]}',
-                f'Status: {wrap_tags(order["status"])}',
-                f'Yaratilgan sana: {order["created_at"].strftime("%d-%m-%Y %X")}'
+                f'Status: {wrap_tags(status)}',
+                f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
             ]
             text = '\n'.join(text)
             text += f'\n\n{books_text}'
-            # print(inline_keyboard.to_dict())
+
+            inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
+                .get_keyboard()
             callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
     # logger.info('user_data: %s', user_data)
