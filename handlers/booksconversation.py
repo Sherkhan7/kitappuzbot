@@ -32,10 +32,11 @@ def books_conversation_callback(update: Update, context: CallbackContext):
     set_user_data(update.effective_user.id, user_data)
     user = user_data['user_data']
 
+    update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
+
     photo = PHOTOS_URL + 'kitappuz_photo.jpg'
     inline_keyboard = InlineKeyboard(books_keyboard, user[LANG]).get_keyboard()
-
-    update.message.reply_photo(photo, reply_markup=inline_keyboard)
+    message = update.message.reply_photo(photo, reply_markup=inline_keyboard)
 
     state = BOOKS
 
@@ -43,6 +44,7 @@ def books_conversation_callback(update: Update, context: CallbackContext):
         user_data[USER_INPUT_DATA] = dict()
 
     user_data[USER_INPUT_DATA][STATE] = state
+    user_data[USER_INPUT_DATA][MESSAGE_ID] = message.message_id
 
     # logger.info('user_data: %s', user_data)
     return BOOKS
@@ -219,14 +221,14 @@ def basket_callback(update: Update, context: CallbackContext):
 
         callback_query.edit_message_media(InputMediaPhoto(photo), reply_markup=inline_keyboard)
         state = BOOKS
-    else:
+    elif data == 'confirmation':
         callback_query.edit_message_reply_markup(None)
 
         text = "To'liq manzilingizni yuboring:\n"
-        example = wrap_tags('Masalan: Toshkent shahri, Chilonzor tumani, 47-uy, 18-xonadon')
+        example = wrap_tags('Masalan: Toshkent shahri, Chilonzor tumani, XX-uy, XX-xonadon')
         text += example
 
-        callback_query.message.reply_text(text, parse_mode=ParseMode.HTML)
+        callback_query.message.reply_html(text)
 
         state = ADDRESS
 
@@ -310,6 +312,7 @@ def phone_callback(update: Update, context: CallbackContext):
         update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
 
         layout = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
+
         layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
                   f'Manzil: {wrap_tags(user_data[USER_INPUT_DATA][ADDRESS])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
@@ -348,7 +351,6 @@ def confirmation_callback(update: Update, context: CallbackContext):
         callback_query.message.reply_text('\U0000274C Buyurma bekor qilindi !', reply_markup=reply_keyboard)
 
         state = ConversationHandler.END
-        del user_data[USER_INPUT_DATA]
 
         # logger.info('user_data: %s', user_data)
 
@@ -408,8 +410,15 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
 
 def cancel_callback(update: Update, context: CallbackContext):
-    update.message.reply_text('\U0000274C Bekor qilindi !')
+    user_data = context.user_data
+    user = user_data['user_data']
 
+    context.bot.edit_message_reply_markup(user[TG_ID], user_data[USER_INPUT_DATA][MESSAGE_ID])
+
+    reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
+    update.message.reply_text('\U0000274C Bekor qilindi !', reply_markup=reply_keyboard)
+
+    del user_data[USER_INPUT_DATA]
     return ConversationHandler.END
 
 
@@ -435,7 +444,7 @@ books_conversation_handler = ConversationHandler(
 
     },
     fallbacks=[
-        CommandHandler('cancel', cancel_callback)
+        CommandHandler(['cancel', 'menu'], cancel_callback)
     ],
 
     persistent=True,
