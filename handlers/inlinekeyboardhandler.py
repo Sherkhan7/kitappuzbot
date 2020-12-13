@@ -30,6 +30,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
         match_obj_3 = re.search(r'^w_\d+$', data)
+        match_obj_4 = re.search(r'^h_w_\d+$', data)
 
         new_text = ''
 
@@ -54,11 +55,19 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     update_result = update_order_status(status, data[-1])
 
                     if update_result == 'updated':
-                        client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi'
-                        client_text = wrap_tags(client_text) + f' [\U0001F194 {order["id"]}]'
+                        client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi.'
+                        client_text = wrap_tags(client_text) + f' [ \U0001F194 {order["id"]} ]'
 
-                        context.bot.send_message(order[USER_TG_ID], client_text,
-                                                 parse_mode=ParseMode.HTML, reply_to_message_id=order[MESSAGE_ID])
+                        if status == 'received':
+                            client_text += '\nBuyurtma yetkazilganidan keyin ' \
+                                           f'{wrap_tags("Yetkazib berildi")} tugmasini bosing.\n'
+                            inline_keyboard = InlineKeyboard(delivery_keyboard, user[LANG],
+                                                             data=data[-1]).get_keyboard()
+                        else:
+                            inline_keyboard = None
+
+                        context.bot.send_message(order[USER_TG_ID], client_text, parse_mode=ParseMode.HTML,
+                                                 reply_to_message_id=order[MESSAGE_ID], reply_markup=inline_keyboard)
 
                     data, keyboard = (geo, geo_keyboard) if geo else (None, None)
 
@@ -81,61 +90,74 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
                 callback_query.edit_message_reply_markup(inline_keyboard)
 
-        elif match_obj_3:
-            received_orders = get_orders_by_status(status='received')
-            wanted = int(data.split('_')[-1])
-            order = received_orders[wanted - 1]
-            order_itmes = get_order_items(order['id'])
-            new_dict = dict()
+        elif match_obj_3 or match_obj_4:
 
-            for item in order_itmes:
-                new_dict.update({item['book_id']: item['quantity']})
+            if match_obj_4:
+                orders_list = get_orders_by_status(status='delivered')
+                history = True
+                label = '[Tarix]'
+            else:
+                orders_list = get_orders_by_status(status='received')
+                history = None
+                label = None
 
-            books_ids = [str(item['book_id']) for item in order_itmes]
-            books = get_books(books_ids)
-            books_text = ''
+            if orders_list:
 
-            for book in books:
-                books_text += f'Kitob nomi: {book["title"]}\n' \
-                              f'Soni: {new_dict[book["id"]]}\n' \
-                              f'------------------\n'
-            inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, received_orders]) \
-                .get_keyboard()
+                wanted = int(data.split('_')[-1])
+                order = orders_list[wanted - 1]
+                order_itmes = get_order_items(order['id'])
+                new_dict = dict()
 
-            if order[GEOLOCATION]:
-                geo = json.loads(order[GEOLOCATION])
-                inline_keyboard = inline_keyboard.inline_keyboard
-                keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
-                inline_keyboard += keyboard
-                inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
+                for item in order_itmes:
+                    new_dict.update({item['book_id']: item['quantity']})
 
-            received_user = get_user(order['user_id'])
+                books_ids = [str(item['book_id']) for item in order_itmes]
+                books = get_books(books_ids)
+                books_text = ''
 
-            text = [
-                f'\U0001F194 {order["id"]}',
-                f'Status: {wrap_tags(order["status"])}',
-                f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
-                f'Tel: {order["phone_number"]}',
-                f'Manzil: {order["address"]}',
-                f'Ism: {received_user["fullname"]}',
-            ]
+                for book in books:
+                    books_text += f'Kitob nomi: {book["title"]}\n' \
+                                  f'Soni: {new_dict[book["id"]]}\n' \
+                                  f'------------------\n'
+                inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders_list], history=history) \
+                    .get_keyboard()
 
-            if received_user["username"]:
-                text = text + [f'Telegram: @{received_user["username"]}']
+                if order[GEOLOCATION]:
+                    geo = json.loads(order[GEOLOCATION])
+                    inline_keyboard = inline_keyboard.inline_keyboard
+                    keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
+                    inline_keyboard += keyboard
+                    inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
-            text = '\n'.join(text)
-            text += f'\n\n{books_text}'
-            # print(inline_keyboard)
-            # print(received_user)
-            # print(order)
-            # exit()
-            callback_query.answer()
-            callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+                received_user = get_user(order['user_id'])
+
+                text = [
+                    f'\U0001F194 {order["id"]} {label}',
+                    f'Status: {wrap_tags(order["status"])}',
+                    f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                    f'Tel: {order["phone_number"]}',
+                    f'Manzil: {order["address"]}',
+                    f'Ism: {received_user["fullname"]}',
+                ]
+
+                if received_user["username"]:
+                    text = text + [f'Telegram: @{received_user["username"]}']
+
+                text = '\n'.join(text)
+                text += f'\n\n{books_text}'
+                callback_query.answer()
+                callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+            else:
+                text = "Tarixga o'ting !"
+                callback_query.edit_message_text(text)
+
         else:
             callback_query.answer()
 
     else:
         match_obj = re.search(r'^w_\d+$', data)
+        match_obj_2 = re.search(r'^d_\d+$', data)
         callback_query.answer()
 
         if match_obj:
@@ -170,6 +192,19 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
                 .get_keyboard()
             callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+        elif match_obj_2:
+            order_id = data.split('_')[-1]
+            status = 'delivered'
+            result = update_order_status(status, order_id)
+
+            if result == 'updated':
+                status = 'yetkazib berilgan'
+                text = callback_query.message.text_html.split('\n')
+                text += [
+                    f'\nStatus: {wrap_tags(status)}'
+                ]
+                text = '\n'.join(text)
+                callback_query.edit_message_text(text, parse_mode=ParseMode.HTML)
 
     # logger.info('user_data: %s', user_data)
 

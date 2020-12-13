@@ -5,14 +5,15 @@ from globalvariables import *
 
 
 class InlineKeyboard(object):
-    def __init__(self, keyb_type, lang=None, data=None):
+    def __init__(self, keyb_type, lang=None, data=None, history=None):
 
         self.__type = keyb_type
         self.__lang = lang
         self.__data = data
-        self.__keyboard = self.__create_inline_keyboard(self.__type, self.__lang, self.__data)
+        self.__history = history
+        self.__keyboard = self.__create_inline_keyboard(self.__type, self.__lang, self.__data, self.__history)
 
-    def __create_inline_keyboard(self, keyb_type, lang, data):
+    def __create_inline_keyboard(self, keyb_type, lang, data, history):
 
         if keyb_type == books_keyboard:
 
@@ -48,7 +49,7 @@ class InlineKeyboard(object):
 
         elif keyb_type == paginate_keyboard:
 
-            return self.__get_paginate_keyboard(data)
+            return self.__get_paginate_keyboard(data, history)
 
         elif keyb_type == geo_keyboard:
 
@@ -189,30 +190,18 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_delivery_keyboard(buttons, data):
-        inline_keyboard = []
-        button2_text = "Manzilni xaritadan ko'rish"
-        # button1_text = f'\U0001F4CD {button1_text}'
-        button2_text = f'\U0001F3C1 {button2_text}'
 
-        if data[0]:
-            from_latitude = data[0]['latitude']
-            from_longitude = data[0]['longitude']
-            inline_keyboard.append(
-                [InlineKeyboardButton(button2_text,
-                                      url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
-                                          f'@{from_latitude},{from_longitude},12z')])
-
-        inline_keyboard.extend([
-            [InlineKeyboardButton(buttons[0], callback_data=f'd_{data[-1]}')],
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(buttons[0], callback_data=f'd_{data}')],
         ])
 
-        return InlineKeyboardMarkup(inline_keyboard)
-
     @staticmethod
-    def __get_paginate_keyboard(data):
+    def __get_paginate_keyboard(data, history=None):
 
         wanted, orders = data
         length = len(orders)
+
+        state = 'h_' if history else ''
 
         if wanted == 1 and length == 1:
             button1_text = '.'
@@ -226,21 +215,21 @@ class InlineKeyboard(object):
             button1_data = 'dot'
 
             button3_text = '\U000023E9'
-            button3_data = f'w_{wanted + 1}'
+            button3_data = f'{state}w_{wanted + 1}'
 
         elif wanted == length:
             button1_text = '\U000023EA'
-            button1_data = f'w_{wanted - 1}'
+            button1_data = f'{state}w_{wanted - 1}'
 
             button3_text = '.'
             button3_data = 'dot'
 
         else:
             button1_text = '\U000023EA'
-            button1_data = f'w_{wanted - 1}'
+            button1_data = f'{state}w_{wanted - 1}'
 
             button3_text = '\U000023E9'
-            button3_data = f'w_{wanted + 1}'
+            button3_data = f'{state}w_{wanted + 1}'
 
         button2_text = f'{wanted}/{length}'
         button2_data = 'None'

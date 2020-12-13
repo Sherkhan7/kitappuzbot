@@ -26,59 +26,6 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
         if user[IS_ADMIN]:
 
-            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][2]:
-
-                received_orders = get_orders_by_status(status='received')
-
-                if received_orders:
-                    wanted = 1
-                    order = received_orders[wanted - 1]
-                    order_itmes = get_order_items(order['id'])
-                    new_dict = dict()
-
-                    for item in order_itmes:
-                        new_dict.update({item['book_id']: item['quantity']})
-
-                    books_ids = [str(item['book_id']) for item in order_itmes]
-                    books = get_books(books_ids)
-                    books_text = ''
-
-                    for book in books:
-                        books_text += f'Kitob nomi: {book["title"]}\n' \
-                                      f'Soni: {new_dict[book["id"]]}\n' \
-                                      f'------------------\n'
-                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, received_orders]) \
-                        .get_keyboard()
-
-                    if order[GEOLOCATION]:
-                        geo = json.loads(order[GEOLOCATION])
-                        inline_keyboard = inline_keyboard.inline_keyboard
-                        keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
-                        inline_keyboard += keyboard
-                        inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
-
-                    received_user = get_user(order['user_id'])
-
-                    text = [
-                        f'\U0001F194 {order["id"]}',
-                        f'Status: {wrap_tags(order["status"])}',
-                        f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
-                        f'Tel: {order["phone_number"]}',
-                        f'Manzil: {order["address"]}',
-                        f'Ism: {received_user["fullname"]}',
-                    ]
-                    if received_user["username"]:
-                        text = text + [f'Telegram: @{received_user["username"]}']
-                    text = '\n'.join(text)
-                    text += f'\n\n{books_text}'
-                    # print(inline_keyboard)
-                    # print(received_orders)
-                    # exit()
-                    update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
-
-                else:
-                    update.message.reply_text('Qabul qilingan buyurtmalar mavjud emas !')
-
             if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][1]:
                 waiting_orders = get_orders_by_status(status='waiting')
 
@@ -110,6 +57,107 @@ def message_handler_callback(update: Update, context: CallbackContext):
                                                   parse_mode=ParseMode.HTML)
                 else:
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
+
+            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][2]:
+
+                received_orders = get_orders_by_status(status='received')
+
+                if received_orders:
+                    wanted = 1
+                    order = received_orders[wanted - 1]
+                    order_itmes = get_order_items(order['id'])
+                    new_dict = dict()
+
+                    for item in order_itmes:
+                        new_dict.update({item['book_id']: item['quantity']})
+
+                    books_ids = [str(item['book_id']) for item in order_itmes]
+                    books = get_books(books_ids)
+                    books_text = ''
+
+                    for book in books:
+                        books_text += f'Kitob nomi: {book["title"]}\n' \
+                                      f'Soni: {new_dict[book["id"]]}\n' \
+                                      f'\n{wrap_tags("".ljust(22, "-"))}\n'
+                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, received_orders]) \
+                        .get_keyboard()
+
+                    if order[GEOLOCATION]:
+                        geo = json.loads(order[GEOLOCATION])
+                        inline_keyboard = inline_keyboard.inline_keyboard
+                        keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
+                        inline_keyboard += keyboard
+                        inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
+
+                    received_user = get_user(order['user_id'])
+
+                    text = [
+                        f'\U0001F194 {order["id"]}',
+                        f'Status: {wrap_tags(order["status"])}',
+                        f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                        f'Tel: {order["phone_number"]}',
+                        f'Manzil: {order["address"]}',
+                        f'Ism: {received_user["fullname"]}',
+                    ]
+                    if received_user["username"]:
+                        text = text + [f'Telegram: @{received_user["username"]}']
+                    text = '\n'.join(text)
+                    text += f'\n\n{books_text}'
+
+                    update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+                else:
+                    update.message.reply_text('Qabul qilingan buyurtmalar mavjud emas !')
+
+            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]:
+
+                delivered_orders = get_orders_by_status('delivered')
+
+                if delivered_orders:
+                    wanted = 1
+                    order = delivered_orders[wanted - 1]
+                    order_itmes = get_order_items(order['id'])
+                    new_dict = dict()
+
+                    for item in order_itmes:
+                        new_dict.update({item['book_id']: item['quantity']})
+
+                    books_ids = [str(item['book_id']) for item in order_itmes]
+                    books = get_books(books_ids)
+                    books_text = ''
+
+                    for book in books:
+                        books_text += f'Kitob nomi: {book["title"]}\n' \
+                                      f'Soni: {new_dict[book["id"]]}\n' \
+                                      f'\n{wrap_tags("".ljust(22, "-"))}\n'
+                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, delivered_orders],
+                                                     history=True).get_keyboard()
+
+                    if order[GEOLOCATION]:
+                        geo = json.loads(order[GEOLOCATION])
+                        inline_keyboard = inline_keyboard.inline_keyboard
+                        keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
+                        inline_keyboard += keyboard
+                        inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
+
+                    received_user = get_user(order['user_id'])
+
+                    text = [
+                        f'\U0001F194 {order["id"]} [Tarix]',
+                        f'Status: {wrap_tags(order["status"])}',
+                        f'Yaratilgan vaqti: {order["created_at"].strftime("%d-%m-%Y %X")}',
+                        f'Tel: {order["phone_number"]}',
+                        f'Manzil: {order["address"]}',
+                        f'Ism: {received_user["fullname"]}',
+                    ]
+                    if received_user["username"]:
+                        text = text + [f'Telegram: @{received_user["username"]}']
+                    text = '\n'.join(text)
+                    text += f'\n\n{books_text}'
+
+                    update.message.reply_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+                else:
+                    update.message.reply_text("Tarix  bo'sh !")
 
         else:
 
