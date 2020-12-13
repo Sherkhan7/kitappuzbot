@@ -8,6 +8,7 @@ from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
 from helpers import wrap_tags
+from config import ADMIN
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
@@ -62,7 +63,7 @@ def do_command(update: Update, context: CallbackContext):
             user_data[USER_INPUT_DATA] = dict()
             user_data[USER_INPUT_DATA][TG_ID] = update.effective_user.id
             user_data[USER_INPUT_DATA][USERNAME] = update.effective_user.username
-            user_data[USER_INPUT_DATA][IS_ADMIN] = update.effective_user.id in ADMINS
+            user_data[USER_INPUT_DATA][IS_ADMIN] = update.effective_user.id == ADMIN
             user_data[USER_INPUT_DATA][LANG] = 'uz'
 
             text = 'Ism va familyangizni yuboring:'

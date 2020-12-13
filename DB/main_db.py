@@ -45,7 +45,7 @@ def insert_order_items(items_data, table_name):
     data_keys += ['book_id', 'quantity']
     data_values = tuple(items_data.values())
 
-    data_values = [data_values + tuple([book_id, quantity['quantity']]) for (book_id, quantity) in basket.items()]
+    data_values = [data_values + tuple([book_id, quantity]) for (book_id, quantity) in basket.items()]
 
     fields = ','.join(data_keys)
     mask = ','.join(['%s'] * len(data_keys))
