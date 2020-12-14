@@ -65,19 +65,19 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     (text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]):
 
                 if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]:
-                    orders = get_orders_by_status('delivered')
+                    orders = get_orders_by_status(('delivered', 'canceled'))
                     empty_text = "Tarix  bo'sh !"
                     history = '[Tarix]'
-                    status = 'yetkazilgan'
                 else:
                     orders = get_orders_by_status('received')
                     empty_text = 'Qabul qilingan buyurtmalar mavjud emas !'
                     history = ''
-                    status = 'qabul qilingan'
 
                 if orders:
                     wanted = 1
                     order = orders[wanted - 1]
+                    status = 'yetkazilgan' if order[STATUS] == 'delivered' else 'rad etilgan' \
+                        if order[STATUS] == 'canceled' else 'qabul qilingan'
                     client = get_user(order[USER_ID])
                     order_itmes = get_order_items(order[ID])
                     new_dict = dict()
@@ -121,6 +121,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 else:
 
                     update.message.reply_text(empty_text)
+
         else:
 
             # Buyrutmalarim
@@ -150,15 +151,21 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         if order[STATUS] == 'waiting' else 'yetkazilgan'
 
                     text = [
-                        f'\U0001F194 {order[ID]}',
+                        f'\U0001F194 {order[ID]}\n',
                         f'Status: {wrap_tags(status)}',
                         f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
                     ]
                     text = '\n'.join(text)
                     text += f'\n\n{books_text}'
 
-                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
-                        .get_keyboard()
+                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG],
+                                                     data=[wanted, user_orders]).get_keyboard()
+
+                    if order[STATUS] == 'received':
+                        deliv_keyb = InlineKeyboard(delivery_keyboard, user[LANG], data=order[ID]).get_keyboard()
+                        pag_keyb = inline_keyboard.inline_keyboard
+                        deliv_keyb = deliv_keyb.inline_keyboard
+                        inline_keyboard = InlineKeyboardMarkup(pag_keyb + deliv_keyb)
 
                     update.message.reply_html(text, reply_markup=inline_keyboard)
 
@@ -168,8 +175,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
             # Biz bilan bo'glanish
             elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
 
-                text = f"Kitapp premium admini bilan boglanish uchun {wrap_tags('@kitapp_admin')} ga " \
-                       f"yoki {wrap_tags('+998999131099')} telefon raqamiga bogʻlanishingiz mumkin."
+                text = f"Kitapp premium adminlari bilan boglanish uchun:\n" \
+                       f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} yoki\n\n" \
+                       f"{wrap_tags('@alisherqultayev', '[ +998903261609 ]')} larga murojaat qilishingiz mumkin."
 
                 update.message.reply_html(text)
 
