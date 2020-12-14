@@ -105,7 +105,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
                     text = [
-                        f'\U0001F194 {order[ID]} {history}',
+                        f'\U0001F194 {order[ID]} {history}\n',
                         f'Status: {wrap_tags(status)}',
                         f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
                         f'Ism: {wrap_tags(client[FULLNAME])}',
