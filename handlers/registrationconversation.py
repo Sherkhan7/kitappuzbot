@@ -1,14 +1,16 @@
 from telegram import Update
 from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters
-from filters import *
+
+from config import ACTIVE_ADMINS
 from DB import insert_data
-from helpers import set_user_data
+
+from filters import *
+from helpers import set_user_data, wrap_tags
 from languages import LANGS
 from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
-from helpers import wrap_tags
-from config import ADMIN
+
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
@@ -31,11 +33,11 @@ def do_command(update: Update, context: CallbackContext):
             if user[LANG] == LANGS[0]:
                 text = "Siz ro'yxatdan o'tgansiz"
 
-            if user[LANG] == LANGS[1]:
-                text = "Вы зарегистрированы"
-
-            if user[LANG] == LANGS[2]:
-                text = "Сиз рўйхатдан ўтгансиз"
+            # if user[LANG] == LANGS[1]:
+            #     text = "Вы зарегистрированы"
+            #
+            # if user[LANG] == LANGS[2]:
+            #     text = "Сиз рўйхатдан ўтгансиз"
 
             text = f'\U000026A0 {text} !'
 
@@ -44,11 +46,11 @@ def do_command(update: Update, context: CallbackContext):
                 if user[LANG] == LANGS[0]:
                     reply_text = "Menyu"
 
-                if user[LANG] == LANGS[1]:
-                    reply_text = "Меню"
-
-                if user[LANG] == LANGS[2]:
-                    reply_text = "Меню"
+                # if user[LANG] == LANGS[1]:
+                #     reply_text = "Меню"
+                #
+                # if user[LANG] == LANGS[2]:
+                #     reply_text = "Меню"
 
                 text = f'\U0001F4D6 {reply_text}'
 
@@ -63,7 +65,7 @@ def do_command(update: Update, context: CallbackContext):
             user_data[USER_INPUT_DATA] = dict()
             user_data[USER_INPUT_DATA][TG_ID] = update.effective_user.id
             user_data[USER_INPUT_DATA][USERNAME] = update.effective_user.username
-            user_data[USER_INPUT_DATA][IS_ADMIN] = update.effective_user.id == ADMIN
+            user_data[USER_INPUT_DATA][IS_ADMIN] = update.effective_user.id in ACTIVE_ADMINS
             user_data[USER_INPUT_DATA][LANG] = 'uz'
 
             text = 'Ism va familyangizni yuboring:'
@@ -71,7 +73,7 @@ def do_command(update: Update, context: CallbackContext):
 
             state = FULLNAME
 
-        logger.info('user_data: %s', user_data)
+        # logger.info('user_data: %s', user_data)
 
         return state
 
@@ -94,24 +96,25 @@ def fullname_callback(update: Update, context: CallbackContext):
             text = "Tabriklaymiz !\n" \
                    "Siz ro'yxatdan muvofaqqiyatli o'tdingiz\n\n"
 
-        if user_data[USER_INPUT_DATA][LANG] == LANGS[1]:
-            text = "Поздравляем !\n" \
-                   "Вы успешно зарегистрировались\n\n"
-
-        if user_data[USER_INPUT_DATA][LANG] == LANGS[2]:
-            text = "Табриклаймиз !\n" \
-                   "Сиз рўйхатдан мувофаққиятли ўтдингиз\n\n"
+        # if user_data[USER_INPUT_DATA][LANG] == LANGS[1]:
+        #     text = "Поздравляем !\n" \
+        #            "Вы успешно зарегистрировались\n\n"
+        #
+        # if user_data[USER_INPUT_DATA][LANG] == LANGS[2]:
+        #     text = "Табриклаймиз !\n" \
+        #            "Сиз рўйхатдан мувофаққиятли ўтдингиз\n\n"
 
         if user_data[USER_INPUT_DATA][IS_ADMIN]:
             text += "Buyurtmalarni qabul qilishingiz mumkin"
             menu_keyboard = admin_menu_keyboard
+
         else:
             text += "Kitob buyurtma qilishingiz mumkin"
             menu_keyboard = client_menu_keyboard
 
-        text = '\U0001F44F\U0001F44F\U0001F44F ' + text
-
+        text = f'\U0001F44F\U0001F44F\U0001F44F {text}'
         reply_keyboard = ReplyKeyboard(menu_keyboard, user_data[USER_INPUT_DATA][LANG]).get_keyboard()
+
         update.message.reply_text(text, reply_markup=reply_keyboard)
 
         del user_data[USER_INPUT_DATA]
@@ -125,15 +128,15 @@ def fullname_callback(update: Update, context: CallbackContext):
                    "Qaytadan quyidagi formatda yuboring"
             example = "Misol: Sherzodbek Esanov yoki Sherzodbek"
 
-        if user_data[USER_INPUT_DATA][LANG] == LANGS[1]:
-            text = 'Имя и фамилия введено неверное !\n' \
-                   'Отправьте еще раз в следующем формате'
-            example = 'Пример: Шерзод Эсанов'
-
-        if user_data[USER_INPUT_DATA][LANG] == LANGS[2]:
-            text = "Исм ва фамиля хато юборилди !\n" \
-                   "Қайтадан қуйидаги форматда юборинг"
-            example = "Мисол: Шерзод Эсанов"
+        # if user_data[USER_INPUT_DATA][LANG] == LANGS[1]:
+        #     text = 'Имя и фамилия введено неверное !\n' \
+        #            'Отправьте еще раз в следующем формате'
+        #     example = 'Пример: Шерзод Эсанов'
+        #
+        # if user_data[USER_INPUT_DATA][LANG] == LANGS[2]:
+        #     text = "Исм ва фамиля хато юборилди !\n" \
+        #            "Қайтадан қуйидаги форматда юборинг"
+        #     example = "Мисол: Шерзод Эсанов"
 
         text = f'\U000026A0 {text}:\n\n {wrap_tags(example)}'
 
@@ -141,7 +144,7 @@ def fullname_callback(update: Update, context: CallbackContext):
 
         state = FULLNAME
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
 
     return state
 
@@ -157,5 +160,6 @@ registration_conversation_handler = ConversationHandler(
     fallbacks=[],
 
     persistent=True,
+
     name='registration_conversation'
 )

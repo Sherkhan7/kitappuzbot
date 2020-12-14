@@ -126,10 +126,15 @@ def get_order(order_id):
 
 
 def get_orders_by_status(status):
+
+    if isinstance(status, tuple):
+        sql = f'SELECT * FROM orders WHERE orders.status = %s OR orders.status = %s ORDER BY id DESC'
+    else:
+        sql = f'SELECT * FROM orders WHERE orders.status = %s ORDER BY id DESC'
+
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(
-                f'SELECT * FROM orders WHERE orders.status = %s ORDER BY id DESC', status)
+            cursor.execute(sql, status)
 
     return cursor.fetchall()
 

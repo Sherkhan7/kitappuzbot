@@ -18,13 +18,13 @@ class ReplyKeyboard(object):
 
         elif keyb_type == settings_keyboard:
 
-            return self.__get_location_keyboard(reply_keyboard_types[keyb_type][lang])
+            return self.__get_settings_keyboard(reply_keyboard_types[keyb_type][lang])
 
         elif keyb_type == phone_number_keyboard:
             return self.__get_phone_number_keyboard(reply_keyboard_types[keyb_type][lang])
 
         elif keyb_type == location_keyboard:
-            return self.__get_location_keyboard(reply_keyboard_types[keyb_type][lang], lang)
+            return self.__get_location_keyboard(reply_keyboard_types[keyb_type][lang])
 
     @staticmethod
     def __get_menu_keyboard(button, keyb_type):
@@ -66,7 +66,7 @@ class ReplyKeyboard(object):
         ], resize_keyboard=True)
 
     @staticmethod
-    def __get_location_keyboard(buttons, lang):
+    def __get_location_keyboard(buttons):
 
         return ReplyKeyboardMarkup([
 

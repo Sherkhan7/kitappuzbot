@@ -1,11 +1,12 @@
 from telegram.ext import CallbackQueryHandler, CallbackContext
 from telegram import Update, ParseMode, InlineKeyboardMarkup
-from helpers import wrap_tags
-from helpers import set_user_data
+from DB import *
+
+from helpers import wrap_tags, set_user_data
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
-from DB import *
+
 import json
 import re
 import logging
@@ -37,7 +38,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
             if match_obj:
                 data = match_obj.string.split('_')
-                keyboard = choose_keyboard
+                keyboard = yes_no_keyboard
 
             elif match_obj_2:
                 data = match_obj_2.string.split('_')
@@ -50,28 +51,40 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     data = [geo, data[-1]]
 
                 elif data[1] == 'y':
+
                     status = 'canceled' if data[0] == 'c' else 'received'
 
-                    update_result = update_order_status(status, data[-1])
+                    if order[STATUS] == 'waiting':
+                        update_result = update_order_status(status, data[-1])
+                        status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
 
-                    if update_result == 'updated' and order[STATUS]:
-                        client_text = 'Buyurtma rad qilindi.' if status == 'canceled' else 'Buyurtma qabul qilindi.'
-                        client_text = wrap_tags(client_text) + f' [ \U0001F194 {order[ID]} ]'
+                        if update_result:
+                            client_text = 'Buyurtma rad qilindi.' if status == 'canceled' else 'Buyurtma qabul qilindi.'
+                            client_text = wrap_tags(client_text) + f' [ \U0001F194 {order[ID]} ]'
 
-                        if status == 'received':
-                            client_text += '\nBuyurtma yetkazilganidan keyin ' \
-                                           f'{wrap_tags("Yetkazib berildi")} tugmasini bosing.\n'
-                            inline_keyboard = InlineKeyboard(delivery_keyboard, user[LANG],
-                                                             data=data[-1]).get_keyboard()
-                        else:
-                            inline_keyboard = None
+                            if status == 'received':
+                                client_text += '\nBuyurtma yetkazilganidan keyin ' \
+                                               f'{wrap_tags("Yetkazib berildi")} tugmasini bosing.\n'
+                                inline_keyboard = InlineKeyboard(delivery_keyboard, user[LANG],
+                                                                 data=data[-1]).get_keyboard()
+                            else:
+                                inline_keyboard = None
 
-                        context.bot.send_message(order[USER_TG_ID], client_text, parse_mode=ParseMode.HTML,
-                                                 reply_to_message_id=order[MESSAGE_ID], reply_markup=inline_keyboard)
+                            context.bot.send_message(order[USER_TG_ID], client_text, parse_mode=ParseMode.HTML,
+                                                     reply_to_message_id=order[MESSAGE_ID],
+                                                     reply_markup=inline_keyboard)
+
+                    elif order[STATUS] == 'received':
+                        status_text = 'buyurtma avval qabul qilingan !'
+
+                    elif order[STATUS] == 'delivered':
+                        status_text = 'buyurtma avval yetkazilgan !'
+
+                    elif order[STATUS] == 'canceled':
+                        status_text = 'buyurtma avval rad qilingan !'
 
                     data, keyboard = (geo, geo_keyboard) if geo else (None, None)
 
-                    status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
                     new_text = callback_query.message.text_html.split('\n')
                     new_text[0] = ' '.join(new_text[0].split()[:2])
                     new_text[-1] = f'Status: {wrap_tags(status_text)}'
@@ -88,27 +101,29 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 callback_query.edit_message_text(new_text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
             else:
+
                 inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
                 callback_query.edit_message_reply_markup(inline_keyboard)
 
         elif match_obj_3 or match_obj_4:
 
             if match_obj_4:
-                orders_list = get_orders_by_status(status='delivered')
+                orders_list = get_orders_by_status(('delivered', 'canceled'))
                 history = True
                 label = '[Tarix]'
-                status = 'yetkazilgan'
             else:
-                orders_list = get_orders_by_status(status='received')
+                orders_list = get_orders_by_status('received')
                 history = None
                 label = ''
-                status = 'qabul qilingan'
 
             if orders_list:
                 wanted = int(data.split('_')[-1])
                 if wanted > len(orders_list):
                     wanted = 1
+
                 order = orders_list[wanted - 1]
+                status = 'yetkazilgan' if order[STATUS] == 'delivered' else 'rad etilgan' \
+                    if order[STATUS] == 'canceled' else 'qabul qilingan'
                 order_itmes = get_order_items(order[ID])
                 new_dict = dict()
 
@@ -136,7 +151,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 client = get_user(order[USER_ID])
 
                 text = [
-                    f'\U0001F194 {order[ID]} {label}',
+                    f'\U0001F194 {order[ID]} {label}\n',
                     f'Status: {wrap_tags(status)}',
                     f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
                     f'Ism: {wrap_tags(client[FULLNAME])}',
@@ -151,7 +166,8 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
             else:
-                text = "Tarixga o'ting !"
+                text = "Tarix bo'limiga o'ting !"
+
                 callback_query.edit_message_text(text)
 
         else:
@@ -164,6 +180,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
         callback_query.answer()
 
         if match_obj:
+
             wanted = int(match_obj.string.split('_')[-1])
             user_orders = get_user_orders(user[ID])
             order = user_orders[wanted - 1]
@@ -187,7 +204,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 if order[STATUS] == 'waiting' else 'yetkazilgan'
 
             text = [
-                f'\U0001F194 {order[ID]}',
+                f'\U0001F194 {order[ID]}\n',
                 f'Status: {wrap_tags(status)}',
                 f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
             ]
@@ -196,22 +213,39 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
             inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
                 .get_keyboard()
+
+            if order[STATUS] == 'received':
+                deliv_keyb = InlineKeyboard(delivery_keyboard, user[LANG], data=order[ID]).get_keyboard()
+                pag_keyb = inline_keyboard.inline_keyboard
+                deliv_keyb = deliv_keyb.inline_keyboard
+                inline_keyboard = InlineKeyboardMarkup(pag_keyb + deliv_keyb)
+
             callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
         elif match_obj_2:
+
             order_id = data.split('_')[-1]
             status = 'delivered'
-            result = update_order_status(status, order_id)
+            update_order_status(status, order_id)
 
-            if result == 'updated':
-                status = 'yetkazib berilgan'
-                text = callback_query.message.text_html.split('\n')
+            status = 'yetkazilgan'
+            text = callback_query.message.text_html.split('\n')
+
+            if len(callback_query.message.reply_markup.inline_keyboard) == 1:
                 text += [
                     f'\nStatus: {wrap_tags(status)}'
                 ]
                 text = '\n'.join(text)
+
                 callback_query.edit_message_text(text, parse_mode=ParseMode.HTML)
 
+            else:
+
+                text[2] = f'Status: {wrap_tags(status)}'
+                text = '\n'.join(text)
+                inline_keyboard = InlineKeyboardMarkup([callback_query.message.reply_markup.inline_keyboard[0]])
+
+                callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
     # logger.info('user_data: %s', user_data)
 
 
