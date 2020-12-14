@@ -1,28 +1,24 @@
 from telegram import Update, InputMediaPhoto, ParseMode, ReplyKeyboardRemove
-from telegram.ext import CommandHandler, MessageHandler, ConversationHandler, CallbackContext, Filters, \
-    CallbackQueryHandler
-from filters import phone_number_filter
+from telegram.ext import MessageHandler, ConversationHandler, CallbackContext, Filters, CallbackQueryHandler
+
+from config import PHOTOS_URL, ACTIVE_ADMINS
 from DB import insert_data, get_book, insert_order_items
-from helpers import set_user_data
+
+from helpers import set_user_data, wrap_tags
+from filters import phone_number_filter
 from globalvariables import *
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
-from helpers import wrap_tags
-from config import PHOTOS_URL, ADMIN
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from layouts import get_book_layout, get_basket_layout, get_phone_number_layout
 
 import logging
-import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
-BOOKS = 'books'
-BOOK = 'book'
-ORDER = 'order'
-BASKET = 'basket'
+BOOKS, BOOK, ORDER, BASKET = ['books', 'book', 'order', 'basket']
 
 
 def books_conversation_callback(update: Update, context: CallbackContext):
@@ -47,7 +43,7 @@ def books_conversation_callback(update: Update, context: CallbackContext):
     user_data[USER_INPUT_DATA][MESSAGE_ID] = message.message_id
 
     # logger.info('user_data: %s', user_data)
-    return BOOKS
+    return state
 
 
 def books_callback(update: Update, context: CallbackContext):
@@ -59,8 +55,19 @@ def books_callback(update: Update, context: CallbackContext):
 
     callback_query.answer()
 
-    if not data == 'basket':
-        book = get_book(data.split('_')[-1])
+    if data == 'basket':
+
+        caption = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
+        inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
+
+        callback_query.edit_message_caption(caption, parse_mode=ParseMode.HTML, reply_markup=inline_keyboard)
+
+        state = BASKET
+
+    else:
+
+        book_id = data.split('_')[-1]
+        book = get_book(book_id)
         caption = get_book_layout(book, user[LANG])
         user_data[USER_INPUT_DATA][BOOK] = book
 
@@ -70,13 +77,6 @@ def books_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
 
         state = BOOK
-
-    else:
-        caption = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
-        inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
-
-        callback_query.edit_message_caption(caption, parse_mode=ParseMode.HTML, reply_markup=inline_keyboard)
-        state = BASKET
 
     user_data[USER_INPUT_DATA][STATE] = state
 
@@ -100,12 +100,12 @@ def book_callback(update: Update, context: CallbackContext):
 
         callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
 
-        if BOOK in user_data[USER_INPUT_DATA]:
-            del user_data[USER_INPUT_DATA][BOOK]
+        del user_data[USER_INPUT_DATA][BOOK]
 
         state = BOOKS
 
     elif data == 'ordering':
+
         book_id = user_data[USER_INPUT_DATA][BOOK][ID]
 
         inline_keyboard = InlineKeyboard(order_keyboard, user[LANG], data=book_id).get_keyboard()
@@ -160,8 +160,7 @@ def order_callback(update: Update, context: CallbackContext):
 
         state = BOOK
 
-    # order_\d+
-    else:
+    elif data == 'order':
 
         book = user_data[USER_INPUT_DATA][BOOK]
         quantity = int(callback_query.message.reply_markup.inline_keyboard[0][1].text)
@@ -222,13 +221,16 @@ def basket_callback(update: Update, context: CallbackContext):
     callback_query.answer()
 
     if data == 'continue':
+
         photo = PHOTOS_URL + 'kitappuz_photo.jpg'
         inline_keyboard = InlineKeyboard(books_keyboard, user[LANG], data=True).get_keyboard()
 
         callback_query.edit_message_media(InputMediaPhoto(photo), reply_markup=inline_keyboard)
+
         state = BOOKS
 
     elif data == 'confirmation':
+
         callback_query.edit_message_caption(callback_query.message.caption_html, parse_mode=ParseMode.HTML)
 
         text = "Siz bilan bog'lanishimiz uchun telefon raqamingizni yuboring\n"
@@ -242,7 +244,7 @@ def basket_callback(update: Update, context: CallbackContext):
 
         callback_query.message.reply_html(text, reply_markup=repky_keyboard)
 
-        # Move the PHONE_NUMBER STATE
+        # Remove the PHONE_NUMBER STATE
         state = PHONE_NUMBER
 
     user_data[USER_INPUT_DATA][STATE] = state
@@ -304,20 +306,21 @@ def phone_callback(update: Update, context: CallbackContext):
     user_data = context.user_data
     user = user_data['user_data']
 
-    if update.message.contact:
-        phone_number = phone_number_filter(update.message.contact.phone_number)
-    else:
-        phone_number = phone_number_filter(update.message.text)
+    phone_number = update.message.contact.phone_number if update.message.contact else update.message.text
+    phone_number = phone_number_filter(phone_number)
 
     if not phone_number:
-        error_text = "Telefon raqami xato formatda yuborldi\n"
+
+        error_text = "Telefon raqami xato formatda yuborildi\n"
         layout = get_phone_number_layout(user[LANG])
         error_text += layout
 
         update.message.reply_html(error_text, quote=True)
 
         state = user_data[USER_INPUT_DATA][STATE]
+
     else:
+
         user_data[USER_INPUT_DATA][PHONE_NUMBER] = phone_number
 
         # geo = user_data[USER_INPUT_DATA][GEOLOCATION] if GEOLOCATION in user_data[USER_INPUT_DATA] else None
@@ -327,7 +330,6 @@ def phone_callback(update: Update, context: CallbackContext):
         update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
 
         layout = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
-
         layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
         layout += f'Telegram: {wrap_tags("@" + user[USERNAME])}' if user[USERNAME] else ''
@@ -340,6 +342,7 @@ def phone_callback(update: Update, context: CallbackContext):
         state = CONFIRMATION
 
     user_data[USER_INPUT_DATA][STATE] = state
+
     logger.info('user_data: %s', user_data)
 
     return state
@@ -362,7 +365,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
         callback_query.edit_message_text(edit_text, parse_mode=ParseMode.HTML)
 
         reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
-        callback_query.message.reply_text('\U0000274C Buyurma bekor qilindi !', reply_markup=reply_keyboard)
+        callback_query.message.reply_text('\U0000274C Buyurma bekor qilindi !', quote=True)
+        callback_query.message.reply_text('Menyu', reply_markup=reply_keyboard)
 
         state = ConversationHandler.END
 
@@ -374,7 +378,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
         geo = None
 
         order_data = {
-            USER_ID: user['id'],
+            USER_ID: user[ID],
             STATUS: 'waiting',
             MESSAGE_ID: user_data[USER_INPUT_DATA][MESSAGE_ID],
             # ADDRESS: user_data[USER_INPUT_DATA][ADDRESS],
@@ -403,7 +407,8 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
             inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG], data=[geo, order_id]).get_keyboard()
 
-            context.bot.send_message(ADMIN, text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+            for ADMIN in ACTIVE_ADMINS:
+                context.bot.send_message(ADMIN, text_for_admin, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
             callback_query.edit_message_text(text_for_client, parse_mode=ParseMode.HTML)
 
@@ -418,6 +423,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
 
     # logger.info('user_data: %s', user_data)
     del user_data[USER_INPUT_DATA]
+
     return state
 
 
@@ -425,13 +431,26 @@ def cancel_callback(update: Update, context: CallbackContext):
     user_data = context.user_data
     user = user_data['user_data']
 
-    context.bot.edit_message_reply_markup(user[TG_ID], user_data[USER_INPUT_DATA][MESSAGE_ID])
+    text = update.message.text
 
-    reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text('\U0000274C Bekor qilindi !', reply_markup=reply_keyboard)
+    if text == '/menu' or text == '/cancel':
+        context.bot.edit_message_reply_markup(user[TG_ID], user_data[USER_INPUT_DATA][MESSAGE_ID])
 
-    del user_data[USER_INPUT_DATA]
-    return ConversationHandler.END
+        text = 'Menu' if text == '/menu' else '\U0000274C Bekor qilindi !'
+        reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
+
+        update.message.reply_text(text, reply_markup=reply_keyboard)
+
+        del user_data[USER_INPUT_DATA]
+        state = ConversationHandler.END
+
+    else:
+        update.message.reply_text("Siz hozir \U0001F4DA Kitoblar bo'limidasiz."
+                                  "\nBu bo'limdan chiqish uchun /cancel yoki /menu kommandasini yuboring.", quote=True)
+
+        state = user_data[USER_INPUT_DATA][STATE]
+
+    return state
 
 
 books_conversation_handler = ConversationHandler(
@@ -442,13 +461,13 @@ books_conversation_handler = ConversationHandler(
 
         BOOK: [CallbackQueryHandler(book_callback, pattern=r'^(ordering|back)$')],
 
-        ORDER: [CallbackQueryHandler(order_callback, pattern=r'^(\+|\d|-|order_\d+|back)$')],
+        ORDER: [CallbackQueryHandler(order_callback, pattern=r'^(\+|\d|-|order|back)$')],
 
         BASKET: [CallbackQueryHandler(basket_callback, pattern=r'^(continue|confirmation)$')],
 
-        ADDRESS: [MessageHandler(Filters.text & (~ Filters.command), address_callback)],
+        # ADDRESS: [MessageHandler(Filters.text & (~ Filters.command), address_callback)],
 
-        GEOLOCATION: [MessageHandler(Filters.location | Filters.regex('keyingisi$'), geolocation_callback)],
+        # GEOLOCATION: [MessageHandler(Filters.location | Filters.regex('keyingisi$'), geolocation_callback)],
 
         PHONE_NUMBER: [MessageHandler(Filters.contact | Filters.text & (~ Filters.command), phone_callback)],
 
@@ -456,9 +475,8 @@ books_conversation_handler = ConversationHandler(
 
     },
     fallbacks=[
-        CommandHandler(['cancel', 'menu'], cancel_callback)
+        MessageHandler(Filters.text, cancel_callback),
     ],
-
     persistent=True,
     name='book_conversation'
 )
