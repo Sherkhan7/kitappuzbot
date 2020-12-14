@@ -5,11 +5,13 @@ inline_keyboard_types = {
     book_keyboard: {
         "uz": {1: "Kitob haqida", 2: "Buyurtma qilish", 3: "Ortga"},
     },
+
     confirm_keyboard: {
         "uz": ["Tasdiqlash", "Buyurtmani bekor qilish"],
         "cy": ["Тасдиқлаш", "Таҳрирлаш"],
         "ru": ["Подтвердить", "Редактировать"],
     },
+
     order_keyboard: {
         "uz": {1: "Buyurtma berish", 2: "Ortga"},
 
@@ -46,7 +48,7 @@ inline_keyboard_types = {
         },
     },
 
-    choose_keyboard: {
+    yes_no_keyboard: {
         "uz": {1: "Ha", 2: "Yo'q"}
     },
 
@@ -56,6 +58,7 @@ inline_keyboard_types = {
         "ru": ["Закрыть объявление", "Повторно открыть объявление", "Объявление было повторно открыто"],
 
     },
+
     delivery_keyboard: {
         "uz": ["Yetkazib berildi"]
     }

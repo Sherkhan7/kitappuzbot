@@ -1,7 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from DB import get_book, get_all_books
+from DB import get_all_books
 from inlinekeyboards.inlinekeyboardtypes import *
-from globalvariables import *
 
 
 class InlineKeyboard(object):
@@ -39,9 +38,9 @@ class InlineKeyboard(object):
 
             return self.__get_orders_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
-        elif keyb_type == choose_keyboard:
+        elif keyb_type == yes_no_keyboard:
 
-            return self.__get_choose_keyboard(inline_keyboard_types[keyb_type][lang], data)
+            return self.__get_yes_no_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == delivery_keyboard:
 
@@ -95,11 +94,11 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_order_keyboard(buttons, book_id):
 
-        button1_data = f'order_{book_id}'
         button1_text = f'\U0001F6D2  {buttons[1]}'
+        button1_data = f'order'
 
-        button2_data = 'back'
         button2_text = f'\U00002B05  {buttons[2]}'
+        button2_data = 'back'
 
         minus_sign = '\U00002796'
         pilus_sign = '\U00002795'
@@ -164,13 +163,13 @@ class InlineKeyboard(object):
     def __get_orders_keyboard(buttons, data):
 
         inline_keyboard = []
-        button2_text = f"\U0001F3C1 Manzilni xaritadan ko'rish"
+        button1_text = f"\U0001F3C1 Manzilni xaritadan ko'rish"
 
         if data[0]:
             from_latitude = data[0]['latitude']
             from_longitude = data[0]['longitude']
             inline_keyboard.append(
-                [InlineKeyboardButton(button2_text,
+                [InlineKeyboardButton(button1_text,
                                       url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
                                           f'@{from_latitude},{from_longitude},12z')])
 
@@ -186,9 +185,7 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_geo_keyboard(data):
-        button2_text = "Manzilni xaritadan ko'rish"
-        # button1_text = f'\U0001F4CD {button1_text}'
-        button2_text = f'\U0001F3C1 {button2_text}'
+        button2_text = f"\U0001F3C1 Manzilni xaritadan ko'rish"
 
         from_latitude = data['latitude']
         from_longitude = data['longitude']
@@ -200,21 +197,21 @@ class InlineKeyboard(object):
         ])
 
     @staticmethod
-    def __get_choose_keyboard(buttons, data):
+    def __get_yes_no_keyboard(buttons, data):
 
         return InlineKeyboardMarkup([
 
             [
-                InlineKeyboardButton(buttons[1], callback_data=f'{data[0]}_y_{data[-1]}'),
-                InlineKeyboardButton(buttons[2], callback_data=f'{data[0]}_n_{data[-1]}')
+                InlineKeyboardButton('\U00002705  ' + buttons[1], callback_data=f'{data[0]}_y_{data[-1]}'),
+                InlineKeyboardButton('\U0000274C  ' + buttons[2], callback_data=f'{data[0]}_n_{data[-1]}')
             ],
         ])
 
     @staticmethod
-    def __get_delivery_keyboard(buttons, data):
+    def __get_delivery_keyboard(buttons, order_id):
 
         return InlineKeyboardMarkup([
-            [InlineKeyboardButton(buttons[0], callback_data=f'd_{data}')],
+            [InlineKeyboardButton(buttons[0], callback_data=f'd_{order_id}')],
         ])
 
     @staticmethod
