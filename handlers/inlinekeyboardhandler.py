@@ -1,5 +1,6 @@
 from telegram.ext import CallbackQueryHandler, CallbackContext
 from telegram import Update, ParseMode, InlineKeyboardMarkup
+from config import ACTIVE_ADMINS
 from DB import *
 
 from helpers import wrap_tags, set_user_data
@@ -25,7 +26,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
     data = callback_query.data
 
-    if user[IS_ADMIN]:
+    if user[IS_ADMIN] and user[TG_ID] in ACTIVE_ADMINS:
 
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
@@ -174,6 +175,11 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             callback_query.answer()
 
     else:
+        callback_query.answer("Siz aktiv admin emassiz !!!\n"
+                              "Siz siz bu operatsiyani bajara olmaysiz !!!\n\n"
+                              "\U00002639\U00002639\U00002639\U00002639\U00002639", show_alert=True)
+
+    if user[TG_ID] not in ACTIVE_ADMINS:
 
         match_obj = re.search(r'^w_\d+$', data)
         match_obj_2 = re.search(r'^d_\d+$', data)
