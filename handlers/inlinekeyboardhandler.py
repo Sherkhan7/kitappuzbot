@@ -174,12 +174,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
         else:
             callback_query.answer()
 
-    else:
-        callback_query.answer("Siz aktiv admin emassiz !!!\n"
-                              "Siz siz bu operatsiyani bajara olmaysiz !!!\n\n"
-                              "\U00002639\U00002639\U00002639\U00002639\U00002639", show_alert=True)
-
-    if user[TG_ID] not in ACTIVE_ADMINS:
+    elif not user[IS_ADMIN]:
 
         match_obj = re.search(r'^w_\d+$', data)
         match_obj_2 = re.search(r'^d_\d+$', data)
@@ -252,6 +247,12 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 inline_keyboard = InlineKeyboardMarkup([callback_query.message.reply_markup.inline_keyboard[0]])
 
                 callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+    else:
+        callback_query.answer("Siz aktiv admin emassiz !!!\n"
+                              "Siz siz bu operatsiyani bajara olmaysiz !!!\n\n"
+                              "\U00002639\U00002639\U00002639\U00002639\U00002639", show_alert=True)
+
     # logger.info('user_data: %s', user_data)
 
 
