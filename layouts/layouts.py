@@ -54,10 +54,34 @@ def get_basket_layout(orders, lang, data=None):
     data = data if data else '\U0001F6D2 Savat'
 
     layout = wrap_tags(data) + "\n\n" + layout
-    layout += f"Jami: {total} so'm\n\n"
+    layout += f"Jami: {total} so'm"
 
     return layout
 
+
+def get_action_layout(books):
+    caption = '\n\n1⃣ Daniel Pink dan "Drive"\n' \
+              '2⃣ Piter Till dan "Zero to one"\n' \
+              '3⃣ Maksim Batirevdan "Sotuvchining 45 tatuirovkasi"\n' \
+              '4⃣ Robin Sharmadan "Muvaffaqiyatning 200 siri"\n' \
+              '5⃣ Metyu Dekson va Brent Adamson dan "Savdo chempionlari"\n+\n' \
+              '1⃣  J.Fried & D.H.Hansson dan "Rework" kitobi sizga tuhfa (bepul)\n\n'
+
+    basket_layout = get_basket_layout(books, data='🔥 MEGA AKSIYA(5 + 1) 🔥', lang='uz')
+    new_basket_layout = basket_layout.split('\n')
+
+    rework_price = new_basket_layout[3].split(' ', 2)
+    rework_price[-1] = "0 so'm " + f'<s>{rework_price[-1].strip()}</s>'
+    new_basket_layout[3] = ' '.join(rework_price)
+
+    total = new_basket_layout.pop().split(':')
+    total[0] = 'Jami:'
+    total[-1] = f'<s>{total[-1].strip()}</s>'
+    new_basket_layout += [" 1100000 so'm ".join(total)]
+    new_basket_layout = '\n'.join(new_basket_layout)
+    new_basket_layout += caption
+
+    return new_basket_layout
 
 # def get_user_info_layout(user):
 #     layout = f"{USER_INFO_LAYOUT_DICT[user['lang']][NAME]}: {wrap_tags(user['name'])}\n\n" \
