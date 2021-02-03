@@ -3,6 +3,5 @@ __pycache__/
 config/
 jsons/
 *.json
-test.py
 my_pickle_conversations
 my_pickle_user_data
