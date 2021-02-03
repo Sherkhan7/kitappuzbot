@@ -149,10 +149,13 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     inline_keyboard += keyboard
                     inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
+                if order['with_action']:
+                    label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
+
                 client = get_user(order[USER_ID])
 
                 text = [
-                    f'\U0001F194 {order[ID]} {label}\n',
+                    f'\U0001F194 {order[ID]} {label}\n\n',
                     f'Status: {wrap_tags(status)}',
                     f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
                     f'Ism: {wrap_tags(client[FULLNAME])}',
@@ -189,6 +192,9 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             new_dict = dict()
             books_ids = []
             books_text = ''
+            label = ''
+            if order['with_action']:
+                label = "[🔥MEGA AKSIYA(5 + 1)🔥]"
 
             for item in order_itmes:
                 new_dict.update({item['book_id']: item['quantity']})
@@ -205,7 +211,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 if order[STATUS] == 'waiting' else 'yetkazilgan'
 
             text = [
-                f'\U0001F194 {order[ID]}\n',
+                f'\U0001F194 {order[ID]} {label}\n\n',
                 f'Status: {wrap_tags(status)}',
                 f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
             ]

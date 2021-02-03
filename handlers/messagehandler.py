@@ -1,14 +1,14 @@
 from telegram.ext import Filters, MessageHandler, CallbackContext
-from telegram import Update, ParseMode, InlineKeyboardMarkup
-from helpers import set_user_data
+from telegram import Update, InlineKeyboardMarkup
+
+from DB import *
+from helpers import set_user_data, wrap_tags
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
 from layouts import get_basket_layout
-from DB import *
-from helpers import wrap_tags
 import json
 
 
@@ -44,7 +44,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                             new_dict.update({item['book_id']: item['quantity']})
 
                         text_for_admin = f'\U0001F194 {order[ID]} ' + get_basket_layout(new_dict, user[LANG], data=data)
-                        text_for_admin += f'Mijoz: {wrap_tags(client[FULLNAME])}\n' \
+                        text_for_admin += f'\n\nMijoz: {wrap_tags(client[FULLNAME])}\n' \
                                           f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n'
                         # f'Manzil: {wrap_tags(order[ADDRESS])}\n'
 

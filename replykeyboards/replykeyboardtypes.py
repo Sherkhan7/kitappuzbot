@@ -3,8 +3,15 @@ from replykeyboards.replykeyboardvariables import *
 reply_keyboard_types = {
 
     client_menu_keyboard: {
-        "uz": {1: "Kitoblar", 2: "Buyurtmalarim", 3: "Biz bilan bog'lanish", 4: "Sozlamalar"},
+        "uz": {
+            1: "Kitoblar",
+            2: "Buyurtmalarim",
+            3: "Biz bilan bog'lanish",
+            4: "Sozlamalar",
+            5: "🔥 MEGA AKSIYA ( 5 + 1 ) 🔥"
+        },
     },
+
     admin_menu_keyboard: {
         "uz": {1: "Yangi buyurtmalar", 2: "Qabul qilingan buyutmalar", 3: "Tarix", 4: "Sozlamalar"},
     },
