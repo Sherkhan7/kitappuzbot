@@ -11,7 +11,7 @@ from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardvariables import *
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
-from layouts import get_book_layout, get_basket_layout, get_phone_number_layout
+from layouts import get_book_layout, get_basket_layout, get_phone_number_layout, get_action_layout
 
 import logging
 
@@ -41,6 +41,35 @@ def books_conversation_callback(update: Update, context: CallbackContext):
 
     user_data[USER_INPUT_DATA][STATE] = state
     user_data[USER_INPUT_DATA][MESSAGE_ID] = message.message_id
+
+    # logger.info('user_data: %s', user_data)
+    return state
+
+
+def mega_action_callback(update: Update, context: CallbackContext):
+    # with open('update.json', 'w') as update_file:
+    #     update_file.write(update.to_json())
+    user_data = context.user_data
+    set_user_data(update.effective_user.id, user_data)
+    user = user_data['user_data']
+
+    books = {6: 1, 4: 1, 2: 1, 3: 1, 5: 1, 1: 1}
+
+    inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
+    inline_keyboard.inline_keyboard.pop(0)
+
+    message = update.message.reply_photo(PHOTOS_URL + '5+1_action.jpg', get_action_layout(books),
+                                         reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
+
+    state = BASKET
+
+    if USER_INPUT_DATA not in user_data:
+        user_data[USER_INPUT_DATA] = dict()
+
+    user_data[USER_INPUT_DATA][STATE] = state
+    user_data[USER_INPUT_DATA][MESSAGE_ID] = message.message_id
+    user_data[USER_INPUT_DATA][BASKET] = books
+    user_data[USER_INPUT_DATA]['mega_action'] = True
 
     # logger.info('user_data: %s', user_data)
     return state
@@ -330,7 +359,11 @@ def phone_callback(update: Update, context: CallbackContext):
         update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
 
         layout = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
-        layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
+
+        if 'mega_action' in user_data[USER_INPUT_DATA]:
+            layout = get_action_layout(user_data[USER_INPUT_DATA][BASKET])
+
+        layout += f'\n\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
         layout += f'Telegram: {wrap_tags("@" + user[USERNAME])}' if user[USERNAME] else ''
 
@@ -343,7 +376,7 @@ def phone_callback(update: Update, context: CallbackContext):
 
     user_data[USER_INPUT_DATA][STATE] = state
 
-    logger.info('user_data: %s', user_data)
+    # logger.info('user_data: %s', user_data)
 
     return state
 
@@ -386,6 +419,9 @@ def confirmation_callback(update: Update, context: CallbackContext):
             PHONE_NUMBER: user_data[USER_INPUT_DATA][PHONE_NUMBER],
             USER_TG_ID: user[TG_ID]
         }
+
+        if 'mega_action' in user_data[USER_INPUT_DATA]:
+            order_data.update({'with_action': True})
 
         order_id = insert_data(order_data, 'orders')
 
@@ -454,12 +490,16 @@ def cancel_callback(update: Update, context: CallbackContext):
 
 
 books_conversation_handler = ConversationHandler(
-    entry_points=[MessageHandler(Filters.regex('Kitoblar$'), books_conversation_callback)],
+    entry_points=[
+        MessageHandler(Filters.regex('Kitoblar$'), books_conversation_callback),
+        MessageHandler(Filters.regex('MEGA AKSIYA'), mega_action_callback)
+    ],
+
     states={
 
-        BOOKS: [CallbackQueryHandler(books_callback, pattern=r'^(book_\d+|basket)$')],
+        BOOKS: [CallbackQueryHandler(books_callback, pattern=r'^(book_\d+|basket|with_action)$')],
 
-        BOOK: [CallbackQueryHandler(book_callback, pattern=r'^(ordering|back)$')],
+        BOOK: [CallbackQueryHandler(book_callback, pattern=r'^(ordering|back|ordering_action)$')],
 
         ORDER: [CallbackQueryHandler(order_callback, pattern=r'^(\+|\d|-|order|back)$')],
 
@@ -477,6 +517,8 @@ books_conversation_handler = ConversationHandler(
     fallbacks=[
         MessageHandler(Filters.text, cancel_callback),
     ],
+
     persistent=True,
+
     name='book_conversation'
 )
