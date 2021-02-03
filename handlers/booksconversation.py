@@ -58,6 +58,7 @@ def mega_action_callback(update: Update, context: CallbackContext):
     inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
     inline_keyboard.inline_keyboard.pop(0)
 
+    update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
     message = update.message.reply_photo(PHOTOS_URL + '5+1_action.jpg', get_action_layout(books),
                                          reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
@@ -492,6 +493,7 @@ def cancel_callback(update: Update, context: CallbackContext):
 books_conversation_handler = ConversationHandler(
     entry_points=[
         MessageHandler(Filters.regex('Kitoblar$'), books_conversation_callback),
+
         MessageHandler(Filters.regex('MEGA AKSIYA'), mega_action_callback)
     ],
 
