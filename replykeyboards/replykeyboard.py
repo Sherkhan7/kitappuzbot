@@ -38,7 +38,7 @@ class ReplyKeyboard(object):
             emoji_2 = '\U0001F4D1'
             emoji_3 = '\U0001F5C4'
 
-        return ReplyKeyboardMarkup([
+        reply_keyboard = ReplyKeyboardMarkup([
 
             [KeyboardButton(f'{emoji_1} {button[1]}')],
             [KeyboardButton(f'{emoji_2} {button[2]}')],
@@ -46,6 +46,11 @@ class ReplyKeyboard(object):
             # [KeyboardButton(f'\U00002699 {lang[4]}')],
 
         ], resize_keyboard=True, one_time_keyboard=True)
+
+        if keyb_type == client_menu_keyboard:
+            reply_keyboard.keyboard.insert(0, [KeyboardButton(button[5])])
+
+        return reply_keyboard
 
     @staticmethod
     def __get_settings_keyboard(button):
@@ -60,6 +65,7 @@ class ReplyKeyboard(object):
 
     @staticmethod
     def __get_phone_number_keyboard(buttons):
+
         return ReplyKeyboardMarkup([
             [
                 KeyboardButton(f'\U0001F464 {buttons[1]}', request_contact=True)]
