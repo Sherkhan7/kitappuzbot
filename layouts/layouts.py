@@ -59,15 +59,17 @@ def get_basket_layout(orders, lang, data=None):
     return layout
 
 
-def get_action_layout(books):
+def get_action_layout(books, data=None):
     caption = '\n\n1⃣ Daniel Pink dan "Drive"\n' \
               '2⃣ Piter Till dan "Zero to one"\n' \
               '3⃣ Maksim Batirevdan "Sotuvchining 45 tatuirovkasi"\n' \
               '4⃣ Robin Sharmadan "Muvaffaqiyatning 200 siri"\n' \
               '5⃣ Metyu Dekson va Brent Adamson dan "Savdo chempionlari"\n+\n' \
               '1⃣  J.Fried & D.H.Hansson dan "Rework" kitobi sizga tuhfa (bepul)\n\n'
+    if data:
+        data += ' 🔥MEGA AKSIYA(5 + 1)🔥'
 
-    basket_layout = get_basket_layout(books, data='🔥 MEGA AKSIYA(5 + 1) 🔥', lang='uz')
+    basket_layout = get_basket_layout(books, data=data, lang='uz')
     new_basket_layout = basket_layout.split('\n')
 
     rework_price = new_basket_layout[3].split(' ', 2)
@@ -82,6 +84,7 @@ def get_action_layout(books):
     new_basket_layout += caption
 
     return new_basket_layout
+
 
 # def get_user_info_layout(user):
 #     layout = f"{USER_INFO_LAYOUT_DICT[user['lang']][NAME]}: {wrap_tags(user['name'])}\n\n" \

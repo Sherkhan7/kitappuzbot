@@ -8,7 +8,7 @@ from replykeyboards.replykeyboardvariables import *
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
-from layouts import get_basket_layout
+from layouts import get_basket_layout, get_action_layout
 import json
 
 
@@ -38,13 +38,19 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         geo = json.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
 
                         new_dict = dict()
-                        data = '[Yangi buyurtma]'
+                        label = '[Yangi buyurtma]'
 
                         for item in order_itmes:
                             new_dict.update({item['book_id']: item['quantity']})
 
-                        text_for_admin = f'\U0001F194 {order[ID]} ' + get_basket_layout(new_dict, user[LANG], data=data)
-                        text_for_admin += f'\n\nMijoz: {wrap_tags(client[FULLNAME])}\n' \
+                        text_for_admin = f'\U0001F194 {order[ID]} '
+
+                        if order['with_action']:
+                            text_for_admin += get_action_layout(new_dict, data=label)
+                        else:
+                            text_for_admin += get_basket_layout(new_dict, user[LANG], data=label)
+
+                        text_for_admin += f'Mijoz: {wrap_tags(client[FULLNAME])}\n' \
                                           f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n'
                         # f'Manzil: {wrap_tags(order[ADDRESS])}\n'
 

@@ -364,7 +364,7 @@ def phone_callback(update: Update, context: CallbackContext):
         if 'mega_action' in user_data[USER_INPUT_DATA]:
             layout = get_action_layout(user_data[USER_INPUT_DATA][BASKET])
 
-        layout += f'\n\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
+        layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
         layout += f'Telegram: {wrap_tags("@" + user[USERNAME])}' if user[USERNAME] else ''
 
