@@ -112,6 +112,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 orders_list = get_orders_by_status(('delivered', 'canceled'))
                 history = True
                 label = '[Tarix]'
+
             else:
                 orders_list = get_orders_by_status('received')
                 history = None
@@ -155,7 +156,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 client = get_user(order[USER_ID])
 
                 text = [
-                    f'\U0001F194 {order[ID]} {label}\n\n',
+                    f'\U0001F194 {order[ID]} {label}\n',
                     f'Status: {wrap_tags(status)}',
                     f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
                     f'Ism: {wrap_tags(client[FULLNAME])}',
@@ -211,7 +212,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 if order[STATUS] == 'waiting' else 'yetkazilgan'
 
             text = [
-                f'\U0001F194 {order[ID]} {label}\n\n',
+                f'\U0001F194 {order[ID]} {label}\n',
                 f'Status: {wrap_tags(status)}',
                 f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
             ]

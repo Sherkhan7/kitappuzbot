@@ -60,21 +60,22 @@ def get_basket_layout(orders, lang, data=None):
 
 
 def get_action_layout(books, data=None):
-    caption = '\n\n1⃣ Daniel Pink dan "Drive"\n' \
-              '2⃣ Piter Till dan "Zero to one"\n' \
-              '3⃣ Maksim Batirevdan "Sotuvchining 45 tatuirovkasi"\n' \
-              '4⃣ Robin Sharmadan "Muvaffaqiyatning 200 siri"\n' \
-              '5⃣ Metyu Dekson va Brent Adamson dan "Savdo chempionlari"\n+\n' \
-              '1⃣  J.Fried & D.H.Hansson dan "Rework" kitobi sizga tuhfa (bepul)\n\n'
+    caption = "\n\n📚 Va nihoyat @kitappuz dan uzoq kutilgan  5⃣➕1⃣  askiyasiga start berildi!\n" \
+              "💥 Dunyoning yetakchi milliarderlari tomonidan ko‘p yillik tajribalariga" \
+              "asoslanib yozilgan biznes asarlar to‘plami.\n" \
+              "⚠️ Aksiyamiz 3-fevraldan 13-fevralgacha davom etadi.\n" \
+              "Shoshiling! Kitoblar soni cheklangan.\n" \
+              "Birinchi buyutrma qilgan 10 ta mijozga super bonus taqdim etiladi.\n\n"
+
     if data:
         data += ' 🔥MEGA AKSIYA(5 + 1)🔥'
 
     basket_layout = get_basket_layout(books, data=data, lang='uz')
     new_basket_layout = basket_layout.split('\n')
 
-    rework_price = new_basket_layout[3].split(' ', 2)
+    rework_price = new_basket_layout[23].split(' ', 2)
     rework_price[-1] = "0 so'm " + f'<s>{rework_price[-1].strip()}</s>'
-    new_basket_layout[3] = ' '.join(rework_price)
+    new_basket_layout[23] = ' '.join(rework_price)
 
     total = new_basket_layout.pop().split(':')
     total[0] = 'Jami:'
