@@ -47,6 +47,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
                         if order['with_action']:
                             text_for_admin += get_action_layout(new_dict, data=label)
+                            label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
                         else:
                             text_for_admin += get_basket_layout(new_dict, user[LANG], data=label)
 
@@ -73,11 +74,11 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]:
                     orders = get_orders_by_status(('delivered', 'canceled'))
                     empty_text = "Tarix  bo'sh !"
-                    history = '[Tarix]'
+                    label = '[Tarix]'
                 else:
                     orders = get_orders_by_status('received')
                     empty_text = 'Qabul qilingan buyurtmalar mavjud emas !'
-                    history = ''
+                    label = ''
 
                 if orders:
                     wanted = 1
@@ -89,6 +90,8 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     new_dict = dict()
                     books_ids = []
                     books_text = ''
+                    if order['with_action']:
+                        label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
 
                     for item in order_itmes:
                         new_dict.update({item['book_id']: item['quantity']})
@@ -101,7 +104,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                                       f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
 
                     inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders],
-                                                     history=history).get_keyboard()
+                                                     history=label).get_keyboard()
 
                     if order[GEOLOCATION]:
                         geo = json.loads(order[GEOLOCATION])
@@ -111,7 +114,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
                     text = [
-                        f'\U0001F194 {order[ID]} {history}\n',
+                        f'\U0001F194 {order[ID]} {label}\n',
                         f'Status: {wrap_tags(status)}',
                         f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n',
                         f'Ism: {wrap_tags(client[FULLNAME])}',
@@ -141,6 +144,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     new_dict = dict()
                     books_ids = []
                     books_text = ''
+                    label = ''
+                    if order['with_action']:
+                        label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
 
                     for item in order_itmes:
                         new_dict.update({item['book_id']: item['quantity']})
@@ -157,7 +163,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         if order[STATUS] == 'waiting' else 'yetkazilgan'
 
                     text = [
-                        f'\U0001F194 {order[ID]}\n',
+                        f'\U0001F194 {order[ID]} {label}\n',
                         f'Status: {wrap_tags(status)}',
                         f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}'
                     ]

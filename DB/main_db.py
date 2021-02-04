@@ -93,7 +93,7 @@ def get_books(ids):
 
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(f'SELECT * FROM {books_table_name} WHERE id in ({interval})')
+            cursor.execute(f'SELECT * FROM {books_table_name} WHERE id in ({interval}) ORDER BY id DESC')
 
     return cursor.fetchall()
 

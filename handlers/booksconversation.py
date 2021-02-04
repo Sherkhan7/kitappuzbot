@@ -59,7 +59,7 @@ def mega_action_callback(update: Update, context: CallbackContext):
     inline_keyboard.inline_keyboard.pop(0)
 
     update.message.reply_text(update.message.text, reply_markup=ReplyKeyboardRemove())
-    message = update.message.reply_photo(PHOTOS_URL + '5+1_action.jpg', get_action_layout(books),
+    message = update.message.reply_photo(PHOTOS_URL + '5+1_action.jpg', get_action_layout(books, data=' '),
                                          reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
     state = BASKET
@@ -362,7 +362,7 @@ def phone_callback(update: Update, context: CallbackContext):
         layout = get_basket_layout(user_data[USER_INPUT_DATA][BASKET], user[LANG])
 
         if 'mega_action' in user_data[USER_INPUT_DATA]:
-            layout = get_action_layout(user_data[USER_INPUT_DATA][BASKET])
+            layout = get_action_layout(user_data[USER_INPUT_DATA][BASKET], data=' ')
 
         layout += f'Mijoz: {wrap_tags(user[FULLNAME])}\n' \
                   f'Tel: {wrap_tags(user_data[USER_INPUT_DATA][PHONE_NUMBER])}\n'
