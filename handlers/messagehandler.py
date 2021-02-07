@@ -51,7 +51,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         else:
                             text_for_admin += get_basket_layout(new_dict, user[LANG], data=label)
 
-                        text_for_admin += f'Mijoz: {wrap_tags(client[FULLNAME])}\n' \
+                        text_for_admin += f'\nMijoz: {wrap_tags(client[FULLNAME])}\n' \
                                           f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n'
                         # f'Manzil: {wrap_tags(order[ADDRESS])}\n'
 
