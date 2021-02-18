@@ -13,7 +13,6 @@ from replykeyboards.replykeyboardvariables import *
 
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
 
@@ -154,7 +153,6 @@ registration_conversation_handler = ConversationHandler(
         CommandHandler(['start', 'menu'], do_command, filters=~Filters.update.edited_message),
     ],
     states={
-
         FULLNAME: [MessageHandler(Filters.text, fullname_callback)],
     },
     fallbacks=[],
