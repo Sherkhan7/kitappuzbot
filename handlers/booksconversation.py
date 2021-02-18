@@ -15,7 +15,6 @@ from layouts import get_book_layout, get_basket_layout, get_phone_number_layout,
 
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 logger = logging.getLogger()
 
 BOOKS, BOOK, ORDER, BASKET = ['books', 'book', 'order', 'basket']
@@ -283,51 +282,51 @@ def basket_callback(update: Update, context: CallbackContext):
     return state
 
 
-def address_callback(update: Update, context: CallbackContext):
-    # with open('jsons/callback_query.json', 'w') as update_file:
-    #     update_file.write(update.callback_query.to_json())
-    user_data = context.user_data
-    user = user_data['user_data']
+# def address_callback(update: Update, context: CallbackContext):
+#     # with open('jsons/callback_query.json', 'w') as update_file:
+#     #     update_file.write(update.callback_query.to_json())
+#     user_data = context.user_data
+#     user = user_data['user_data']
+#
+#     user_data[USER_INPUT_DATA][ADDRESS] = update.message.text
+#     text = "Geolokatsiyangizni yuboring.\n" \
+#            f"Yoki bu bosqichni o'tkazib yuborinsh uchun {wrap_tags('keyingisi')} tugmasini bosing"
+#
+#     reply_keyboard = ReplyKeyboard(location_keyboard, user[LANG]).get_keyboard()
+#     update.message.reply_html(text, reply_markup=reply_keyboard)
+#
+#     state = GEOLOCATION
+#
+#     user_data[USER_INPUT_DATA][STATE] = state
+#
+#     logger.info('user_data: %s', user_data)
+#     return state
 
-    user_data[USER_INPUT_DATA][ADDRESS] = update.message.text
-    text = "Geolokatsiyangizni yuboring.\n" \
-           f"Yoki bu bosqichni o'tkazib yuborinsh uchun {wrap_tags('keyingisi')} tugmasini bosing"
 
-    reply_keyboard = ReplyKeyboard(location_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_html(text, reply_markup=reply_keyboard)
-
-    state = GEOLOCATION
-
-    user_data[USER_INPUT_DATA][STATE] = state
-
-    logger.info('user_data: %s', user_data)
-    return state
-
-
-def geolocation_callback(update: Update, context: CallbackContext):
-    # with open('jsons/callback_query.json', 'w') as update_file:
-    #     update_file.write(update.callback_query.to_json())
-    user_data = context.user_data
-    user = user_data['user_data']
-
-    if update.message.location:
-        user_data[USER_INPUT_DATA][GEOLOCATION] = update.message.location.to_dict()
-    else:
-        user_data[USER_INPUT_DATA][GEOLOCATION] = None
-
-    text = "Siz bilan bog'lanishimiz uchun telefon raqamingizni yuboring\n"
-    layout = get_phone_number_layout(user[LANG])
-    repky_keyboard = ReplyKeyboard(phone_number_keyboard, user[LANG]).get_keyboard()
-    text += layout
-
-    update.message.reply_html(text, reply_markup=repky_keyboard)
-
-    state = PHONE_NUMBER
-
-    user_data[USER_INPUT_DATA][STATE] = state
-
-    logger.info('user_data: %s', user_data)
-    return state
+# def geolocation_callback(update: Update, context: CallbackContext):
+#     # with open('jsons/callback_query.json', 'w') as update_file:
+#     #     update_file.write(update.callback_query.to_json())
+#     user_data = context.user_data
+#     user = user_data['user_data']
+#
+#     if update.message.location:
+#         user_data[USER_INPUT_DATA][GEOLOCATION] = update.message.location.to_dict()
+#     else:
+#         user_data[USER_INPUT_DATA][GEOLOCATION] = None
+#
+#     text = "Siz bilan bog'lanishimiz uchun telefon raqamingizni yuboring\n"
+#     layout = get_phone_number_layout(user[LANG])
+#     repky_keyboard = ReplyKeyboard(phone_number_keyboard, user[LANG]).get_keyboard()
+#     text += layout
+#
+#     update.message.reply_html(text, reply_markup=repky_keyboard)
+#
+#     state = PHONE_NUMBER
+#
+#     user_data[USER_INPUT_DATA][STATE] = state
+#
+#     logger.info('user_data: %s', user_data)
+#     return state
 
 
 def phone_callback(update: Update, context: CallbackContext):
@@ -482,8 +481,8 @@ def cancel_callback(update: Update, context: CallbackContext):
         state = ConversationHandler.END
 
     else:
-        update.message.reply_text("Siz hozir \U0001F4DA Kitoblar bo'limidasiz."
-                                  "\nBu bo'limdan chiqish uchun /cancel yoki /menu kommandasini yuboring.", quote=True)
+        update.message.reply_text("Siz hozir \U0001F4DA Kitoblar bo'limidasiz.\n"
+                                  "Bu bo'limdan chiqish uchun /cancel yoki /menu kommandasini yuboring.", quote=True)
 
         state = user_data[USER_INPUT_DATA][STATE]
 
