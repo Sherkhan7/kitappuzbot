@@ -470,9 +470,12 @@ def cancel_callback(update: Update, context: CallbackContext):
     text = update.message.text
 
     if text == '/menu' or text == '/cancel':
-        context.bot.edit_message_reply_markup(user[TG_ID], user_data[USER_INPUT_DATA][MESSAGE_ID])
 
         text = 'Menu' if text == '/menu' else '\U0000274C Bekor qilindi !'
+
+        if not user_data[USER_INPUT_DATA][STATE] == PHONE_NUMBER:
+            context.bot.edit_message_reply_markup(user[TG_ID], user_data[USER_INPUT_DATA][MESSAGE_ID])
+
         reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
 
         update.message.reply_text(text, reply_markup=reply_keyboard)
