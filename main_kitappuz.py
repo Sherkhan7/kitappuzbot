@@ -4,9 +4,10 @@ from config import TOKEN
 from errorhandler import error_handler
 from handlers import (
     message_handler,
-    inline_keyboard_handler,
+    callback_query_handler,
     registration_conversation_handler,
-    books_conversation_handler
+    books_conversation_handler,
+    command_handler
 )
 
 
@@ -15,16 +16,15 @@ def main():
 
     updater = Updater(TOKEN, persistence=my_persistence)
 
-    #
-    # updater.dispatcher.add_handler(changedataconversation_handler)
-    #
+    updater.dispatcher.add_handler(command_handler)
+
     updater.dispatcher.add_handler(books_conversation_handler)
 
     updater.dispatcher.add_handler(registration_conversation_handler)
 
     updater.dispatcher.add_handler(message_handler)
 
-    updater.dispatcher.add_handler(inline_keyboard_handler)
+    updater.dispatcher.add_handler(callback_query_handler)
 
     # ...and the error handler
     updater.dispatcher.add_error_handler(error_handler)
