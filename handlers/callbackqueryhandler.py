@@ -262,4 +262,4 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     # logger.info('user_data: %s', user_data)
 
 
-inline_keyboard_handler = CallbackQueryHandler(inline_keyboards_handler_callback)
+callback_query_handler = CallbackQueryHandler(inline_keyboards_handler_callback)
