@@ -1,6 +1,6 @@
 from telegram import Update, InputFile
 from telegram.ext import CallbackContext
-from config import DEVELOPER_CHAT_ID, LOGS_URL
+from config import DEVELOPER_CHAT_ID
 
 import logging
 import traceback
@@ -40,7 +40,7 @@ def error_handler(update: Update, context: CallbackContext):
         f'{"".ljust(45, "*")}\n'
     )
     path = '/var/www/html/kitappuzbot/logs/'
-    document_name = datetime.datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + '.txt'
+    document_name = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.txt'
     full_path = path + document_name
     f = open(full_path, 'w')
     f.write(message)
@@ -48,7 +48,7 @@ def error_handler(update: Update, context: CallbackContext):
 
     f = open(full_path, 'r')
     caption = 'New error 😥'
-    document = InputFile(f, filename=LOGS_URL)
+    document = InputFile(f)
     f.close()
     # Finally, send the message
     context.bot.send_document(chat_id=DEVELOPER_CHAT_ID, caption=caption, document=document)
