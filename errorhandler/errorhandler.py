@@ -5,7 +5,7 @@ from config import DEVELOPER_CHAT_ID
 import logging
 import traceback
 import json
-import datetime
+
 
 # Setting up logging basic config for standart output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
