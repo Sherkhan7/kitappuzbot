@@ -206,4 +206,5 @@ def message_handler_callback(update: Update, context: CallbackContext):
         update.message.reply_text(reply_text)
 
 
-message_handler = MessageHandler(Filters.text & (~ Filters.command), message_handler_callback)
+message_handler = MessageHandler(Filters.text & (~ Filters.command & ~Filters.update.edited_message),
+                                 message_handler_callback)

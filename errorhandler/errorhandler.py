@@ -7,7 +7,6 @@ import traceback
 import json
 import datetime
 
-
 # Setting up logging basic config for standart output
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(levelname)s | %(message)s')
 
@@ -35,7 +34,7 @@ def error_handler(update: Update, context: CallbackContext):
         f'{"".ljust(45, "*")}\n'
         # f'<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n'
         # f'{"".ljust(45, "*")}\n'
-        f'context.user_data = {str(context.user_data)}\n'
+        f'context.user_data = {json.dumps(context.user_data, indent=4, ensure_ascii=False)}\n'
         f'{"".ljust(45, "*")}\n'
         f'{tb_string}\n'
         f'{"".ljust(45, "*")}\n'
@@ -51,5 +50,5 @@ def error_handler(update: Update, context: CallbackContext):
     caption = 'New error 😥'
     document = InputFile(f)
     f.close()
-    # Finally, send the message
+    # Finally, send the document
     context.bot.send_document(chat_id=DEVELOPER_CHAT_ID, caption=caption, document=document)
