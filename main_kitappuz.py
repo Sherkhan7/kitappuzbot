@@ -32,8 +32,7 @@ def main():
     # updater.start_polling()
     # updater.idle()
 
-    updater.start_webhook(listen='127.0.0.1', port=5004, url_path=TOKEN)
-    updater.bot.set_webhook(url='https://cardel.ml/' + TOKEN)
+    updater.start_webhook(port=5004, url_path=TOKEN, webhook_url='https://cardel.ml/' + TOKEN)
     updater.idle()
 
 
