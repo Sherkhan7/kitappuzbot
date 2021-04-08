@@ -1,6 +1,5 @@
-from telegram import Update, InputFile
-from telegram.ext import CallbackContext
-from config import DEVELOPER_CHAT_ID
+from telegram import InputFile
+from config import DEVELOPER_CHAT_ID, BOT_USERNAME
 
 import logging
 import traceback
@@ -14,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(name)s | %(level
 logger = logging.getLogger()
 
 
-def error_handler(update: Update, context: CallbackContext):
+def error_handler(update, context):
     """Log the error and send a telegram message to notify the developer."""
     # Log the error before we do anything else, so we can see it even if something breaks.
     logger.error(msg="Exception while handling an update:", exc_info=context.error)
@@ -39,7 +38,7 @@ def error_handler(update: Update, context: CallbackContext):
         f'{tb_string}\n'
         f'{"".ljust(45, "*")}\n'
     )
-    path = '/var/www/html/kitappuzbot/logs/'
+    path = f'/var/www/html/{BOT_USERNAME}/logs/'
     document_name = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.txt'
     full_path = path + document_name
     f = open(full_path, 'w')
@@ -47,7 +46,7 @@ def error_handler(update: Update, context: CallbackContext):
     f.close()
 
     f = open(full_path, 'r')
-    caption = 'New error 😥'
+    caption = '#newerror 😥'
     document = InputFile(f)
     f.close()
     # Finally, send the document
