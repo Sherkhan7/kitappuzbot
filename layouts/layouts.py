@@ -10,7 +10,7 @@ def get_book_layout(book_data, user_lang):
     lang = book_data[LANG]
     translator = str(book_data[TRANSLATOR])
     cover_type = book_data[COVER_TYPE]
-    price = str(book_data[PRICE]) + " so'm"
+    price = f"{book_data[PRICE]:,} so'm".replace(',', ' ')
     year = str(book_data[YEAR]) + " yil"
 
     layout = [
@@ -43,44 +43,37 @@ def get_basket_layout(orders, lang, data=None):
     layout = ''
     total = 0
 
-    for book in books:
-        total += book['price'] * orders[book[ID]]
-        quantity_price = str(orders[book[ID]]) + " X " + str(book[PRICE]) + " so'm"
+    for index, book in enumerate(books):
+        total += book[PRICE] * orders[book[ID]]
+        quantity_and_price = f"{orders[book[ID]]} X {book[PRICE]:,} so'm".replace(',', ' ')
 
-        layout += f'\U0001F4D5 {wrap_tags(book[TITLE])}:\n' \
-                  f'{quantity_price}' \
-                  f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+        layout += f'{index + 1}) 📕 {wrap_tags(book[TITLE])}:\n' \
+                  f'{quantity_and_price}\n' \
+                  f'{"_" * 22}\n\n'
 
     data = data if data else '\U0001F6D2 Savat'
-
     layout = wrap_tags(data) + "\n\n" + layout
-    layout += f"Jami: {total} so'm"
+    layout += f"Jami: {total:,} so'm".replace(',', ' ')
 
     return layout
 
 
-def get_action_layout(books, data=None):
-    caption = "\n\n📚 Va nihoyat @kitappuz dan uzoq kutilgan  5⃣➕1⃣  askiyasiga start berildi!\n" \
-              "💥 Dunyoning yetakchi milliarderlari tomonidan ko‘p yillik tajribalariga" \
-              "asoslanib yozilgan biznes asarlar to‘plami.\n" \
-              "⚠️ Aksiyamiz 3-fevraldan 13-fevralgacha davom etadi.\n" \
-              "Shoshiling! Kitoblar soni cheklangan.\n" \
-              "Birinchi buyutrma qilgan 10 ta mijozga super bonus taqdim etiladi.\n\n"
+def get_action_layout(books):
+    caption = "\n\n📚 Va nihoyat @kitappuz dan uzoq kutilgan  6⃣ + 1⃣  askiyasiga start berildi!\n" \
+              "💥 Dunyoning yetakchi milliarderlari tomonidan ko‘p yillik tajribalariga " \
+              "asoslanib yozilgan biznes asarlar to‘plami."
 
-    if data:
-        data += ' 🔥MEGA AKSIYA(5 + 1)🔥'
-
-    basket_layout = get_basket_layout(books, data=data, lang='uz')
+    basket_layout = get_basket_layout(books, data='🔥MEGA AKSIYA(6 + 1)🔥', lang='uz')
     new_basket_layout = basket_layout.split('\n')
 
-    rework_price = new_basket_layout[23].split(' ', 2)
+    rework_price = new_basket_layout[3].split(' ', 2)
     rework_price[-1] = "0 so'm " + f'<s>{rework_price[-1].strip()}</s>'
-    new_basket_layout[23] = ' '.join(rework_price)
+    new_basket_layout[3] = ' '.join(rework_price)
 
     total = new_basket_layout.pop().split(':')
     total[0] = 'Jami:'
     total[-1] = f'<s>{total[-1].strip()}</s>'
-    new_basket_layout += [" 1100000 so'm ".join(total)]
+    new_basket_layout += [" 1 300 000 so'm ".join(total)]
     new_basket_layout = '\n'.join(new_basket_layout)
     new_basket_layout += caption
 
