@@ -30,8 +30,6 @@ def main():
     updater.dispatcher.add_error_handler(error_handler)
 
     # updater.start_polling()
-    # updater.idle()
-
     updater.start_webhook(port=5004, url_path=TOKEN, webhook_url='https://cardel.ml/' + TOKEN)
     updater.idle()
 

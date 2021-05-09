@@ -135,10 +135,10 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 books = get_books(books_ids)
                 books_text = ''
 
-                for book in books:
-                    books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
-                                  f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
-                                  f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+                for index, book in enumerate(books):
+                    books_text += f'{index + 1}) Kitob nomi: {wrap_tags(book[TITLE])}\n' \
+                                  f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}\n' \
+                                  f'{"_" * 22}\n\n'
                 inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders_list],
                                                  history=history).get_keyboard()
 
@@ -150,7 +150,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
 
                 if order['with_action']:
-                    label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
+                    label += "[🔥MEGA AKSIYA🔥]"
 
                 client = get_user(order[USER_ID])
 
@@ -194,17 +194,17 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             books_text = ''
             label = ''
             if order['with_action']:
-                label = "[🔥MEGA AKSIYA(5 + 1)🔥]"
+                label = "[🔥MEGA AKSIYA🔥]"
 
             for item in order_itmes:
                 new_dict.update({item['book_id']: item['quantity']})
                 books_ids += [str(item['book_id'])]
 
             books = get_books(books_ids)
-            for book in books:
-                books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
-                              f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
-                              f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+            for index, book in enumerate(books):
+                books_text += f'{index + 1}) Kitob nomi: {wrap_tags(book[TITLE])}\n' \
+                              f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}\n' \
+                              f'{"_" * 22}\n\n'
 
             status = 'qabul qilingan' if order[STATUS] == 'received' else 'rad etilgan' \
                 if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' \

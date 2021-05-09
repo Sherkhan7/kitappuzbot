@@ -46,8 +46,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         text_for_admin = f'\U0001F194 {order[ID]} '
 
                         if order['with_action']:
-                            text_for_admin += get_action_layout(new_dict, data=label)
-                            label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
+                            text_for_admin += get_action_layout(new_dict)
                         else:
                             text_for_admin += get_basket_layout(new_dict, user[LANG], data=label)
 
@@ -75,10 +74,12 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     orders = get_orders_by_status(('delivered', 'canceled'))
                     empty_text = "Tarix  bo'sh !"
                     label = '[Tarix]'
+                    history = True
                 else:
                     orders = get_orders_by_status('received')
                     empty_text = 'Qabul qilingan buyurtmalar mavjud emas !'
                     label = ''
+                    history = None
 
                 if orders:
                     wanted = 1
@@ -90,21 +91,19 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     new_dict = dict()
                     books_ids = []
                     books_text = ''
-                    if order['with_action']:
-                        label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
 
                     for item in order_itmes:
                         new_dict.update({item['book_id']: item['quantity']})
                         books_ids += [str(item['book_id'])]
 
                     books = get_books(books_ids)
-                    for book in books:
-                        books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
-                                      f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
-                                      f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+                    for index, book in enumerate(books):
+                        books_text += f'{index + 1}) Kitob nomi: {wrap_tags(book[TITLE])}\n' \
+                                      f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}\n' \
+                                      f'{"_" * 22}\n\n'
 
                     inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders],
-                                                     history=label).get_keyboard()
+                                                     history=history).get_keyboard()
 
                     if order[GEOLOCATION]:
                         geo = json.loads(order[GEOLOCATION])
@@ -146,7 +145,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     books_text = ''
                     label = ''
                     if order['with_action']:
-                        label += "[🔥MEGA AKSIYA(5 + 1)🔥]"
+                        label += "[🔥MEGA AKSIYA🔥]"
 
                     for item in order_itmes:
                         new_dict.update({item['book_id']: item['quantity']})
@@ -188,8 +187,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
             elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
 
                 text = f"Kitapp premium adminlari bilan boglanish uchun:\n" \
-                       f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} yoki\n\n" \
-                       f"{wrap_tags('@alisherqultayev', '[ +998903261609 ]')} larga murojaat qilishingiz mumkin."
+                       f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} ga murojaat qilishingiz mumkin."
 
                 update.message.reply_html(text)
 

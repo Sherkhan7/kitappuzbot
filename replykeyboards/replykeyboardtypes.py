@@ -8,7 +8,7 @@ reply_keyboard_types = {
             2: "Buyurtmalarim",
             3: "Biz bilan bog'lanish",
             4: "Sozlamalar",
-            5: "🔥 MEGA AKSIYA ( 5 + 1 ) 🔥"
+            5: "🔥 MEGA AKSIYA ( 6 + 1 ) 🔥"
         },
     },
 
