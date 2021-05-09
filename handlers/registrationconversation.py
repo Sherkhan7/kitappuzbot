@@ -153,7 +153,7 @@ registration_conversation_handler = ConversationHandler(
         CommandHandler(['start', 'menu'], do_command, filters=~Filters.update.edited_message),
     ],
     states={
-        FULLNAME: [MessageHandler(Filters.text, fullname_callback)],
+        FULLNAME: [MessageHandler(Filters.text & (~Filters.update.edited_message), fullname_callback)],
     },
     fallbacks=[],
 
