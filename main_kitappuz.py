@@ -1,20 +1,17 @@
-from telegram.ext import Updater, PicklePersistence
+from telegram.ext import Updater, PicklePersistence, Defaults
+from telegram import ParseMode
 
 from config import TOKEN
 from errorhandler import error_handler
-from handlers import (
-    message_handler,
-    callback_query_handler,
-    registration_conversation_handler,
-    books_conversation_handler,
-    command_handler
-)
+from handlers import *
 
 
 def main():
     my_persistence = PicklePersistence(filename='my_pickle', single_file=False, store_chat_data=False)
 
-    updater = Updater(TOKEN, persistence=my_persistence)
+    updater = Updater(TOKEN, persistence=my_persistence, defaults=Defaults(parse_mode=ParseMode.HTML))
+
+    updater.dispatcher.add_handler(sendpost_conversation_handler)
 
     updater.dispatcher.add_handler(command_handler)
 
