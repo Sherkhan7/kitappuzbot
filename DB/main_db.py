@@ -64,6 +64,22 @@ def insert_order_items(items_data, table_name):
     return value
 
 
+def insert_order_items_2(data_values, fields_list, table_name):
+    fields = ','.join(fields_list)
+    mask = ','.join(['%s'] * len(fields_list))
+
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            sql = f'INSERT INTO {table_name} ({fields}) VALUES ({mask})'
+
+            cursor.executemany(sql, data_values)
+            connection.commit()
+
+    print(f'{table_name}: +{cursor.rowcount}')
+
+    return cursor.rowcount
+
+
 def get_user(id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
@@ -84,6 +100,14 @@ def get_all_books():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
             cursor.execute(f'SELECT * FROM {books_table_name}')
+
+    return cursor.fetchall()
+
+
+def get_all_users():
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f'SELECT * FROM {users_table_name}')
 
     return cursor.fetchall()
 
@@ -126,7 +150,6 @@ def get_order(order_id):
 
 
 def get_orders_by_status(status):
-
     if isinstance(status, tuple):
         sql = f'SELECT * FROM orders WHERE orders.status = %s OR orders.status = %s ORDER BY id DESC'
     else:
@@ -143,6 +166,20 @@ def update_order_status(status, order_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
             cursor.execute('UPDATE orders SET status = %s WHERE id = %s', (status, order_id))
+            connection.commit()
+
+    return_value = 'not updated'
+
+    if connection.affected_rows() != 0:
+        return_value = 'updated'
+
+    return return_value
+
+
+def update_post_status(status, post_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('UPDATE posts SET status = %s WHERE id = %s', (status, post_id))
             connection.commit()
 
     return_value = 'not updated'
