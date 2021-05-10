@@ -45,7 +45,7 @@ class ReplyKeyboard(object):
             [KeyboardButton(f'{emoji_3} {button[3]}')],
             # [KeyboardButton(f'\U00002699 {lang[4]}')],
 
-        ], resize_keyboard=True, one_time_keyboard=True)
+        ], resize_keyboard=True)
 
         if keyb_type == client_menu_keyboard:
             reply_keyboard.keyboard.insert(0, [KeyboardButton(button[5])])
