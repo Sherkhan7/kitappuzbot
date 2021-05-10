@@ -143,7 +143,7 @@ class InlineKeyboard(object):
             from_longitude = data['longitude']
             inline_keyboard.append(
                 [InlineKeyboardButton(button1_text,
-                                      url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
+                                      url=f'https://www.google.com/maps/place/{from_latitude},{from_longitude}/'
                                           f'@{from_latitude},{from_longitude},12z')])
 
         button2_text = f'\U00002705 {buttons[0]}'
@@ -170,8 +170,8 @@ class InlineKeyboard(object):
             from_longitude = data[0]['longitude']
             inline_keyboard.append(
                 [InlineKeyboardButton(button1_text,
-                                      url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
-                                          f'@{from_latitude},{from_longitude},12z')])
+                                      url=f'https://www.google.com/maps/place/{from_latitude},{from_longitude}/@'
+                                          f'{from_latitude},{from_longitude},12z')])
 
         button2_text = f'\U00002705 {buttons[1]}'
         button3_text = f'\U0000274C {buttons[2]}'
@@ -192,7 +192,7 @@ class InlineKeyboard(object):
 
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(button2_text,
-                                  url=f'http://www.google.com/maps/place/{from_latitude},{from_longitude}/'
+                                  url=f'https://www.google.com/maps/place/{from_latitude},{from_longitude}/'
                                       f'@{from_latitude},{from_longitude},12z')]
         ])
 
