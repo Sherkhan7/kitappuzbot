@@ -1,16 +1,16 @@
-from telegram.ext import CallbackQueryHandler, CallbackContext
-from telegram import Update, ParseMode, InlineKeyboardMarkup
-from config import ACTIVE_ADMINS
-from DB import *
+import json
+import re
+import logging
 
+from telegram.ext import CallbackQueryHandler, CallbackContext
+from telegram import Update, ParseMode, InlineKeyboardMarkup, TelegramError
+
+from DB import *
+from config import ACTIVE_ADMINS
 from helpers import wrap_tags, set_user_data
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 from globalvariables import *
-
-import json
-import re
-import logging
 
 logger = logging.getLogger()
 
@@ -103,8 +103,10 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             else:
 
                 inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
-                callback_query.edit_message_reply_markup(inline_keyboard)
-
+                try:
+                    callback_query.edit_message_reply_markup(inline_keyboard)
+                except TelegramError:
+                    pass
         elif match_obj_3 or match_obj_4:
 
             if match_obj_4:
