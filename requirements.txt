@@ -1,3 +1,4 @@
 python-telegram-bot==13.4.1
 PyMySQL==1.0.2
+ujson==4.0.2
 ptbcontrib @ git+https://github.com/python-telegram-bot/ptbcontrib.git@35274e66943ba609a56fb55bd09a022a5405fac0
