@@ -1,5 +1,5 @@
 from telegram import InputFile
-from config import DEVELOPER_CHAT_ID, BOT_USERNAME
+from config import DEVELOPER_CHAT_ID, LOGS_URL
 
 import logging
 import traceback
@@ -38,16 +38,12 @@ def error_handler(update, context):
         f'{tb_string}\n'
         f'{"".ljust(45, "*")}\n'
     )
-    path = f'/var/www/html/{BOT_USERNAME}/logs/'
     document_name = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.txt'
-    full_path = path + document_name
-    f = open(full_path, 'w')
-    f.write(message)
-    f.close()
-
-    f = open(full_path, 'r')
+    full_path = LOGS_URL + document_name
+    with open(full_path, 'w+') as file:
+        file.write(message)
+        file.seek(0)
+        document = InputFile(file)
     caption = '#newerror 😥'
-    document = InputFile(f)
-    f.close()
     # Finally, send the document
     context.bot.send_document(chat_id=DEVELOPER_CHAT_ID, caption=caption, document=document)
