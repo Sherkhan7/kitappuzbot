@@ -1,7 +1,7 @@
 from telegram.ext import Updater, PicklePersistence, Defaults
 from telegram import ParseMode
 
-from config import TOKEN, BASE_URL
+from config import TOKEN, BASE_URL, PORT
 from errorhandler import error_handler
 from handlers import *
 
@@ -27,7 +27,7 @@ def main():
     updater.dispatcher.add_error_handler(error_handler)
 
     # updater.start_polling()
-    updater.start_webhook(port=5004, url_path=TOKEN, webhook_url=BASE_URL + TOKEN)
+    updater.start_webhook(port=PORT, url_path=TOKEN, webhook_url=BASE_URL + TOKEN)
     updater.idle()
 
 
