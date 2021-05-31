@@ -121,7 +121,7 @@ def fullname_callback(update: Update, context: CallbackContext):
         #     example = "Мисол: Шерзод Эсанов"
 
         text = f'\U000026A0 {text}:\n\n {wrap_tags(example)}'
-        update.message.reply_html(text, quote=True)
+        update.message.reply_text(text, quote=True)
         state = FULLNAME
 
     # logger.info('user_data: %s', user_data)

@@ -166,7 +166,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             callback_query.answer()
 
     elif not user[IS_ADMIN]:
-
         match_obj = re.search(r'^w_\d+$', data)
         match_obj_2 = re.search(r'^d_\d+$', data)
         callback_query.answer()
@@ -205,7 +204,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             ]
             text = '\n'.join(text)
             text += f'\n\n{books_text}'
-
             inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, user_orders]) \
                 .get_keyboard()
 
@@ -218,28 +216,23 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
         elif match_obj_2:
-
             order_id = data.split('_')[-1]
             status = 'delivered'
             update_order_status(status, order_id)
 
             status = 'yetkazilgan'
             text = callback_query.message.text_html.split('\n')
-
             if len(callback_query.message.reply_markup.inline_keyboard) == 1:
                 text += [
                     f'\nStatus: {wrap_tags(status)}'
                 ]
                 text = '\n'.join(text)
-
                 callback_query.edit_message_text(text, parse_mode=ParseMode.HTML)
 
             else:
-
                 text[2] = f'Status: {wrap_tags(status)}'
                 text = '\n'.join(text)
                 inline_keyboard = InlineKeyboardMarkup([callback_query.message.reply_markup.inline_keyboard[0]])
-
                 callback_query.edit_message_text(text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
     else:

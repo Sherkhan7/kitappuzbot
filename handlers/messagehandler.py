@@ -52,7 +52,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                             if client[USERNAME] else '\n'
                         text_for_admin += f'Status: {wrap_tags("qabul qilish kutilmoqda")}'
                         inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG], [geo, order[ID]]).get_keyboard()
-                        update.message.reply_html(text_for_admin, reply_markup=inline_keyboard)
+                        update.message.reply_text(text_for_admin, reply_markup=inline_keyboard)
 
                 else:
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
@@ -114,7 +114,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     ]
                     text = '\n'.join(text)
                     text += f'\n\n{books_text}'
-                    update.message.reply_html(text, reply_markup=inline_keyboard)
+                    update.message.reply_text(text, reply_markup=inline_keyboard)
 
                 else:
                     update.message.reply_text(empty_text)
@@ -163,7 +163,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         pag_keyb = inline_keyboard.inline_keyboard
                         deliv_keyb = deliv_keyb.inline_keyboard
                         inline_keyboard = InlineKeyboardMarkup(pag_keyb + deliv_keyb)
-                    update.message.reply_html(text, reply_markup=inline_keyboard)
+                    update.message.reply_text(text, reply_markup=inline_keyboard)
 
                 else:
                     update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
@@ -174,7 +174,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 text = f"Kitapp premium adminlari bilan boglanish uchun:\n" \
                        f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} ga murojaat qilishingiz mumkin."
 
-                update.message.reply_html(text)
+                update.message.reply_text(text)
 
             else:
                 thinking_emoji = '\U0001F914'
