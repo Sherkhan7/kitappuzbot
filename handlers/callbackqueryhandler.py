@@ -1,4 +1,4 @@
-import json
+import ujson
 import re
 import logging
 
@@ -7,10 +7,11 @@ from telegram import Update, ParseMode, InlineKeyboardMarkup, TelegramError
 
 from DB import *
 from config import ACTIVE_ADMINS
-from helpers import wrap_tags, set_user_data
+from helpers import wrap_tags
+from globalvariables import *
+
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
-from globalvariables import *
 
 logger = logging.getLogger()
 
@@ -18,22 +19,16 @@ logger = logging.getLogger()
 def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
     # with open('jsons/callback_query.json', 'w') as callback_query_file:
     #     callback_query_file.write(callback_query.to_json())
-    user_data = context.user_data
-    set_user_data(update.effective_user.id, user_data)
-    user = user_data['user_data']
-
+    user = get_user(update.effective_user.id)
     callback_query = update.callback_query
     data = callback_query.data
 
     if user[IS_ADMIN] and user[TG_ID] in ACTIVE_ADMINS:
-
         match_obj = re.search(r'^[rc]_\d+$', data)
         match_obj_2 = re.search(r'[rc]_[yn]_\d+$', data)
         match_obj_3 = re.search(r'^w_\d+$', data)
         match_obj_4 = re.search(r'^h_w_\d+$', data)
-
         new_text = ''
-
         if match_obj or match_obj_2:
 
             if match_obj:
@@ -43,15 +38,13 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             elif match_obj_2:
                 data = match_obj_2.string.split('_')
                 order = get_order(data[-1])
-
-                geo = json.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
+                geo = ujson.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
 
                 if data[1] == 'n':
                     keyboard = orders_keyboard
                     data = [geo, data[-1]]
 
                 elif data[1] == 'y':
-
                     status = 'canceled' if data[0] == 'c' else 'received'
 
                     if order[STATUS] == 'waiting':
@@ -59,7 +52,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                         status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
 
                         if update_result:
-                            client_text = 'Buyurtma rad qilindi.' if status == 'canceled' else 'Buyurtma qabul qilindi.'
+                            client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi'
                             client_text = wrap_tags(client_text) + f' [ \U0001F194 {order[ID]} ]'
 
                             if status == 'received':
@@ -84,7 +77,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                         status_text = 'buyurtma avval rad qilingan !'
 
                     data, keyboard = (geo, geo_keyboard) if geo else (None, None)
-
                     new_text = callback_query.message.text_html.split('\n')
                     new_text[0] = ' '.join(new_text[0].split()[:2])
                     new_text[-1] = f'Status: {wrap_tags(status_text)}'
@@ -97,18 +89,16 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
                 else:
                     inline_keyboard = None
-
                 callback_query.edit_message_text(new_text, reply_markup=inline_keyboard, parse_mode=ParseMode.HTML)
 
             else:
-
                 inline_keyboard = InlineKeyboard(keyboard, user[LANG], data=data).get_keyboard()
                 try:
                     callback_query.edit_message_reply_markup(inline_keyboard)
                 except TelegramError:
                     pass
-        elif match_obj_3 or match_obj_4:
 
+        elif match_obj_3 or match_obj_4:
             if match_obj_4:
                 orders_list = get_orders_by_status(('delivered', 'canceled'))
                 history = True
@@ -123,7 +113,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                 wanted = int(data.split('_')[-1])
                 if wanted > len(orders_list):
                     wanted = 1
-
                 order = orders_list[wanted - 1]
                 status = 'yetkazilgan' if order[STATUS] == 'delivered' else 'rad etilgan' \
                     if order[STATUS] == 'canceled' else 'qabul qilingan'
@@ -145,7 +134,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                                                  history=history).get_keyboard()
 
                 if order[GEOLOCATION]:
-                    geo = json.loads(order[GEOLOCATION])
+                    geo = ujson.loads(order[GEOLOCATION])
                     inline_keyboard = inline_keyboard.inline_keyboard
                     keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
                     inline_keyboard += keyboard
@@ -155,7 +144,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     label += "[🔥MEGA AKSIYA🔥]"
 
                 client = get_user(order[USER_ID])
-
                 text = [
                     f'\U0001F194 {order[ID]} {label}\n',
                     f'Status: {wrap_tags(status)}',
@@ -165,7 +153,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     f'Telegram: {wrap_tags("@" + client[USERNAME])}' if client[USERNAME] else ''
                     # f'Manzil: {order["address"]}',
                 ]
-
                 text = '\n'.join(text)
                 text += f'\n\n{books_text}'
                 callback_query.answer()
@@ -173,7 +160,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
             else:
                 text = "Tarix bo'limiga o'ting !"
-
                 callback_query.edit_message_text(text)
 
         else:
@@ -260,7 +246,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
         callback_query.answer("Siz aktiv admin emassiz !!!\n"
                               "Siz siz bu operatsiyani bajara olmaysiz !!!\n\n"
                               "\U00002639\U00002639\U00002639\U00002639\U00002639", show_alert=True)
-
     # logger.info('user_data: %s', user_data)
 
 
