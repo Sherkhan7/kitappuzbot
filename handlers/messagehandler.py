@@ -142,8 +142,8 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     books = get_books(books_ids)
                     for book in books:
                         books_text += f'Kitob nomi: {wrap_tags(book[TITLE])}\n' \
-                                      f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}' \
-                                      f'\n{wrap_tags("".ljust(22, "-"))}\n\n'
+                                      f'Soni: {wrap_tags(str(new_dict[book[ID]]) + " ta")}\n' \
+                                      f'{"_" * 22}\n\n'
 
                     status = 'qabul qilingan' if order[STATUS] == 'received' else 'rad etilgan' \
                         if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' \
