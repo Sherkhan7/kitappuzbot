@@ -16,4 +16,5 @@ COVER_TYPE_TEXT, YEAR_TEXT, USER_PHONE_NUMBER_TEXT, STATE, ADDRESS, ID, LANG, ST
 STATUS_TEXT, OPENED_STATUS, CLOSED_STATUS, NOT_CONFIRMED_STATUS, TG_ACCOUNT_TEXT, UNDEFINED_TEXT = \
     ('status_text', 'opened_status', 'closed_status', 'not_confirmed_status', 'tg_account_text', 'undifened_text')
 
-POST_CONTENT, SEND_POST_CONFIRMATION = ('post_content', 'send_post_confirmation')
+POST_CONTENT, SEND_POST_CONFIRMATION, BOOKS, BOOK, ORDER, BASKET = \
+    ('post_content', 'send_post_confirmation', 'books', 'book', 'order', 'basket')

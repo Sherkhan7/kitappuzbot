@@ -100,15 +100,12 @@ class InlineKeyboard(object):
         button2_text = f'\U00002B05  {buttons[2]}'
         button2_data = 'back'
 
-        minus_sign = '\U00002796'
-        pilus_sign = '\U00002795'
-
         return InlineKeyboardMarkup(
             [
                 [
-                    InlineKeyboardButton(f'{minus_sign}', callback_data='-'),
+                    InlineKeyboardButton(f'-', callback_data='-'),
                     InlineKeyboardButton('1', callback_data='1'),
-                    InlineKeyboardButton(f'{pilus_sign}', callback_data='+'),
+                    InlineKeyboardButton(f'+', callback_data='+'),
                 ],
 
                 [InlineKeyboardButton(button1_text, callback_data=button1_data)],
