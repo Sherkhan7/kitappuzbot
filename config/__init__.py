@@ -7,6 +7,7 @@ from .config import (
     ACTIVE_ADMINS,
     ADMINS,
     DEVELOPER_CHAT_ID,
-    LOGS_URL,
+    LOGS_PATH,
+    XLSXFILES_PATH,
     BOT_USERNAME,
 )

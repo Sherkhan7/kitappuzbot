@@ -1,5 +1,5 @@
 from telegram import InputFile
-from config import DEVELOPER_CHAT_ID, LOGS_URL
+from config import DEVELOPER_CHAT_ID, LOGS_PATH
 
 import logging
 import traceback
@@ -39,7 +39,7 @@ def error_handler(update, context):
         f'{"".ljust(45, "*")}\n'
     )
     document_name = datetime.datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.txt'
-    full_path = LOGS_URL + document_name
+    full_path = LOGS_PATH + document_name
     with open(full_path, 'w+') as file:
         file.write(message)
         file.seek(0)
