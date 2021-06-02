@@ -27,12 +27,10 @@ class ReplyKeyboard(object):
             return self.__get_location_keyboard(reply_keyboard_types[keyb_type][lang])
 
     @staticmethod
-    def __get_menu_keyboard(button, keyb_type):
-
+    def __get_menu_keyboard(buttons, keyb_type):
         emoji_1 = '📚'
         emoji_2 = '📄'
         emoji_3 = '☎️'
-
         if keyb_type == admin_menu_keyboard:
             emoji_1 = '📒'
             emoji_2 = '📑'
@@ -40,16 +38,14 @@ class ReplyKeyboard(object):
             emoji_4 = '💾'
 
         reply_keyboard = ReplyKeyboardMarkup([
-
-            [KeyboardButton(f'{emoji_1} {button[1]}')],
-            [KeyboardButton(f'{emoji_2} {button[2]}')],
-            [KeyboardButton(f'{emoji_3} {button[3]}')],
-            [KeyboardButton(f'{emoji_4} {button[4]}')],
-
+            [KeyboardButton(f'{emoji_1} {buttons[1]}')],
+            [KeyboardButton(f'{emoji_2} {buttons[2]}')],
+            [KeyboardButton(f'{emoji_3} {buttons[3]}')],
         ], resize_keyboard=True)
-
         if keyb_type == client_menu_keyboard:
-            reply_keyboard.keyboard.insert(0, [KeyboardButton(button[5])])
+            reply_keyboard.keyboard.insert(0, [KeyboardButton(buttons[5])])
+        elif keyb_type == admin_menu_keyboard:
+            reply_keyboard.keyboard.append([KeyboardButton(f'{emoji_4} {buttons[4]}')])
 
         return reply_keyboard
 
