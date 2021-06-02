@@ -112,6 +112,14 @@ def get_all_users():
     return cursor.fetchall()
 
 
+def get_all_orders():
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f'SELECT * FROM `orders`')
+
+    return cursor.fetchall()
+
+
 def get_books(ids):
     interval = ",".join(ids)
 
