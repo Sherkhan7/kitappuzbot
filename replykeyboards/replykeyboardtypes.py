@@ -13,7 +13,12 @@ reply_keyboard_types = {
     },
 
     admin_menu_keyboard: {
-        "uz": {1: "Yangi buyurtmalar", 2: "Qabul qilingan buyutmalar", 3: "Tarix", 4: "Sozlamalar"},
+        "uz": {
+            1: "Yangi buyurtmalar",
+            2: "Qabul qilingan buyutmalar",
+            3: "Tarix",
+            4: "Bazani yuklash",
+        },
     },
 
     settings_keyboard: {

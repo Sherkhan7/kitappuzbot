@@ -34,7 +34,7 @@ def do_command(update: Update, context: CallbackContext):
             # if user[LANG] == LANGS[2]:
             #     text = "Сиз рўйхатдан ўтгансиз"
 
-            text = f'\U000026A0 {text} !'
+            text = f'⚠ {text} !'
 
             if command == '/menu':
                 if user[LANG] == LANGS[0]:
@@ -46,7 +46,7 @@ def do_command(update: Update, context: CallbackContext):
                 # if user[LANG] == LANGS[2]:
                 #     reply_text = "Меню"
 
-                text = f'\U0001F4D6 {reply_text}'
+                text = f'📖 {reply_text}'
 
             menu_keyboard = admin_menu_keyboard if user[IS_ADMIN] else client_menu_keyboard
             reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()

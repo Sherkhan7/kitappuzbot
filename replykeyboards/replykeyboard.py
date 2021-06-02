@@ -29,21 +29,22 @@ class ReplyKeyboard(object):
     @staticmethod
     def __get_menu_keyboard(button, keyb_type):
 
-        emoji_1 = '\U0001F4DA'
-        emoji_2 = '\U0001F4C4'
-        emoji_3 = '\U0000260E'
+        emoji_1 = '📚'
+        emoji_2 = '📄'
+        emoji_3 = '☎️'
 
         if keyb_type == admin_menu_keyboard:
-            emoji_1 = '\U0001F4D2'
-            emoji_2 = '\U0001F4D1'
-            emoji_3 = '\U0001F5C4'
+            emoji_1 = '📒'
+            emoji_2 = '📑'
+            emoji_3 = '🗄'
+            emoji_4 = '💾'
 
         reply_keyboard = ReplyKeyboardMarkup([
 
             [KeyboardButton(f'{emoji_1} {button[1]}')],
             [KeyboardButton(f'{emoji_2} {button[2]}')],
             [KeyboardButton(f'{emoji_3} {button[3]}')],
-            # [KeyboardButton(f'\U00002699 {lang[4]}')],
+            [KeyboardButton(f'{emoji_4} {button[4]}')],
 
         ], resize_keyboard=True)
 

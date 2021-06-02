@@ -6,7 +6,7 @@ from telegram import Update, InlineKeyboardMarkup
 from DB import *
 from globalvariables import *
 from layouts import *
-from helpers import wrap_tags
+from helpers import wrap_tags, import_database
 
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
@@ -119,6 +119,13 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 else:
                     update.message.reply_text(empty_text)
 
+            # Bazani yuklash
+            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][4]:
+                context.bot.send_chat_action(user[TG_ID], 'upload_document')
+                full_path = import_database()
+                with open(full_path, 'rb') as file:
+                    update.message.reply_document(file)
+
         else:
             # Buyrutmalarim
             if text == reply_keyboard_types[client_menu_keyboard][user[LANG]][2]:
@@ -170,16 +177,13 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
             # Biz bilan bo'glanish
             elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
-
                 text = f"Kitapp premium adminlari bilan boglanish uchun:\n" \
                        f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} ga murojaat qilishingiz mumkin."
-
                 update.message.reply_text(text)
 
             else:
-                thinking_emoji = '\U0001F914'
+                thinking_emoji = '🤔'
                 update.message.reply_text(thinking_emoji, quote=True)
-
     else:
         reply_text = "\U000026A0 Siz ro'yxatdan o'tmagansiz !\nBuning uchun /start ni bosing."
         # "\U000026A0 Вы не зарегистрированы !\nДля этого нажмите /start\n\n" \
