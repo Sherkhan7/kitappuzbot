@@ -5,6 +5,7 @@ from telegram import Update, InlineKeyboardMarkup
 
 from DB import *
 from globalvariables import *
+from config import *
 from layouts import *
 from helpers import wrap_tags, import_database
 
@@ -25,7 +26,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
     if user:
         if user[IS_ADMIN]:
             # Yangi buyurtmalar
-            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][1]:
+            if text == reply_keyboard_types[admin_menu_keyboard][0][f'text_{user[LANG]}']:
                 waiting_orders = get_orders_by_status(status='waiting')
                 if waiting_orders:
                     for order in waiting_orders:
@@ -58,10 +59,10 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
 
             # Qabul qilingan buyutmalar or Tarix
-            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][2] or \
-                    (text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]):
+            if text == reply_keyboard_types[admin_menu_keyboard][1][f'text_{user[LANG]}'] or \
+                    (text == reply_keyboard_types[admin_menu_keyboard][2][f'text_{user[LANG]}']):
 
-                if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][3]:
+                if text == reply_keyboard_types[admin_menu_keyboard][2][f'text_{user[LANG]}']:
                     orders = get_orders_by_status(('delivered', 'canceled'))
                     empty_text = "Tarix  bo'sh !"
                     label = '[Tarix]'
@@ -120,7 +121,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     update.message.reply_text(empty_text)
 
             # Bazani yuklash
-            if text == reply_keyboard_types[admin_menu_keyboard][user[LANG]][4]:
+            if text == reply_keyboard_types[admin_menu_keyboard][3][f'text_{user[LANG]}']:
                 context.bot.send_chat_action(user[TG_ID], 'upload_document')
                 full_path = import_database()
                 with open(full_path, 'rb') as file:
@@ -128,7 +129,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
         else:
             # Buyrutmalarim
-            if text == reply_keyboard_types[client_menu_keyboard][user[LANG]][2]:
+            if text == reply_keyboard_types[client_menu_keyboard][2][f'text_{user[LANG]}']:
                 user_orders = get_user_orders(user[ID])
 
                 if user_orders:
@@ -175,8 +176,13 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 else:
                     update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
 
+            # Biz ijtimoiy tarmoqlarda
+            elif text == reply_keyboard_types[client_menu_keyboard][3][f'text_{user[LANG]}']:
+                inline_keyboard = InlineKeyboard(social_medias_keyboard, user[LANG]).get_keyboard()
+                update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyboard)
+
             # Biz bilan bo'glanish
-            elif text == reply_keyboard_types[client_menu_keyboard][user[LANG]][3]:
+            elif text == reply_keyboard_types[client_menu_keyboard][4][f'text_{user[LANG]}']:
                 text = f"Kitapp premium adminlari bilan boglanish uchun:\n" \
                        f"{wrap_tags('@kitapp_admin', '[ +998999131099 ]')} ga murojaat qilishingiz mumkin."
                 update.message.reply_text(text)
@@ -184,9 +190,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
             else:
                 thinking_emoji = '🤔'
                 update.message.reply_text(thinking_emoji, quote=True)
+
     else:
-        reply_text = "\U000026A0 Siz ro'yxatdan o'tmagansiz !\nBuning uchun /start ni bosing."
-        # "\U000026A0 Вы не зарегистрированы !\nДля этого нажмите /start\n\n" \
+        reply_text = "🔴 Siz ro'yxatdan o'tmagansiz !\nBuning uchun /start ni bosing"
         # "\U000026A0 Сиз рўйхатдан ўтмагансиз !\nБунинг учун /start ни босинг"
         update.message.reply_text(reply_text)
 
