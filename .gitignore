@@ -2,5 +2,6 @@
 __pycache__/
 config/config.py
 *.json
+*.xlsx
 my_pickle_conversations
 my_pickle_user_data

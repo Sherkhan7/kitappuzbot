@@ -26,7 +26,7 @@ from ptbcontrib.send_by_kwargs import send_by_kwargs
 from DB import *
 from globalvariables import *
 from languages import LANGS
-from config import DEVELOPER_CHAT_ID, LOGS_URL
+from config import DEVELOPER_CHAT_ID, LOGS_PATH
 from helpers import delete_message_by_message_id
 
 from replykeyboards import ReplyKeyboard
@@ -76,7 +76,7 @@ def send_messages(context: CallbackContext):
     }
 
     document_name = datetime.datetime.now().strftime("sent_post_%d-%m-%Y_%H-%M-%S") + '.txt'
-    full_path = LOGS_URL + document_name
+    full_path = LOGS_PATH + document_name
     with open(full_path, 'w+') as file:
         file.write(ujson.dumps(errors_dict, indent=3))
         file.seek(0)
