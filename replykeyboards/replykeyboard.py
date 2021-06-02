@@ -9,10 +9,15 @@ class ReplyKeyboard(object):
         self.__lang = lang
 
     def __create_reply_keyboard(self):
-        return ReplyKeyboardMarkup([
+        reply_keyboard = [
             [KeyboardButton(f"{button['emoji']} {button[f'text_{self.__lang}']}")]
             for button in reply_keyboard_types[self.__type]
-        ], resize_keyboard=True)
+        ]
+
+        if self.__type == phone_number_keyboard:
+            reply_keyboard[0][0].request_contact = True
+
+        return ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
 
     def get_keyboard(self):
         return self.__create_reply_keyboard()
