@@ -60,7 +60,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
             # Qabul qilingan buyutmalar or Tarix
             if text == reply_keyboard_types[admin_menu_keyboard][1][f'text_{user[LANG]}'] or \
-                    (text == reply_keyboard_types[admin_menu_keyboard][2][f'text_{user[LANG]}']):
+                    (text == reply_keyboard_types[admin_menu_keyboard][3][f'text_{user[LANG]}']):
 
                 if text == reply_keyboard_types[admin_menu_keyboard][2][f'text_{user[LANG]}']:
                     orders = get_orders_by_status(('delivered', 'canceled'))
@@ -121,7 +121,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     update.message.reply_text(empty_text)
 
             # Bazani yuklash
-            if text == reply_keyboard_types[admin_menu_keyboard][3][f'text_{user[LANG]}']:
+            if text == reply_keyboard_types[admin_menu_keyboard][4][f'text_{user[LANG]}']:
                 context.bot.send_chat_action(user[TG_ID], 'upload_document')
                 full_path = import_database()
                 with open(full_path, 'rb') as file:

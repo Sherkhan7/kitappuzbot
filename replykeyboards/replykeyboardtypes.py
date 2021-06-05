@@ -28,11 +28,15 @@ reply_keyboard_types = {
     admin_menu_keyboard: [
         {
             "text_uz": "Yangi buyurtmalar",
-            "emoji": "📒"
+            "emoji": "🆕"
         },
         {
             "text_uz": "Qabul qilingan buyutmalar",
             "emoji": "📑"
+        },
+        {
+            "text_uz": "Xabar yuborish",
+            "emoji": "📝"
         },
         {
             "text_uz": "Tarix",
