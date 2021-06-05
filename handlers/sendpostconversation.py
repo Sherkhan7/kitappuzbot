@@ -8,7 +8,6 @@ from telegram import (
     Update,
     ReplyKeyboardMarkup,
     KeyboardButton,
-    ReplyKeyboardRemove,
     InlineKeyboardButton,
     InputFile,
     TelegramError,
@@ -16,7 +15,6 @@ from telegram import (
 from telegram.ext import (
     CallbackQueryHandler,
     MessageHandler,
-    CommandHandler,
     ConversationHandler,
     CallbackContext,
     Filters
@@ -36,6 +34,7 @@ from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import yes_no_keyboard
 
 logger = logging.getLogger()
+not_pattern = "^(.(?!(Ortga)))*$"
 
 
 def send_messages(context: CallbackContext):
@@ -101,10 +100,12 @@ def sendpost_conversation_callback(update: Update, context: CallbackContext):
             text = "Ажойиб, энди менга расм, видео ёки хабар юборинг"
 
         text = f'🙂 {text}'
-        update.message.reply_text(text, reply_markup=ReplyKeyboardRemove())
+        reply_keyboard = ReplyKeyboardMarkup([
+            [KeyboardButton(f'⬅️ Ortga')]
+        ], resize_keyboard=True)
+        update.message.reply_text(text, reply_markup=reply_keyboard)
 
         user_data[STATE] = POST_CONTENT
-
         return POST_CONTENT
 
     else:
@@ -136,21 +137,18 @@ def post_content_callback(update: Update, context: CallbackContext):
         error_text = "Kechirasiz, yuborilgan rasmda yoki videoda izoh yo'q.\n\n" \
                      "Rasm yoki videoni izoh bilan yuboring"
         ask_text = "Xabarni tasdiqlaysizmi"
-        main_menu_text = "Bosh menyu"
         perfect_text = "Ajoyib"
 
     if user[LANG] == LANGS[1]:
         error_text = "К сожалению, нет ни одного комментария на фото или видео, отправленного.\n\n" \
                      "Отправить картинку или видео с комментарием"
         ask_text = "Вы подтверждаете сообщение"
-        main_menu_text = "Главное меню"
         perfect_text = "Отлично"
 
     if user[LANG] == LANGS[2]:
         error_text = "Кечирасиз, юборилган расмда ёки видеода изоҳ йўқ.\n\n" \
                      "Расм ёки видеони изоҳ билан юборинг"
         ask_text = "Хабарни тасдиқлайсизми"
-        main_menu_text = "Бош меню"
         perfect_text = "Ажойиб"
 
     ask_text += ' ?'
@@ -161,13 +159,9 @@ def post_content_callback(update: Update, context: CallbackContext):
         update.message.reply_text(error_text, quote=True)
         return user_data[STATE]
 
+    update.message.reply_text(perfect_text)
     inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['send', 'post']).get_keyboard()
     inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
-
-    reply_keyboard = ReplyKeyboardMarkup([
-        [KeyboardButton(f'🏠 {main_menu_text}')]
-    ], resize_keyboard=True)
-    update.message.reply_text(perfect_text, reply_markup=reply_keyboard)
 
     if photo:
         user_data['post_photo'] = photo
@@ -275,8 +269,7 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
 def sendpost_conversation_fallback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-
-    main_menu_obj = re.search("(Bosh menyu|Главное меню|Бош меню)$", update.message.text)
+    main_menu_obj = re.search("(Ortga)$", update.message.text)
 
     if update.message.text == '/start' or update.message.text == '/cancel' \
             or update.message.text == '/menu' or main_menu_obj:
@@ -290,7 +283,6 @@ def sendpost_conversation_fallback(update: Update, context: CallbackContext):
 
         text = f'🏠 {text}'
         keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_keyboard()
-
         delete_message_by_message_id(context, user)
 
         update.message.reply_text(text, reply_markup=keyboard)
@@ -301,12 +293,12 @@ def sendpost_conversation_fallback(update: Update, context: CallbackContext):
 
 
 sendpost_conversation_handler = ConversationHandler(
-    entry_points=[CommandHandler('sendpost', sendpost_conversation_callback, filters=~Filters.update.edited_message)],
-
+    entry_points=[MessageHandler(Filters.regex("(Xabar yuborish)$") & (~Filters.update.edited_message),
+                                 sendpost_conversation_callback)],
     states={
         POST_CONTENT: [
             MessageHandler(
-                (Filters.photo | Filters.video | Filters.regex("^(.(?!(Bosh menyu|Главное меню|Бош меню)))*$")) &
+                (Filters.photo | Filters.video | Filters.regex(not_pattern)) &
                 (~Filters.update.edited_message) & (~Filters.command), post_content_callback)],
 
         SEND_POST_CONFIRMATION: [
