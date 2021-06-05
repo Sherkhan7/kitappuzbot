@@ -23,8 +23,8 @@ from ptbcontrib.send_by_kwargs import send_by_kwargs
 
 from DB import *
 from globalvariables import *
+from config import *
 from languages import LANGS
-from config import DEVELOPER_CHAT_ID, LOGS_PATH
 from helpers import delete_message_by_message_id
 
 from replykeyboards import ReplyKeyboard
@@ -91,7 +91,7 @@ def sendpost_conversation_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
 
-    if user[TG_ID] == DEVELOPER_CHAT_ID:
+    if user[TG_ID] in ACTIVE_ADMINS:
         if user[LANG] == LANGS[0]:
             text = "Ajoyib, endi menga rasm, video yoki xabar yuboring"
         if user[LANG] == LANGS[1]:
