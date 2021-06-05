@@ -1,11 +1,12 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from DB import get_all_books
+from globalvariables import *
 from inlinekeyboards.inlinekeyboardtypes import *
 
 
 class InlineKeyboard(object):
-    def __init__(self, keyb_type, lang=None, data=None, history=None):
-
+    def __init__(self, keyb_type, lang, data=None, history=None):
         self.__type = keyb_type
         self.__lang = lang
         self.__data = data
@@ -13,83 +14,69 @@ class InlineKeyboard(object):
         self.__keyboard = self.__create_inline_keyboard(self.__type, self.__lang, self.__data, self.__history)
 
     def __create_inline_keyboard(self, keyb_type, lang, data, history):
-
         if keyb_type == books_keyboard:
-
             return self.__get_books_keyboard(data)
 
         elif keyb_type == book_keyboard:
+            return self.__get_book_keyboard(inline_keyboard_types[keyb_type], lang, data)
 
-            return self.__get_book_keyboard(inline_keyboard_types[keyb_type][lang], data)
+        elif keyb_type == social_medias_keyboard:
+            return self.__get_social_medias_keyboard(inline_keyboard_types[keyb_type], lang)
 
         elif keyb_type == order_keyboard:
-
             return self.__get_order_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == basket_keyboard:
-
             return self.__get_basket_keyboard(inline_keyboard_types[keyb_type][lang])
 
         elif keyb_type == confirm_keyboard:
-
             return self.__get_confirm_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == orders_keyboard:
-
             return self.__get_orders_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == yes_no_keyboard:
-
             return self.__get_yes_no_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == delivery_keyboard:
-
             return self.__get_delivery_keyboard(inline_keyboard_types[keyb_type][lang], data)
 
         elif keyb_type == paginate_keyboard:
-
             return self.__get_paginate_keyboard(data, history)
 
         elif keyb_type == geo_keyboard:
-
             return self.__get_geo_keyboard(data)
 
     @staticmethod
     def __get_books_keyboard(data):
-
         inline_keyboard = [
-            [InlineKeyboardButton(f'\U0001F4D5  {book["title"]}', callback_data=f'book_{book["id"]}')]
+            [InlineKeyboardButton(f"📗 {book[TITLE]}", callback_data=f"book_{book[ID]}")]
             for book in get_all_books()
         ]
-
         if data:
-            inline_keyboard.append([InlineKeyboardButton('\U0001F6D2  Savat', callback_data='basket')])
+            inline_keyboard.append([InlineKeyboardButton('🛒 Savat', callback_data='basket')])
 
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
-    def __get_book_keyboard(buttons, book_data):
-
-        button1_text = f'\U0001F4D6  {buttons[1]}'
-        button1_url = book_data['description_url']
-
-        button2_text = f'\U0001F4E6  {buttons[2]}'
-        button2_data = 'ordering'
-
-        button3_text = f'\U00002B05  {buttons[3]}'
-        button3_data = 'back'
-
+    def __get_book_keyboard(buttons, lang, book_data):
         inline_keyboard = [
-            [InlineKeyboardButton(button2_text, callback_data=button2_data)],
-            [InlineKeyboardButton(button3_text, callback_data=button3_data)],
-        ]
+            [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button[f'data'])]
+            for button in buttons]
 
         if book_data['description_url']:
-            inline_keyboard.insert(0, [
-                InlineKeyboardButton(button1_text, url=button1_url)
-            ])
+            inline_keyboard[0][0].url = book_data['description_url']
+        else:
+            del inline_keyboard[0]
 
         return InlineKeyboardMarkup(inline_keyboard)
+
+    @staticmethod
+    def __get_social_medias_keyboard(buttons, lang):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"{media['emoji']} {media[f'text_{lang}']}", url=media['url'])]
+            for media in buttons
+        ])
 
     @staticmethod
     def __get_order_keyboard(buttons, book_id):

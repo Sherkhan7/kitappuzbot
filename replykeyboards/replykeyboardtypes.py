@@ -2,38 +2,57 @@ from replykeyboards.replykeyboardvariables import *
 
 reply_keyboard_types = {
 
-    client_menu_keyboard: {
-        "uz": {
-            1: "Kitoblar",
-            2: "Buyurtmalarim",
-            3: "Biz bilan bog'lanish",
-            4: "Sozlamalar",
-            5: "🔥 MEGA AKSIYA ( 6 + 1 ) 🔥"
+    client_menu_keyboard: [
+        {
+            "text_uz": "🔥 MEGA AKSIYA ( 6 + 1 ) 🔥",
+            "emoji": ""
         },
-    },
-
-    admin_menu_keyboard: {
-        "uz": {
-            1: "Yangi buyurtmalar",
-            2: "Qabul qilingan buyutmalar",
-            3: "Tarix",
-            4: "Bazani yuklash",
+        {
+            "text_uz": "Kitoblar",
+            "emoji": "📚"
         },
-    },
+        {
+            "text_uz": "Buyurtmalarim",
+            "emoji": "📄"
+        },
+        {
+            "text_uz": "Biz ijtimoiy tarmoqlarda",
+            "emoji": "🌐"
+        },
+        {
+            "text_uz": "Biz bilan bog'lanish",
+            "emoji": "☎"
+        },
+    ],
 
-    settings_keyboard: {
-        "uz": {1: "Mening ma'lumotlarim", 2: "Tilni o'zgartirish", 3: "Ortga"},
-        "cy": {1: "Менинг маълумотларим", 2: "Тилни ўзгартириш", 3: "Ортга"},
-        "ru": {1: "Мои данные", 2: "Изменить язык", 3: "Назад"},
-    },
+    admin_menu_keyboard: [
+        {
+            "text_uz": "Yangi buyurtmalar",
+            "emoji": "🆕"
+        },
+        {
+            "text_uz": "Qabul qilingan buyutmalar",
+            "emoji": "📑"
+        },
+        {
+            "text_uz": "Xabar yuborish",
+            "emoji": "📝"
+        },
+        {
+            "text_uz": "Tarix",
+            "emoji": "🗄"
+        },
+        {
+            "text_uz": "Bazani yuklash",
+            "emoji": "💾"
+        },
+    ],
 
-    phone_number_keyboard: {
-        "uz": {1: "Kontaktimni yuborish"},
-        "cy": {1: "Контактимни юбориш"},
-        "ru": {1: "Отправить мой контакт"}
-    },
+    phone_number_keyboard: [
+        {
+            "text_uz": "Kontaktimni yuborish",
+            "emoji": "📞"
+        }
+    ],
 
-    location_keyboard: {
-        "uz": {1: 'keyingisi', 2: 'Geolokatsiyamni yuborish'}
-    }
 }
