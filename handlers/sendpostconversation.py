@@ -64,7 +64,8 @@ def send_messages(context: CallbackContext):
     end_time = datetime.datetime.now()
 
     text = f'✅ Sending this message to all users have been successfully finished!'
-    context.bot.send_message(chat_id=user[TG_ID], text=text, reply_to_message_id=user_data[MESSAGE_ID])
+    context.bot.send_message(user[TG_ID], text, reply_to_message_id=user_data[MESSAGE_ID],
+                             allow_sending_without_reply=True)
 
     errors_dict['meta_data'] = {
         'start_time': start_time.strftime('%Y-%m-%d %H:%M:%S.%f'),
@@ -203,7 +204,6 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
     confirmed_text = f"✅ {confirmed_text} !"
 
     if data != 'none':
-
         if data == 'send_n_post':
             try:
                 callback_query.delete_message()
@@ -223,7 +223,6 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
             user_data['post_id'] = post_id
 
             if 'post_photo' in user_data:
-
                 post_photo_sizes = []
                 for photo in user_data['post_photo']:
                     photo = photo.to_dict()
@@ -252,11 +251,9 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
 
             job_q = context.job_queue
             job_q.run_once(send_messages, 1, name='my_job', context=[user, dict(user_data)])
-
             callback_query.edit_message_reply_markup()
 
         callback_query.answer(reply_text, show_alert=True)
-
         reply_keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_keyboard()
         callback_query.message.reply_text(reply_text, reply_markup=reply_keyboard)
 
