@@ -64,9 +64,7 @@ def send_messages(context: CallbackContext):
     end_time = datetime.datetime.now()
 
     text = f'✅ Sending this message to all users have been successfully finished!'
-    context.bot.send_message(user[TG_ID], text, reply_to_message_id=user_data[MESSAGE_ID],
-                             allow_sending_without_reply=True)
-
+    context.bot.send_message(user[TG_ID], text, reply_to_message_id=user_data[MESSAGE_ID])
     errors_dict['meta_data'] = {
         'start_time': start_time.strftime('%Y-%m-%d %H:%M:%S.%f'),
         'end_time': end_time.strftime('%Y-%m-%d %H:%M:%S.%f'),
