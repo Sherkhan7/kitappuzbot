@@ -11,7 +11,7 @@ class ReplyKeyboard(object):
     def __create_reply_keyboard(self):
         reply_keyboard = [
             [KeyboardButton(f"{button['emoji']} {button[f'text_{self.__lang}']}")]
-            for button in reply_keyboard_types[self.__type]
+            for button in reply_keyboard_types[self.__type].values()
         ]
 
         if self.__type == phone_number_keyboard:

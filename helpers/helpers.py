@@ -10,6 +10,10 @@ from globalvariables import *
 
 def wrap_tags(*args):
     symbol = ' ' if len(args) > 1 else ''
+    args = list(args)
+
+    for index, value in enumerate(args):
+        args[index] = str(value)
     return f'<b><i><u>{symbol.join(args)}</u></i></b>'
 
 
@@ -128,7 +132,7 @@ def import_database():
     # data via the write() method.
     for order in get_all_orders():
         user = get_user(order[USER_TG_ID])
-        order_items = get_order_items(order[ID])
+        order_items = get_order_items_book_title(order[ID])
         books_str = ''
         summa = 0
         action = 'None' if not order['with_action'] else 'Mega aksiya'
