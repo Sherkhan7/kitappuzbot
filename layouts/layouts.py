@@ -1,6 +1,6 @@
-from helpers import wrap_tags
-from layouts.layoutdicts import *
 from DB import get_books
+from layouts.layoutdicts import *
+from helpers import wrap_tags
 
 
 def get_book_layout(book_data, user_lang):
@@ -78,6 +78,23 @@ def get_action_layout(books):
     new_basket_layout += caption
 
     return new_basket_layout
+
+
+def get_books_layout(order, order_items, client, data):
+    books_text = ''
+    username_text = f'Telegram: {wrap_tags("@" + client[USERNAME])}\n\n' if client[USERNAME] else '\n'
+
+    for index, item in enumerate(order_items):
+        books_text += f'{index + 1}) Kitob nomi: {wrap_tags(item[TITLE])}\n' \
+                      f'Soni: {wrap_tags(item["quantity"], "ta")}\n' \
+                      f'{"_" * 22}\n'
+    client_text = f'🆔 {order_items[0]["order_id"]} {data["label"]}\n\n' \
+                  f'Status: {wrap_tags(data[STATUS])}\n' \
+                  f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n\n' \
+                  f'Ism: {wrap_tags(client[FULLNAME])}\n' \
+                  f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n' \
+                  f'{username_text}'
+    return client_text + books_text
 
 
 # def get_user_info_layout(user):
