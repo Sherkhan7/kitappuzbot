@@ -130,12 +130,12 @@ def get_books(ids):
     return cursor.fetchall()
 
 
-def get_order_items(order_id):
+def get_order_items_book_title(order_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                f'SELECT * FROM order_items WHERE order_items.order_id = %s', order_id)
-
+                f'SELECT oi.*, b.title FROM `order_items` as oi INNER JOIN books as b ON oi.book_id=b.id '
+                f'WHERE order_id = %s', order_id)
     return cursor.fetchall()
 
 
