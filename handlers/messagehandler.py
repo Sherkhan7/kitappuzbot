@@ -82,21 +82,22 @@ def message_handler_callback(update: Update, context: CallbackContext):
                 if orders:
                     wanted = 1
                     order = orders[wanted - 1]
+                    client = get_user(order[USER_ID])
+                    if order['with_action']:
+                        label += "[🔥MEGA AKSIYA🔥]"
                     status = 'yetkazilgan' if order[STATUS] == 'delivered' else 'rad etilgan' \
                         if order[STATUS] == 'canceled' else 'qabul qilingan'
-                    client = get_user(order[USER_ID])
                     order_items = get_order_items_book_title(order[ID])
                     books_layout = get_books_layout(order, order_items, client, {STATUS: status, 'label': label})
                     inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders],
                                                      history=history).get_keyboard()
+                    update.message.reply_text(books_layout, reply_markup=inline_keyboard)
                     # if order[GEOLOCATION]:
                     #     geo = ujson.loads(order[GEOLOCATION])
                     #     inline_keyboard = inline_keyboard.inline_keyboard
                     #     keyboard = InlineKeyboard(geo_keyboard, data=geo).get_keyboard().inline_keyboard
                     #     inline_keyboard += keyboard
                     #     inline_keyboard = InlineKeyboardMarkup(inline_keyboard)
-
-                    update.message.reply_text(books_layout, reply_markup=inline_keyboard)
 
                 else:
                     update.message.reply_text(empty_text)
@@ -129,7 +130,6 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     status = 'qabul qilingan' if order[STATUS] == 'received' else 'rad etilgan' \
                         if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' \
                         if order[STATUS] == 'waiting' else 'yetkazilgan'
-                    get_order_items_book_title(order[ID])
                     books_layout = get_books_layout(order, order_items, user, {STATUS: status, 'label': label})
                     inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG],
                                                      [wanted, user_orders]).get_keyboard()
