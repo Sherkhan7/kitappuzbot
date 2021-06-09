@@ -21,17 +21,15 @@ def do_command(update: Update, context: CallbackContext):
     if command == '/start' or command == '/menu':
         if user:
             if user[LANG] == LANGS[0]:
-                text = "Siz ro'yxatdan o'tgansiz !"
-                emoji = "⚠"
+                text = "⚠ Siz ro'yxatdan o'tgansiz !"
 
             if command == '/menu':
                 if user[LANG] == LANGS[0]:
-                    text = "Menyu"
-                    emoji = "📖"
+                    text = "📖 Menyu"
 
             menu_keyboard = admin_menu_keyboard if user[IS_ADMIN] else client_menu_keyboard
             reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
-            update.message.reply_text(f'{emoji} {text}', reply_markup=reply_keyboard)
+            update.message.reply_text(text, reply_markup=reply_keyboard)
             return ConversationHandler.END
 
         else:
