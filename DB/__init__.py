@@ -1,14 +1,15 @@
-from .main_db import (
+from .main import (
     get_user,
     get_all_users,
     get_all_orders,
+    get_contact_us_text,
+    update_contact_us_text,
     insert_data,
     update_user_info,
     get_book,
     get_all_books,
     get_books,
     insert_order_items,
-    insert_order_items_2,
     get_order_items_book_title,
     update_order_status,
     update_post_status,
