@@ -1,5 +1,6 @@
 client_menu_keyboard = 'client_menu_keyboard'
 admin_menu_keyboard = 'admin_menu_keyboard'
-settings_keyboard = 'settings_keyboard'
+edit_bot_keyboard = 'edit_bot_keyboard'
 phone_number_keyboard = 'phone_number_keyboard'
-location_keyboard = 'location_keyboard'
+back_keyboard = 'back_keyboard'
+back_to_editing_keyboard = 'back_to_editing_keyboard'
