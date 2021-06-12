@@ -64,9 +64,7 @@ def send_messages(context: CallbackContext):
     end_time = datetime.datetime.now()
 
     text = f'✅ Sending this message to all users have been successfully finished!'
-    context.bot.send_message(user[TG_ID], text, reply_to_message_id=user_data[MESSAGE_ID],
-                             allow_sending_without_reply=True)
-
+    context.bot.send_message(user[TG_ID], text, reply_to_message_id=user_data[MESSAGE_ID])
     errors_dict['meta_data'] = {
         'start_time': start_time.strftime('%Y-%m-%d %H:%M:%S.%f'),
         'end_time': end_time.strftime('%Y-%m-%d %H:%M:%S.%f'),
@@ -230,7 +228,7 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
                                              photo['height'], photo['file_size']))
 
                 fields_list = ["post_id", "file_id", "file_unique_id", "width", "height", "file_size"]
-                insert_order_items_2(post_photo_sizes, fields_list, 'post_document_sizes')
+                insert_order_items(post_photo_sizes, fields_list, 'post_document_sizes')
 
             elif 'post_video' in user_data:
                 post_photo_sizes = [(
@@ -247,7 +245,7 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
                 fields_list = [
                     "post_id", "file_id", "file_unique_id", "width", "height", "duration", "mime_type", "file_size"
                 ]
-                insert_order_items_2(post_photo_sizes, fields_list, 'post_document_sizes')
+                insert_order_items(post_photo_sizes, fields_list, 'post_document_sizes')
 
             job_q = context.job_queue
             job_q.run_once(send_messages, 1, name='my_job', context=[user, dict(user_data)])
@@ -299,7 +297,7 @@ sendpost_conversation_handler = ConversationHandler(
                 (~Filters.update.edited_message) & (~Filters.command), post_content_callback)],
 
         SEND_POST_CONFIRMATION: [
-            CallbackQueryHandler(confirmation_send_post_callback, pattern=r'^send_(y|n)_post|none$')]
+            CallbackQueryHandler(confirmation_send_post_callback, pattern=r'^send_[yn]_post|none$')]
 
     },
     fallbacks=[MessageHandler(Filters.text & (~Filters.update.edited_message), sendpost_conversation_fallback)],

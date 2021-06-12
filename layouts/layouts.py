@@ -1,83 +1,60 @@
-from helpers import wrap_tags
-from layouts.layoutdicts import *
 from DB import get_books
+from layouts.layoutdicts import *
+from helpers import wrap_tags
 
 
-def get_book_layout(book_data, user_lang):
+def get_book_layout(book_data, lang):
     title = book_data[TITLE]
-    author = book_data[AUTHOR]
-    amount = str(book_data[AMOUNT]) + " bet"
-    lang = book_data[LANG]
-    translator = str(book_data[TRANSLATOR])
-    cover_type = book_data[COVER_TYPE]
     price = f"{book_data[PRICE]:,} so'm".replace(',', ' ')
-    year = str(book_data[YEAR]) + " yil"
+    year = f"📅 {BOOK_DICT[lang][YEAR_TEXT]}: {wrap_tags(book_data[YEAR], 'yil')}\n" if book_data[YEAR] else ''
+    author = f'👤 {BOOK_DICT[lang][AUTHOR_TEXT]}: {wrap_tags(book_data[AUTHOR])}\n' if book_data[AUTHOR] else ''
+    amount = f"🔢 {BOOK_DICT[lang][AMOUNT_TEXT]}: {wrap_tags(book_data[AMOUNT], 'bet')}\n" \
+        if book_data[AMOUNT] else ''
+    book_lang = f'🌏 {BOOK_DICT[lang][LANG_TEXT]}: {wrap_tags(book_data[LANG])}\n' if book_data[LANG] else ''
+    translator = f'👤 {BOOK_DICT[lang][TRANSLATOR_TEXT]}: {wrap_tags(book_data[TRANSLATOR])}\n' \
+        if book_data[TRANSLATOR] else ''
+    cover_type = f'📗 {BOOK_DICT[lang][COVER_TYPE_TEXT]}: {wrap_tags(book_data[COVER_TYPE])}\n' \
+        if book_data[COVER_TYPE] else ''
 
-    layout = [
-        f'\U0001F3F7  {BOOK_DICT[user_lang][TITLE_TEXT]}: {wrap_tags(title)}',
-        f'\U0001F464  {BOOK_DICT[user_lang][AUTHOR_TEXT]}: {wrap_tags(author)}',
-        f'\U0001F3E2  {BOOK_DICT[user_lang][AMOUNT_TEXT]}: {wrap_tags(amount)}',
-        f'\U0001F30F  {BOOK_DICT[user_lang][LANG_TEXT]}: {wrap_tags(lang)}',
-        f'\U0001F464  {BOOK_DICT[user_lang][TRANSLATOR_TEXT]}: {wrap_tags(translator)}',
-        f'\U0001F4D5  {BOOK_DICT[user_lang][COVER_TYPE_TEXT]}: {wrap_tags(cover_type)}',
-        f'\U0001F4C5  {BOOK_DICT[user_lang][YEAR_TEXT]}: {wrap_tags(year)}',
-        f'\U0001F4B0  {BOOK_DICT[user_lang][PRICE_TEXT]}: {wrap_tags(price)}\n',
-        f'\U0001F916  @kitappuzbot \U000000A9',
-    ]
-    if amount == 'None bet':
-        layout.pop(2)
-
-        if translator == 'None':
-            layout.pop(3)
-    else:
-        if translator == 'None':
-            layout.pop(4)
-
-    return '\n'.join(layout)
+    return f'🏷 {BOOK_DICT[lang][TITLE_TEXT]}: {wrap_tags(title)}\n' \
+           f'💸 {BOOK_DICT[lang][PRICE_TEXT]}: {wrap_tags(price)}\n' \
+           f'{year}{book_lang}{author}{translator}{cover_type}{amount}' \
+           f'🤖 @kitappuzbot ©'
 
 
 def get_basket_layout(orders, lang, data=None):
     books_ids = [str(key) for key in orders.keys()]
-    books = get_books(books_ids)
-
-    layout = ''
-    total = 0
-
-    for index, book in enumerate(books):
-        total += book[PRICE] * orders[book[ID]]
-        quantity_and_price = f"{orders[book[ID]]} X {book[PRICE]:,} so'm".replace(',', ' ')
-
-        layout += f'{index + 1}) 📕 {wrap_tags(book[TITLE])}:\n' \
-                  f'{quantity_and_price}\n' \
-                  f'{"_" * 22}\n\n'
-
-    data = data if data else '\U0001F6D2 Savat'
-    layout = wrap_tags(data) + "\n\n" + layout
-    layout += f"Jami: {total:,} so'm".replace(',', ' ')
-
-    return layout
+    books = get_books(",".join(books_ids))
+    if books:
+        layout = ''
+        total = 0
+        for index, book in enumerate(books):
+            total += book[PRICE] * orders[book[ID]]
+            quantity_and_price = f"{orders[book[ID]]} X {book[PRICE]:,} so'm".replace(',', ' ')
+            layout += f'{index + 1}) 📕 {wrap_tags(book[TITLE])}:\n' \
+                      f'{quantity_and_price}\n' \
+                      f'{"_" * 22}\n\n'
+        data = data if data else '🛒 Savat'
+        layout = wrap_tags(data) + "\n\n" + layout
+        layout += f"Jami: {total:,} so'm\n".replace(',', ' ')
+        return layout
 
 
-def get_action_layout(books):
-    caption = "\n\n📚 Va nihoyat @kitappuz dan uzoq kutilgan  6⃣ + 1⃣  askiyasiga start berildi!\n" \
-              "💥 Dunyoning yetakchi milliarderlari tomonidan ko‘p yillik tajribalariga " \
-              "asoslanib yozilgan biznes asarlar to‘plami."
+def get_books_layout(order, order_items, client, data):
+    books_text = ''
+    username_text = f'Telegram: {wrap_tags("@" + client[USERNAME])}\n\n' if client[USERNAME] else '\n'
 
-    basket_layout = get_basket_layout(books, data='🔥MEGA AKSIYA(6 + 1)🔥', lang='uz')
-    new_basket_layout = basket_layout.split('\n')
-
-    rework_price = new_basket_layout[3].split(' ', 2)
-    rework_price[-1] = "0 so'm " + f'<s>{rework_price[-1].strip()}</s>'
-    new_basket_layout[3] = ' '.join(rework_price)
-
-    total = new_basket_layout.pop().split(':')
-    total[0] = 'Jami:'
-    total[-1] = f'<s>{total[-1].strip()}</s>'
-    new_basket_layout += [" 1 300 000 so'm ".join(total)]
-    new_basket_layout = '\n'.join(new_basket_layout)
-    new_basket_layout += caption
-
-    return new_basket_layout
+    for index, item in enumerate(order_items):
+        books_text += f'{index + 1}) Kitob nomi: {wrap_tags(item[TITLE])}\n' \
+                      f'Soni: {wrap_tags(item["quantity"], "ta")}\n' \
+                      f'{"_" * 22}\n'
+    client_text = f'🆔 {order_items[0]["order_id"]} {data["label"]}\n\n' \
+                  f'Status: {wrap_tags(data[STATUS])}\n' \
+                  f'Yaratilgan vaqti: {wrap_tags(order["created_at"].strftime("%d-%m-%Y %X"))}\n\n' \
+                  f'Ism: {wrap_tags(client[FULLNAME])}\n' \
+                  f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n' \
+                  f'{username_text}'
+    return client_text + books_text
 
 
 # def get_user_info_layout(user):

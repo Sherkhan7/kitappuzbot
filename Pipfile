@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+python-telegram-bot = "==13.4.1"
+pymysql = "==1.0.2"
+ujson = "==4.0.2"
+ptbcontrib = {git = "https://github.com/python-telegram-bot/ptbcontrib.git"}
+XlsxWriter = "==1.4.3"
+validators = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

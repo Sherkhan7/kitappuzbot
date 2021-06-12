@@ -8,8 +8,13 @@ from handlers import *
 
 def main():
     my_persistence = PicklePersistence(filename='my_pickle', single_file=False, store_chat_data=False)
+    defaults = Defaults(parse_mode=ParseMode.HTML, allow_sending_without_reply=True, disable_web_page_preview=True)
 
-    updater = Updater(TOKEN, persistence=my_persistence, defaults=Defaults(parse_mode=ParseMode.HTML))
+    updater = Updater(TOKEN, persistence=my_persistence, defaults=defaults)
+
+    updater.dispatcher.add_handler(edit_books_conversation_handler)
+
+    updater.dispatcher.add_handler(edit_contactus_conversation_handler)
 
     updater.dispatcher.add_handler(sendpost_conversation_handler)
 

@@ -10,12 +10,14 @@ from globalvariables import *
 
 def wrap_tags(*args):
     symbol = ' ' if len(args) > 1 else ''
+    args = list(args)
+    for index, value in enumerate(args):
+        args[index] = str(value)
     return f'<b><i><u>{symbol.join(args)}</u></i></b>'
 
 
 def delete_message_by_message_id(context, user):
     user_data = context.user_data
-
     if MESSAGE_ID in user_data:
         try:
             context.bot.delete_message(user[TG_ID], user_data[MESSAGE_ID])
@@ -128,14 +130,14 @@ def import_database():
     # data via the write() method.
     for order in get_all_orders():
         user = get_user(order[USER_TG_ID])
-        order_items = get_order_items(order[ID])
+        order_items = get_order_items_book_title(order[ID])
         books_str = ''
         summa = 0
         action = 'None' if not order['with_action'] else 'Mega aksiya'
         status = 'Yetkazilgan' if order[STATUS] == 'delivered' else 'Bekor qilingan' if order[STATUS] == 'canceled' \
             else 'Qabul qilingan' if order[STATUS] == 'received' else 'Qaubul qilish kutilmoqda'
         for order_item in order_items:
-            book = get_book(order_item['book_id'])
+            book = get_book_data(order_item['book_id'])
             books_str += f"{book[TITLE]}: {order_item['quantity']} ta\n" \
                          f"Narxi: {book[PRICE]:,} so'm\n" \
                          f"{'-' * 10}\n"
