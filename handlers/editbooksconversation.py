@@ -99,7 +99,7 @@ def get_book_data_dict(user_data):
 
 
 def return_edit_book_callback(update, user, user_data):
-    if user_data[STATE] == EDIT_BOOK_PRICE:
+    if user_data[STATE] == EDIT_BOOK_PHOTO:
         text = 'Kitob rasmi tahrirlandi'
     elif user_data[STATE] == EDIT_BOOK_TITLE:
         text = 'Kitob nomi tahrirlandi'
