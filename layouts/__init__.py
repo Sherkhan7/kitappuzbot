@@ -3,5 +3,4 @@ from .layouts import (
     get_books_layout,
     get_basket_layout,
     get_phone_number_layout,
-    get_action_layout
 )
