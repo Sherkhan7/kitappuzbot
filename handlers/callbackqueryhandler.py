@@ -28,28 +28,27 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
         new_text = ''
 
         if match_obj or match_obj_2:
-
             if match_obj:
                 data = match_obj.string.split('_')
                 keyboard = yes_no_keyboard
+                data = [data[0], data[-1]]
 
             elif match_obj_2:
                 data = match_obj_2.string.split('_')
                 order = get_order(data[-1])
-                geo = ujson.loads(order[GEOLOCATION]) if order[GEOLOCATION] else None
 
                 if data[1] == 'n':
                     keyboard = orders_keyboard
-                    data = [geo, data[-1]]
+                    data = data[-1]
 
                 elif data[1] == 'y':
                     status = 'canceled' if data[0] == 'c' else 'received'
+                    keyboard = None
 
                     if order[STATUS] == 'waiting':
-                        update_result = update_order_status(status, data[-1])
                         status_text = 'rad etilgan' if status == 'canceled' else 'qabul qilingan'
 
-                        if update_result:
+                        if update_order_status(status, data[-1]):
                             client_text = 'Buyurtma rad qilindi' if status == 'canceled' else 'Buyurtma qabul qilindi'
                             client_text = wrap_tags(client_text) + f' [ 🆔 {order[ID]} ]'
 
@@ -74,7 +73,6 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                     elif order[STATUS] == 'canceled':
                         status_text = 'buyurtma avval rad qilingan !'
 
-                    data, keyboard = (geo, geo_keyboard) if geo else (None, None)
                     new_text = callback_query.message.text_html.split('\n')
                     new_text[0] = ' '.join(new_text[0].split()[:2])
                     new_text[-1] = f'Status: {wrap_tags(status_text)}'
