@@ -51,16 +51,24 @@ def edit_contactus_conversation_callback(update: Update, context: CallbackContex
 
 def edit_cantactus_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
-    user_data = context.user_data
-    ask_text = "Yangi tekstni tastiqlaysizmi ?"
-    inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['edit', 'contactus']).get_keyboard()
-    inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
-    message = update.message.reply_text(update.message.text_html, reply_markup=inline_keyboard)
+    back_obj = re.search(f"({back_btn_text})$", update.message.text)
+    if not back_obj:
+        user = get_user(update.effective_user.id)
+        user_data = context.user_data
+        ask_text = "Yangi tekstni tastiqlaysizmi ?"
+        inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['edit', 'contactus']).get_keyboard()
+        inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+        message = update.message.reply_text(update.message.text_html, reply_markup=inline_keyboard)
 
-    user_data[EDIT_CONTACTUS_TEXT] = update.message.text_html
-    user_data[STATE] = CONTACTUS_TEXT_CONFIRMATION
-    user_data[MESSAGE_ID] = message.message_id
-    return CONTACTUS_TEXT_CONFIRMATION
+        user_data[EDIT_CONTACTUS_TEXT] = update.message.text_html
+        user_data[STATE] = CONTACTUS_TEXT_CONFIRMATION
+        user_data[MESSAGE_ID] = message.message_id
+        return CONTACTUS_TEXT_CONFIRMATION
+    emoji = reply_keyboard_types[admin_menu_keyboard]['edit_bot_btn']['emoji']
+    text = reply_keyboard_types[admin_menu_keyboard]['edit_bot_btn'][f'text_uz']
+    text = f'{emoji} {text}'
+    keyboard = edit_bot_keyboard
+    return end_conversation(update, context, user, text, keyboard)
 
 
 def confirm_contactus_callback(update: Update, context: CallbackContext):
@@ -104,9 +112,8 @@ edit_contactus_conversation_handler = ConversationHandler(
     entry_points=[MessageHandler(Filters.regex(f'{contact_us_btn_text}$'), edit_contactus_conversation_callback)],
 
     states={
-        EDIT_CONTACTUS_TEXT: [
-            MessageHandler(Filters.regex(not_pattern) & (~Filters.update.edited_message) & (~Filters.command),
-                           edit_cantactus_callback)],
+        EDIT_CONTACTUS_TEXT: [MessageHandler(Filters.text & (~Filters.update.edited_message) & (~Filters.command),
+                                             edit_cantactus_callback)],
 
         CONTACTUS_TEXT_CONFIRMATION: [CallbackQueryHandler(confirm_contactus_callback,
                                                            pattern=r'^edit_[yn]_contactus|none$')]
