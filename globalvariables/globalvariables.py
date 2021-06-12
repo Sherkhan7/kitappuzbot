@@ -18,3 +18,12 @@ STATUS_TEXT, OPENED_STATUS, CLOSED_STATUS, NOT_CONFIRMED_STATUS, TG_ACCOUNT_TEXT
 
 POST_CONTENT, SEND_POST_CONFIRMATION, BOOKS, BOOK, ORDER, BASKET = \
     ('post_content', 'send_post_confirmation', 'books', 'book', 'order', 'basket')
+
+EDIT_CONTACTUS_TEXT, CONTACTUS_TEXT_CONFIRMATION, EDIT_BOOKS, EDIT_BOOK, YES_NO_CONFIRMATION, = \
+    ('new_contactus_text', 'contactus_text_confirmation', 'edit_books', 'edit_book', 'yes_no_confirmation')
+
+EDIT_BOOK_PHOTO, EDIT_BOOK_TITLE, EDIT_BOOK_PRICE, EDIT_BOOK_AMOUT, EDIT_BOOK_LANG, = \
+    ('edit_book_photo', 'edit_book_title', 'edit_book_price', 'edit_book_amout', 'edit_book_lang',)
+
+EDIT_BOOK_TRANSLATOR, EDIT_BOOK_URL, EDIT_BOOK_YEAR, EDIT_BOOK_COVER, EDIT_BOOK_AUTHOR = \
+    ('edit_book_translator', 'edit_book_url', 'edit_book_year', 'edit_book_cover', 'edit_book_author')

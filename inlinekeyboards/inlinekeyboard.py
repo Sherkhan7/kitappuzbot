@@ -66,10 +66,11 @@ class InlineKeyboard(object):
             [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button['data'])]
             for button in buttons.values()]
 
-        if book_data['description_url']:
-            inline_keyboard[0][0].url = book_data['description_url']
-        else:
-            del inline_keyboard[0]
+        if book_data:
+            if book_data['description_url']:
+                inline_keyboard[0][0].url = book_data['description_url']
+            else:
+                del inline_keyboard[0]
         return InlineKeyboardMarkup(inline_keyboard)
 
     @staticmethod
@@ -81,8 +82,8 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_order_keyboard(buttons, lang):
-        order_btn_emoji = buttons['order_btn']['order_btn']['emoji']
-        back_btn_emoji = buttons['back_btn']['order_btn']['emoji']
+        order_btn_emoji = buttons['order_btn']['emoji']
+        back_btn_emoji = buttons['back_btn']['emoji']
         return InlineKeyboardMarkup([
             [
                 InlineKeyboardButton('-', callback_data='-'),
@@ -113,7 +114,7 @@ class InlineKeyboard(object):
     def __get_orders_keyboard(buttons, lang, data):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}",
-                                  callback_data=f"{button['data']}_{data[-1]}")]
+                                  callback_data=f"{button['data']}_{data}")]
             for button in buttons.values()
         ])
 
@@ -187,19 +188,19 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_book')]
             if TITLE not in item else [InlineKeyboardButton(f"📝 {item[TITLE]}", callback_data=f'edit_book_{item[ID]}')]
-            for item in buttons + data
+            for item in list(buttons.values()) + data
         ])
 
     @staticmethod
     def __get_edit_book_keyboard(buttons, lang, data):
         inline_keyboard = InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button['data'])]
-            for button in buttons
+            for button in buttons.values()
         ])
         if data['description_url']:
-            emoji = inline_keyboard_types[book_keyboard][0]["emoji"]
+            emoji = inline_keyboard_types[book_keyboard]['about_book_btn']["emoji"]
             inline_keyboard.inline_keyboard.insert(0, [
-                InlineKeyboardButton(f'{emoji} {inline_keyboard_types[book_keyboard][0]["text_uz"]}',
+                InlineKeyboardButton(f'{emoji} {inline_keyboard_types[book_keyboard]["about_book_btn"]["text_uz"]}',
                                      url=data['description_url'])
             ])
         return inline_keyboard

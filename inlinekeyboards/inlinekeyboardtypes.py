@@ -57,20 +57,25 @@ inline_keyboard_types = {
             "emoji": "🏷",
             "data": "edit_title"
         },
-        "edit_author_btn": {
-            "text_uz": "Kitob muallif(lar)ini tahrirlash",
-            "emoji": "👤",
-            "data": "edit_author"
+        "edit_price_btn": {
+            "text_uz": "Kitob narxini tahrirlash",
+            "emoji": "💸",
+            "data": "edit_price"
         },
-        "edit_amount_btn": {
-            "text_uz": "Kitob hajmini tahrirlash",
-            "emoji": "🔢",
-            "data": "edit_amount"
+        "edit_year_btn": {
+            "text_uz": "Kitob yilini tahrirlash",
+            "emoji": "📅",
+            "data": "edit_year"
         },
         "edit_lang_btn": {
             "text_uz": "Kitob tilini tahrirlash",
             "emoji": "🌏",
             "data": "edit_lang"
+        },
+        "edit_author_btn": {
+            "text_uz": "Kitob muallif(lar)ini tahrirlash",
+            "emoji": "👤",
+            "data": "edit_author"
         },
         "edit_translator_btn": {
             "text_uz": "Tarjimon(lar)ini tahrirlash",
@@ -79,18 +84,13 @@ inline_keyboard_types = {
         },
         "edit_cover_btn": {
             "text_uz": "Kitob muqovasini tahrirlash",
-            "emoji": "📕",
+            "emoji": "📗",
             "data": "edit_cover"
         },
-        "edit_year_btn": {
-            "text_uz": "Kitob yilini tahrirlash",
-            "emoji": "📅",
-            "data": "edit_year"
-        },
-        "edit_price_btn": {
-            "text_uz": "Kitob narxini tahrirlash",
-            "emoji": "💸",
-            "data": "edit_price"
+        "edit_amount_btn": {
+            "text_uz": "Kitob hajmini tahrirlash",
+            "emoji": "🔢",
+            "data": "edit_amount"
         },
         "edit_url_btn": {
             "text_uz": "«Kitob haqida»ni tahrirlash",
@@ -172,7 +172,8 @@ inline_keyboard_types = {
     delivery_keyboard: {
         "delivered_btn": {
             "text_uz": "Yetkazib berildi",
-            "data": "d"
+            "data": "d",
+            "emoji": ""
         }
     },
 }
