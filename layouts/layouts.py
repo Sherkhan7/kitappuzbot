@@ -57,14 +57,10 @@ def get_books_layout(order, order_items, client, data):
     return client_text + books_text
 
 
-# def get_user_info_layout(user):
-#     layout = f"{USER_INFO_LAYOUT_DICT[user['lang']][NAME]}: {wrap_tags(user['name'])}\n\n" \
-#              f"{USER_INFO_LAYOUT_DICT[user['lang']][SURNAME]}: {wrap_tags(user['surname'])}"
-# f"<b><i>{'-'.ljust(30, '-')}</i></b> \n" \
-# f"<b>\u0000260e {phone}: <i><u>{format_phone_number(user['phone_number'])}</u></i></b>" \
-# f"<b><i>\u0000260e {phone_2}: </i><u>{user['phone_number2']}</u></b> \n"
-
-# return layout
+def get_user_info_layout(user):
+    username = f'@{user[USERNAME]}' if user[USERNAME] else ''
+    return f"Ism va familya: {wrap_tags(user[FULLNAME])}\n" \
+           f"Taxallus: {wrap_tags(username)}"
 
 
 def get_phone_number_layout(lang):
