@@ -122,14 +122,14 @@ def return_edit_book_callback(update, user, user_data):
 
     book = get_book(user_data['book_id'])
     caption = get_book_layout(book, user[LANG])
-    inline_keyboard = InlineKeyboard(edit_book_keyboard, user[LANG], data=book).get_keyboard()
+    inline_keyb_markup = InlineKeyboard(edit_book_keyboard, user[LANG], book).get_markup()
     # this try except used for send old books' photo like rework.jpg, drive.jpg etc.
     try:
-        message = update.message.reply_photo(book[PHOTO], caption, reply_markup=inline_keyboard)
+        message = update.message.reply_photo(book[PHOTO], caption, reply_markup=inline_keyb_markup)
     except TelegramError:
-        message = update.message.reply_photo(PHOTOS_URL + book[PHOTO], caption, reply_markup=inline_keyboard)
-    reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text(text + ' 😉', reply_markup=reply_keyboard)
+        message = update.message.reply_photo(PHOTOS_URL + book[PHOTO], caption, reply_markup=inline_keyb_markup)
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    update.message.reply_text(text + ' 😉', reply_markup=reply_keyb_markup)
 
     user_data[MESSAGE_ID] = message.message_id
     user_data[STATE] = EDIT_BOOK
@@ -144,11 +144,11 @@ def edit_books_conversation_callback(update: Update, context: CallbackContext):
     caption = "Tahrirlash uchun kitobni tanlang:"
     photo = PHOTOS_URL + 'kitappuz_photo.jpg'
 
-    reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text(update.message.text, reply_markup=reply_keyboard)
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    update.message.reply_text(update.message.text, reply_markup=reply_keyb_markup)
 
-    inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
-    message = update.message.reply_photo(photo, caption=caption, reply_markup=inline_keyboard)
+    inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
+    message = update.message.reply_photo(photo, caption=caption, reply_markup=inline_keyb_markup)
 
     user_data[STATE] = EDIT_BOOKS
     user_data[MESSAGE_ID] = message.message_id
@@ -161,9 +161,9 @@ def edit_books_callback(update: Update, context: CallbackContext):
     callback_query = update.callback_query
 
     if callback_query.data == 'add_book':
-        reply_keyboard = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_keyboard()
-        reply_keyboard.keyboard.pop(0)
-        callback_query.message.reply_text(get_state_text(EDIT_BOOK_TITLE), reply_markup=reply_keyboard)
+        reply_keyb_markup = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_markup()
+        reply_keyb_markup.keyboard.pop(0)
+        callback_query.message.reply_text(get_state_text(EDIT_BOOK_TITLE), reply_markup=reply_keyb_markup)
         try:
             callback_query.delete_message()
         except TelegramError:
@@ -175,12 +175,12 @@ def edit_books_callback(update: Update, context: CallbackContext):
         book = get_book(book_id)
         caption = get_book_layout(book, user[LANG])
         media_photo = InputMediaPhoto(book[PHOTO], caption=caption)
-        inline_keyboard = InlineKeyboard(edit_book_keyboard, user[LANG], data=book).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(edit_book_keyboard, user[LANG], book).get_markup()
         try:
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
         except TelegramError:
             media_photo = InputMediaPhoto(PHOTOS_URL + book[PHOTO], caption)
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
         user_data['book_id'] = book_id
         user_data[STATE] = EDIT_BOOK
         return EDIT_BOOK
@@ -193,9 +193,9 @@ def edit_book_callback(update: Update, context: CallbackContext):
 
     if callback_query.data == 'back':
         media_photo = InputMediaPhoto(PHOTOS_URL + 'kitappuz_photo.jpg')
-        inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
         try:
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
         except TelegramError:
             pass
         del user_data['book_id']
@@ -204,17 +204,17 @@ def edit_book_callback(update: Update, context: CallbackContext):
     elif callback_query.data == 'delete_book':
         book = get_book(user_data['book_id'])
         ask_text = "O'chirishni tasdiqlaysizmi ?"
-        inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['delete', 'book']).get_keyboard()
-        inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+        inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['delete', 'book']).get_markup()
+        inline_keyb_markup.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
 
         if book['description_url']:
             emoji = inline_keyboard_types[book_keyboard]['about_book_btn']['emoji']
-            inline_keyboard.inline_keyboard.insert(0, [
+            inline_keyb_markup.inline_keyboard.insert(0, [
                 InlineKeyboardButton(f'{emoji} {inline_keyboard_types[book_keyboard]["about_book_btn"]["text_uz"]}',
                                      url=book['description_url'])
             ])
         try:
-            callback_query.edit_message_reply_markup(inline_keyboard)
+            callback_query.edit_message_reply_markup(inline_keyb_markup)
         except TelegramError:
             pass
         state = YES_NO_CONFIRMATION
@@ -253,9 +253,9 @@ def edit_book_callback(update: Update, context: CallbackContext):
             callback_query.delete_message()
         except TelegramError:
             callback_query.edit_message_reply_markup()
-        reply_keyboard = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_keyboard()
-        reply_keyboard.keyboard.pop(0)
-        callback_query.message.reply_text(get_state_text(state), reply_markup=reply_keyboard)
+        reply_keyb_markup = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_markup()
+        reply_keyb_markup.keyboard.pop(0)
+        callback_query.message.reply_text(get_state_text(state), reply_markup=reply_keyb_markup)
 
     user_data[STATE] = state
     return state
@@ -306,8 +306,8 @@ def edit_book_price_callback(update: Update, context: CallbackContext):
         update_book_price(int(book_price), user_data['book_id'])
         return return_edit_book_callback(update, user, user_data)
     user_data[EDIT_BOOK_PRICE] = int(book_price)
-    inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['continue', 'adding']).get_keyboard()
-    message = update.message.reply_text(text, reply_markup=inline_keyboard)
+    inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['continue', 'adding']).get_markup()
+    message = update.message.reply_text(text, reply_markup=inline_keyb_markup)
     user_data[STATE] = YES_NO_CONFIRMATION
     user_data[MESSAGE_ID] = message.message_id
     return YES_NO_CONFIRMATION
@@ -422,9 +422,9 @@ def edit_book_amout_callback(update: Update, context: CallbackContext):
             update.message.reply_text(get_state_text(EDIT_BOOK_AMOUT, True), quote=True)
             return
         user_data[EDIT_BOOK_AMOUT] = int(book_amout)
-    reply_keyboard = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_keyboard()
-    reply_keyboard.keyboard.pop(0)
-    update.message.reply_text(get_state_text(EDIT_BOOK_YEAR), reply_markup=reply_keyboard)
+    reply_keyb_markup = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_markup()
+    reply_keyb_markup.keyboard.pop(0)
+    update.message.reply_text(get_state_text(EDIT_BOOK_YEAR), reply_markup=reply_keyb_markup)
 
     user_data[STATE] = EDIT_BOOK_YEAR
     return EDIT_BOOK_YEAR
@@ -451,15 +451,15 @@ def edit_book_year_callback(update: Update, context: CallbackContext):
             return
         user_data[EDIT_BOOK_YEAR] = book_year
     update.message.reply_text("✅ Kitobni tasdiqlash", reply_markup=ReplyKeyboardRemove())
-    inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['confirm', 'book']).get_keyboard()
-    inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+    inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['confirm', 'book']).get_markup()
+    inline_keyb_markup.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
 
     if EDIT_BOOK_URL in user_data:
-        inline_keyboard.inline_keyboard.insert(0, [
+        inline_keyb_markup.inline_keyboard.insert(0, [
             InlineKeyboardButton("🔗 Kitob haqida", url=user_data[EDIT_BOOK_URL])])
     layout = get_book_layout(get_book_data_dict(user_data), user[LANG])
     message = update.message.reply_photo(user_data[EDIT_BOOK_PHOTO][-1].file_id, layout,
-                                         reply_markup=inline_keyboard)
+                                         reply_markup=inline_keyb_markup)
     user_data[STATE] = YES_NO_CONFIRMATION
     user_data[MESSAGE_ID] = message.message_id
     return YES_NO_CONFIRMATION
@@ -474,9 +474,9 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
     if data[0] == 'delete' and data[-1] == 'book':
         if data[1] == 'n':
             book = get_book(user_data['book_id'])
-            inline_keyboard = InlineKeyboard(edit_book_keyboard, user[LANG], data=book).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(edit_book_keyboard, user[LANG], book).get_markup()
             try:
-                callback_query.edit_message_reply_markup(inline_keyboard)
+                callback_query.edit_message_reply_markup(inline_keyb_markup)
             except TelegramError:
                 pass
             state = EDIT_BOOK
@@ -487,9 +487,9 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
             caption = "Tahrirlash uchun kitobni tanlang:"
             photo = PHOTOS_URL + 'kitappuz_photo.jpg'
             media_photo = InputMediaPhoto(photo, caption)
-            inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
             try:
-                callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+                callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
             except TelegramError:
                 pass
             state = EDIT_BOOKS
@@ -505,18 +505,18 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
             except TelegramError:
                 callback_query.edit_message_reply_markup()
             ask_text = "Yangi kitobni tasdiqlaysizmi ?"
-            inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['confirm', 'book']).get_keyboard()
-            inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+            inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['confirm', 'book']).get_markup()
+            inline_keyb_markup.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
 
             layout = get_book_layout(get_book_data_dict(user_data), user[LANG])
             message = callback_query.message.reply_photo(user_data[EDIT_BOOK_PHOTO][-1].file_id, caption=layout,
-                                                         reply_markup=inline_keyboard)
+                                                         reply_markup=inline_keyb_markup)
             user_data[MESSAGE_ID] = message.message_id
             return
 
         elif data[1] == 'y':
-            reply_keyboard = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_keyboard()
-            callback_query.message.reply_text(get_state_text(EDIT_BOOK_AUTHOR), reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(back_to_editing_keyboard, user[LANG]).get_markup()
+            callback_query.message.reply_text(get_state_text(EDIT_BOOK_AUTHOR), reply_markup=reply_keyb_markup)
             try:
                 callback_query.delete_message()
             except TelegramError:
@@ -531,11 +531,11 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
 
             if insert_data(get_book_data_dict(user_data), 'books'):
                 callback_query.answer("Yangi kitob qo'shildi 😉", show_alert=True)
-                reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-                callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyboard)
+                reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+                callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
 
-                inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
-                message = callback_query.message.reply_photo(photo, caption=caption, reply_markup=inline_keyboard)
+                inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
+                message = callback_query.message.reply_photo(photo, caption=caption, reply_markup=inline_keyb_markup)
                 try:
                     callback_query.delete_message()
                 except TelegramError:
@@ -549,12 +549,12 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
             caption = "Tahrirlash uchun kitobni tanlang:"
             photo = PHOTOS_URL + 'kitappuz_photo.jpg'
             media_photo = InputMediaPhoto(photo, caption)
-            inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+            inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
+            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
             callback_query.answer('Kitob tasdiqlanmadi 🙂', show_alert=True)
 
-            reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-            callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+            callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
 
             message_id = user_data.pop(MESSAGE_ID)
             user_data.clear()
@@ -568,25 +568,25 @@ def back_to_editing_callback(update: Update, context: CallbackContext):
     user_data = context.user_data
     photo = PHOTOS_URL + 'kitappuz_photo.jpg'
     caption = "Tahrirlash uchun kitobni tanlang:"
-    inline_keyboard = InlineKeyboard(edit_books_keyboard, user[LANG], data=get_all_books()).get_keyboard()
+    inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
     state = EDIT_BOOKS
 
-    reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyboard)
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    update.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
 
     if 'book_id' in user_data:
         book = get_book(user_data['book_id'])
         caption = get_book_layout(book, user[LANG])
         photo = book[PHOTO]
-        inline_keyboard = InlineKeyboard(edit_book_keyboard, user[LANG], data=book).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(edit_book_keyboard, user[LANG], book).get_markup()
         state = EDIT_BOOK
     else:
         user_data.clear()
     # this try except used for send old books' photo like rework.jpg, drive.jpg etc.
     try:
-        message = update.message.reply_photo(photo, caption, reply_markup=inline_keyboard)
+        message = update.message.reply_photo(photo, caption, reply_markup=inline_keyb_markup)
     except TelegramError:
-        message = update.message.reply_photo(PHOTOS_URL + photo, caption, reply_markup=inline_keyboard)
+        message = update.message.reply_photo(PHOTOS_URL + photo, caption, reply_markup=inline_keyb_markup)
     delete_message_by_message_id(context, user)
     user_data[STATE] = state
     user_data[MESSAGE_ID] = message.message_id

@@ -138,38 +138,32 @@ class InlineKeyboard(object):
 
     @staticmethod
     def __get_paginate_keyboard(data, history=None):
-
         wanted, orders = data
         length = len(orders)
-
         state = 'h_' if history else ''
 
         if wanted == 1 and length == 1:
             button1_text = '.'
             button1_data = 'dot_1'
-
             button3_text = '.'
             button3_data = 'dot_2'
 
         elif wanted == 1 and length > 1:
             button1_text = '.'
             button1_data = 'dot'
-
-            button3_text = '\U000023E9'
+            button3_text = '⏩'
             button3_data = f'{state}w_{wanted + 1}'
 
         elif wanted == length:
-            button1_text = '\U000023EA'
+            button1_text = '⏪'
             button1_data = f'{state}w_{wanted - 1}'
-
             button3_text = '.'
             button3_data = 'dot'
 
         else:
-            button1_text = '\U000023EA'
+            button1_text = '⏪'
             button1_data = f'{state}w_{wanted - 1}'
-
-            button3_text = '\U000023E9'
+            button3_text = '⏩'
             button3_data = f'{state}w_{wanted + 1}'
 
         button2_text = f'{wanted}/{length}'
