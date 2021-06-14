@@ -33,8 +33,8 @@ def do_command(update: Update, context: CallbackContext):
                     text = "📖 Menyu"
 
             menu_keyboard = admin_menu_keyboard if user[IS_ADMIN] else client_menu_keyboard
-            reply_keyboard = ReplyKeyboard(menu_keyboard, user[LANG]).get_keyboard()
-            update.message.reply_text(text, reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(menu_keyboard, user[LANG]).get_markup()
+            update.message.reply_text(text, reply_markup=reply_keyb_markup)
             return ConversationHandler.END
 
         else:
@@ -47,8 +47,6 @@ def do_command(update: Update, context: CallbackContext):
 
 
 def fullname_callback(update: Update, context: CallbackContext):
-    # with open('jsons/update.json', 'w') as update_file:
-    #     update_file.write(update.to_json())
     user_data = context.user_data
     fullname = fullname_filter(update.message.text)
 
@@ -62,8 +60,8 @@ def fullname_callback(update: Update, context: CallbackContext):
                    "Kitob buyurtma qilishingiz mumkin"
 
         text = f'🎉🎉🎉 {text}'
-        reply_keyboard = ReplyKeyboard(client_menu_keyboard, user_data[LANG]).get_keyboard()
-        update.message.reply_text(text, reply_markup=reply_keyboard)
+        reply_keyb_markup = ReplyKeyboard(client_menu_keyboard, user_data[LANG]).get_markup()
+        update.message.reply_text(text, reply_markup=reply_keyb_markup)
 
         user_data.clear()
         return ConversationHandler.END

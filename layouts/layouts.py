@@ -1,4 +1,4 @@
-from DB import get_books
+from DB import get_books_by_ids
 from layouts.layoutdicts import *
 from helpers import wrap_tags
 
@@ -24,7 +24,7 @@ def get_book_layout(book_data, lang):
 
 def get_basket_layout(orders, lang, data=None):
     books_ids = [str(key) for key in orders.keys()]
-    books = get_books(",".join(books_ids))
+    books = get_books_by_ids(books_ids)
     if books:
         layout = ''
         total = 0

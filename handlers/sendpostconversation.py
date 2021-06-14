@@ -1,4 +1,3 @@
-import logging
 import re
 import ujson
 import datetime
@@ -33,11 +32,10 @@ from replykeyboards.replykeyboardvariables import admin_menu_keyboard
 from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import yes_no_keyboard
 
-logger = logging.getLogger()
-not_pattern = "^(.(?!(Ortga)))*$"
+not_back_btn_pattern = "^(.(?!(Ortga)))*$"
 
 
-def send_messages(context: CallbackContext):
+def send_messages(context):
     user = context.job.context[0]
     user_data = context.job.context[-1]
 
@@ -99,10 +97,10 @@ def sendpost_conversation_callback(update: Update, context: CallbackContext):
             text = "Ажойиб, энди менга расм, видео ёки хабар юборинг"
 
         text = f'🙂 {text}'
-        reply_keyboard = ReplyKeyboardMarkup([
-            [KeyboardButton(f'⬅️ Ortga')]
+        reply_keyb_markup = ReplyKeyboardMarkup([
+            [KeyboardButton(f'« Ortga')]
         ], resize_keyboard=True)
-        update.message.reply_text(text, reply_markup=reply_keyboard)
+        update.message.reply_text(text, reply_markup=reply_keyb_markup)
 
         user_data[STATE] = POST_CONTENT
         return POST_CONTENT
@@ -117,7 +115,6 @@ def sendpost_conversation_callback(update: Update, context: CallbackContext):
 
         text = f'❗ {text} 😬'
         update.message.reply_text(text)
-
         return ConversationHandler.END
 
 
@@ -159,24 +156,22 @@ def post_content_callback(update: Update, context: CallbackContext):
         return user_data[STATE]
 
     update.message.reply_text(perfect_text)
-    inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['send', 'post']).get_keyboard()
-    inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+    inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['send', 'post']).get_markup()
+    inline_keyb_markup.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
 
     if photo:
         user_data['post_photo'] = photo
-        message = update.message.reply_photo(photo[-1].file_id, caption=caption, reply_markup=inline_keyboard)
+        message = update.message.reply_photo(photo[-1].file_id, caption=caption, reply_markup=inline_keyb_markup)
     elif video:
         user_data['post_video'] = video
-        message = update.message.reply_video(video.file_id, caption=caption, reply_markup=inline_keyboard)
+        message = update.message.reply_video(video.file_id, caption=caption, reply_markup=inline_keyb_markup)
     else:
         user_data['post_text'] = update.message.text_html
-        message = update.message.reply_text(user_data['post_text'], reply_markup=inline_keyboard)
+        message = update.message.reply_text(user_data['post_text'], reply_markup=inline_keyb_markup)
 
     user_data['caption'] = caption
     user_data[STATE] = SEND_POST_CONFIRMATION
     user_data[MESSAGE_ID] = message.message_id
-
-    # logger.info('user_data: %s', user_data)
     return SEND_POST_CONFIRMATION
 
 
@@ -252,8 +247,8 @@ def confirmation_send_post_callback(update: Update, context: CallbackContext):
             callback_query.edit_message_reply_markup()
 
         callback_query.answer(reply_text, show_alert=True)
-        reply_keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_keyboard()
-        callback_query.message.reply_text(reply_text, reply_markup=reply_keyboard)
+        reply_keyb_markup = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_markup()
+        callback_query.message.reply_text(reply_text, reply_markup=reply_keyb_markup)
 
         user_data.clear()
         return ConversationHandler.END
@@ -277,13 +272,11 @@ def sendpost_conversation_fallback(update: Update, context: CallbackContext):
             text = "Бош меню"
 
         text = f'🏠 {text}'
-        keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_keyboard()
+        keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_markup()
         delete_message_by_message_id(context, user)
 
         update.message.reply_text(text, reply_markup=keyboard)
         user_data.clear()
-
-        # logger.info('user_data: %s', user_data)
         return ConversationHandler.END
 
 
@@ -293,7 +286,7 @@ sendpost_conversation_handler = ConversationHandler(
     states={
         POST_CONTENT: [
             MessageHandler(
-                (Filters.photo | Filters.video | Filters.regex(not_pattern)) &
+                (Filters.photo | Filters.video | Filters.regex(not_back_btn_pattern)) &
                 (~Filters.update.edited_message) & (~Filters.command), post_content_callback)],
 
         SEND_POST_CONFIRMATION: [

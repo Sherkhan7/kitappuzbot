@@ -24,13 +24,13 @@ not_pattern = f"^(.(?!({back_btn_text})))*$"
 
 
 def end_conversation(update: Update, context: CallbackContext, user, text, keyboard):
-    reply_keyboard = ReplyKeyboard(keyboard, user[LANG]).get_keyboard()
+    reply_keyb_markup = ReplyKeyboard(keyboard, user[LANG]).get_markup()
     delete_message_by_message_id(context, user)
 
     if update.callback_query:
-        update.callback_query.message.reply_text(text, reply_markup=reply_keyboard)
+        update.callback_query.message.reply_text(text, reply_markup=reply_keyb_markup)
     else:
-        update.message.reply_text(text, reply_markup=reply_keyboard)
+        update.message.reply_text(text, reply_markup=reply_keyb_markup)
 
     context.user_data.clear()
     return ConversationHandler.END
@@ -42,8 +42,8 @@ def edit_contactus_conversation_callback(update: Update, context: CallbackContex
     user = get_user(update.effective_user.id)
     user_data = context.user_data
 
-    reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text("Yangi tekstni kiriting", reply_markup=reply_keyboard)
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    update.message.reply_text("Yangi tekstni kiriting", reply_markup=reply_keyb_markup)
 
     user_data[STATE] = EDIT_CONTACTUS_TEXT
     return EDIT_CONTACTUS_TEXT
@@ -56,9 +56,9 @@ def edit_cantactus_callback(update: Update, context: CallbackContext):
         user = get_user(update.effective_user.id)
         user_data = context.user_data
         ask_text = "Yangi tekstni tastiqlaysizmi ?"
-        inline_keyboard = InlineKeyboard(yes_no_keyboard, user[LANG], data=['edit', 'contactus']).get_keyboard()
-        inline_keyboard.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
-        message = update.message.reply_text(update.message.text_html, reply_markup=inline_keyboard)
+        inline_keyb_markup = InlineKeyboard(yes_no_keyboard, user[LANG], ['edit', 'contactus']).get_markup()
+        inline_keyb_markup.inline_keyboard.insert(0, [InlineKeyboardButton(ask_text, callback_data='none')])
+        message = update.message.reply_text(update.message.text_html, reply_markup=inline_keyb_markup)
 
         user_data[EDIT_CONTACTUS_TEXT] = update.message.text_html
         user_data[STATE] = CONTACTUS_TEXT_CONFIRMATION

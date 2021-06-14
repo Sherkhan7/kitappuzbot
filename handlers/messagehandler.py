@@ -1,4 +1,3 @@
-import ujson
 import re
 
 from telegram.ext import Filters, MessageHandler, CallbackContext
@@ -37,7 +36,7 @@ def message_handler_callback(update: Update, context: CallbackContext):
         if user[IS_ADMIN]:
             # Yangi buyurtmalar
             if re.search(f'{new_orders_btn}$', update.message.text):
-                waiting_orders = get_orders_by_status(status='waiting')
+                waiting_orders = get_orders_by_status('waiting')
 
                 if waiting_orders:
                     for order in waiting_orders:
@@ -45,6 +44,8 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         client = get_user(order[USER_ID])
                         new_dict = dict()
                         label = '[Yangi buyurtma]'
+                        if order['with_action']:
+                            label += ' [🔥MEGA AKSIYA🔥]'
 
                         for item in order_items:
                             new_dict.update({item['book_id']: item['quantity']})
@@ -56,8 +57,8 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         text_for_admin += f'Telegram: {wrap_tags("@" + client[USERNAME])}\n' \
                             if client[USERNAME] else '\n'
                         text_for_admin += f'Status: {wrap_tags("qabul qilish kutilmoqda")}'
-                        inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG], order[ID]).get_keyboard()
-                        update.message.reply_text(text_for_admin, reply_markup=inline_keyboard)
+                        inline_keyb_markup = InlineKeyboard(orders_keyboard, user[LANG], order[ID]).get_markup()
+                        update.message.reply_text(text_for_admin, reply_markup=inline_keyb_markup)
 
                 else:
                     update.message.reply_text('Yangi buyurtmalar mavjud emas !')
@@ -66,15 +67,15 @@ def message_handler_callback(update: Update, context: CallbackContext):
             # Qabul qilingan buyurtmalar va Tarrix
             elif re.search(f'({received_orders_btn}|{history_btn})$', update.message.text):
                 if re.search(f'{history_btn}$', update.message.text):
-                    orders = get_orders_by_status(('delivered', 'canceled'))
+                    orders = get_orders_by_status('delivered', 'canceled')
                     empty_text = "Tarix  bo'sh !"
-                    label = '[Tarix]'
                     history = True
+                    label = '[Tarix]'
                 else:
                     orders = get_orders_by_status('received')
                     empty_text = 'Qabul qilingan buyurtmalar mavjud emas !'
-                    label = ''
                     history = None
+                    label = ''
 
                 if orders:
                     wanted = 1
@@ -84,9 +85,9 @@ def message_handler_callback(update: Update, context: CallbackContext):
                         if order[STATUS] == 'canceled' else 'qabul qilingan'
                     order_items = get_order_items_book_title(order[ID])
                     books_layout = get_books_layout(order, order_items, client, {STATUS: status, 'label': label})
-                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG], data=[wanted, orders],
-                                                     history=history).get_keyboard()
-                    update.message.reply_text(books_layout, reply_markup=inline_keyboard)
+                    inline_keyb_markup = InlineKeyboard(paginate_keyboard, user[LANG], [wanted, orders],
+                                                        history).get_markup()
+                    update.message.reply_text(books_layout, reply_markup=inline_keyb_markup)
 
                 else:
                     update.message.reply_text(empty_text)
@@ -101,14 +102,14 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
             # Botni tahrirlash
             elif re.search(f'{edit_bot_btn}$', update.message.text):
-                reply_keyboard = ReplyKeyboard(edit_bot_keyboard, user[LANG]).get_keyboard()
-                update.message.reply_text(update.message.text, reply_markup=reply_keyboard)
+                reply_keyb_markupoard = ReplyKeyboard(edit_bot_keyboard, user[LANG]).get_markup()
+                update.message.reply_text(update.message.text, reply_markup=reply_keyb_markupoard)
                 return
 
             # « Ortga
             elif re.search(f'{back_btn}$', update.message.text):
-                reply_keyboard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_keyboard()
-                update.message.reply_text(update.message.text, reply_markup=reply_keyboard)
+                reply_keyb_markupoard = ReplyKeyboard(admin_menu_keyboard, user[LANG]).get_markup()
+                update.message.reply_text(update.message.text, reply_markup=reply_keyb_markupoard)
                 return
 
             else:
@@ -125,20 +126,21 @@ def message_handler_callback(update: Update, context: CallbackContext):
                     wanted = 1
                     order = user_orders[wanted - 1]
                     order_items = get_order_items_book_title(order[ID])
-                    label = ''
+                    label = "[🔥MEGA AKSIYA🔥]" if order['with_action'] else ''
                     status = 'qabul qilingan' if order[STATUS] == 'received' else 'rad etilgan' \
-                        if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' \
-                        if order[STATUS] == 'waiting' else 'yetkazilgan'
+                        if order[STATUS] == 'canceled' else 'qabul qilish kutilmoqda' if order[STATUS] == 'waiting' \
+                        else 'yetkazilgan'
                     books_layout = get_books_layout(order, order_items, user, {STATUS: status, 'label': label})
-                    inline_keyboard = InlineKeyboard(paginate_keyboard, user[LANG],
-                                                     [wanted, user_orders]).get_keyboard()
-                    if order[STATUS] == 'received':
-                        deliv_keyb = InlineKeyboard(delivery_keyboard, user[LANG], data=order[ID]).get_keyboard()
-                        pag_keyb = inline_keyboard.inline_keyboard
-                        deliv_keyb = deliv_keyb.inline_keyboard
-                        inline_keyboard = InlineKeyboardMarkup(pag_keyb + deliv_keyb)
+                    inline_keyb_markup = InlineKeyboard(paginate_keyboard, user[LANG],
+                                                        [wanted, user_orders]).get_markup()
 
-                    update.message.reply_text(books_layout, reply_markup=inline_keyboard)
+                    if order[STATUS] == 'received':
+                        delivery_keyb = InlineKeyboard(delivery_keyboard, user[LANG], order[ID]).get_markup()
+                        delivery_keyb_list = delivery_keyb.inline_keyboard
+                        paginate_keyb_list = inline_keyb_markup.inline_keyboard
+                        inline_keyb_markup = InlineKeyboardMarkup(paginate_keyb_list + delivery_keyb_list)
+
+                    update.message.reply_text(books_layout, reply_markup=inline_keyb_markup)
 
                 else:
                     update.message.reply_text('Sizda hali buyurtmalar mavjud emas !')
@@ -146,8 +148,8 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
             # Biz ijtimoiy tarmoqlarda
             elif re.search(f'{social_nets_btn}$', update.message.text):
-                inline_keyboard = InlineKeyboard(social_medias_keyboard, user[LANG]).get_keyboard()
-                update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyboard)
+                inline_keyb_markup = InlineKeyboard(social_medias_keyboard, user[LANG]).get_markup()
+                update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyb_markup)
                 return
 
             # Biz bilan bo'glanish

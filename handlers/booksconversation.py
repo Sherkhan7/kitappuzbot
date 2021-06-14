@@ -14,7 +14,7 @@ from globalvariables import *
 from layouts import *
 from helpers import wrap_tags
 from filters import phone_number_filter
-from DB import insert_data, get_book, insert_order_items, get_user, get_books
+from DB import insert_data, get_book, insert_order_items, get_user
 from handlers.editcontacusconversation import end_conversation
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
@@ -31,11 +31,11 @@ def books_conversation_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
 
-    reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-    update.message.reply_text(update.message.text, reply_markup=reply_keyboard)
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    update.message.reply_text(update.message.text, reply_markup=reply_keyb_markup)
 
-    inline_keyboard = InlineKeyboard(books_keyboard, user[LANG]).get_keyboard()
-    message = update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyboard)
+    inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG]).get_markup()
+    message = update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyb_markup)
 
     state = BOOKS
     user_data[STATE] = state
@@ -51,15 +51,15 @@ def books_callback(update: Update, context: CallbackContext):
     if callback_query.data == 'basket':
         caption = get_basket_layout(user_data[BASKET], user[LANG])
         if caption:
-            inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(basket_keyboard, user[LANG]).get_markup()
             try:
-                callback_query.edit_message_caption(caption, reply_markup=inline_keyboard)
+                callback_query.edit_message_caption(caption, reply_markup=inline_keyb_markup)
             except TelegramError:
                 pass
             state = BASKET
         else:
-            inline_keyboard = InlineKeyboard(books_keyboard, user[LANG]).get_keyboard()
-            callback_query.edit_message_reply_markup(inline_keyboard)
+            inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG]).get_markup()
+            callback_query.edit_message_reply_markup(inline_keyb_markup)
             callback_query.answer("Savat bo'sh 😬", show_alert=True)
             return
 
@@ -69,12 +69,12 @@ def books_callback(update: Update, context: CallbackContext):
         if book:
             caption = get_book_layout(book, user[LANG])
             media_photo = InputMediaPhoto(book[PHOTO], caption)
-            inline_keyboard = InlineKeyboard(book_keyboard, user[LANG], data=book).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(book_keyboard, user[LANG], book).get_markup()
             try:
-                callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+                callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
             except TelegramError:
                 media_photo = InputMediaPhoto(PHOTOS_URL + book[PHOTO], caption)
-                callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+                callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
             user_data['book_id'] = int(book_id)
             state = BOOK
         else:
@@ -94,18 +94,18 @@ def book_callback(update: Update, context: CallbackContext):
     if callback_query.data == 'back':
         media_photo = InputMediaPhoto(PHOTOS_URL + 'kitappuz_photo.jpg')
         data = True if BASKET in user_data else None
-        inline_keyboard = InlineKeyboard(books_keyboard, user[LANG], data=data).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG], data=data).get_markup()
         try:
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
         except TelegramError:
             pass
         del user_data['book_id']
         state = BOOKS
 
     elif callback_query.data == 'ordering':
-        inline_keyboard = InlineKeyboard(order_keyboard, user[LANG]).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(order_keyboard, user[LANG]).get_markup()
         try:
-            callback_query.edit_message_reply_markup(inline_keyboard)
+            callback_query.edit_message_reply_markup(inline_keyb_markup)
         except TelegramError:
             pass
         state = ORDER
@@ -120,7 +120,7 @@ def order_callback(update: Update, context: CallbackContext):
 
     if callback_query.data == '-' or callback_query.data == '+' or callback_query.data.isdigit():
         if not callback_query.data.isdigit():
-            button = update.callback_query.message.reply_markup.inline_keyboard[0][1]
+            button = update.callback_query.message.reply_markup.inline_keyb_markup[0][1]
             counter = int(button.text) - 1 if callback_query.data == '-' else int(button.text) + 1
 
             if counter in range(1, 6):
@@ -143,9 +143,9 @@ def order_callback(update: Update, context: CallbackContext):
         callback_query.answer()
         book = get_book(user_data['book_id'])
         if book:
-            inline_keyboard = InlineKeyboard(book_keyboard, user[LANG], data=book).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(book_keyboard, user[LANG], book).get_markup()
             try:
-                callback_query.edit_message_reply_markup(inline_keyboard)
+                callback_query.edit_message_reply_markup(inline_keyb_markup)
             except TelegramError:
                 pass
             state = BOOK
@@ -153,9 +153,9 @@ def order_callback(update: Update, context: CallbackContext):
         else:
             media_photo = InputMediaPhoto(PHOTOS_URL + 'kitappuz_photo.jpg')
             data = True if BASKET in user_data else None
-            inline_keyboard = InlineKeyboard(books_keyboard, user[LANG], data=data).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG], data=data).get_markup()
             try:
-                callback_query.edit_message_media(media_photo, reply_markup=inline_keyboard)
+                callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
             except TelegramError:
                 pass
             if 'book_id' in user_data:
@@ -164,7 +164,7 @@ def order_callback(update: Update, context: CallbackContext):
 
     elif callback_query.data == 'order':
         if get_book(user_data['book_id']):
-            quantity = int(callback_query.message.reply_markup.inline_keyboard[0][1].text)
+            quantity = int(callback_query.message.reply_markup.inline_keyb_markup[0][1].text)
             basket = {user_data['book_id']: quantity}
 
             if BASKET not in user_data:
@@ -188,9 +188,9 @@ def order_callback(update: Update, context: CallbackContext):
 
             callback_query.answer()
             caption = get_basket_layout(user_data[BASKET], user[LANG])
-            inline_keyboard = InlineKeyboard(basket_keyboard, user[LANG]).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(basket_keyboard, user[LANG]).get_markup()
             try:
-                callback_query.edit_message_caption(caption, reply_markup=inline_keyboard)
+                callback_query.edit_message_caption(caption, reply_markup=inline_keyb_markup)
             except TelegramError:
                 pass
             state = BASKET
@@ -211,9 +211,9 @@ def basket_callback(update: Update, context: CallbackContext):
     callback_query.answer()
 
     if callback_query.data == 'continue':
-        inline_keyboard = InlineKeyboard(books_keyboard, user[LANG], data=True).get_keyboard()
+        inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG], data=True).get_markup()
         try:
-            callback_query.edit_message_media(InputMediaPhoto(PHOTOS_URL + 'kitappuz_photo.jpg'), inline_keyboard)
+            callback_query.edit_message_media(InputMediaPhoto(PHOTOS_URL + 'kitappuz_photo.jpg'), inline_keyb_markup)
         except TelegramError:
             pass
         state = BOOKS
@@ -225,7 +225,7 @@ def basket_callback(update: Update, context: CallbackContext):
             pass
         text = "Siz bilan bog'lanishimiz uchun telefon raqamingizni yuboring\n"
         layout = get_phone_number_layout(user[LANG])
-        repky_keyboard = ReplyKeyboard(phone_number_keyboard, user[LANG]).get_keyboard()
+        repky_keyboard = ReplyKeyboard(phone_number_keyboard, user[LANG]).get_markup()
         text += layout
         callback_query.message.reply_text(text, reply_markup=repky_keyboard)
         state = PHONE_NUMBER
@@ -252,22 +252,22 @@ def phone_callback(update: Update, context: CallbackContext):
         layout = get_basket_layout(user_data[BASKET], user[LANG])
         if layout:
             text = 'Buyurtmangizni tasdiqlang'
-            reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-            update.message.reply_text(text, reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+            update.message.reply_text(text, reply_markup=reply_keyb_markup)
 
             layout += f'\nMijoz: {wrap_tags(user[FULLNAME])}\n' \
                       f'Tel: {wrap_tags(user_data[PHONE_NUMBER])}\n'
             layout += f'Telegram: {wrap_tags("@" + user[USERNAME])}' if user[USERNAME] else ''
-            inline_keyboard = InlineKeyboard(confirm_keyboard, user[LANG]).get_keyboard()
-            message = update.message.reply_text(layout, reply_markup=inline_keyboard)
+            inline_keyb_markup = InlineKeyboard(confirm_keyboard, user[LANG]).get_markup()
+            message = update.message.reply_text(layout, reply_markup=inline_keyb_markup)
             state = CONFIRMATION
         else:
-            reply_keyboard = ReplyKeyboard(back_keyboard, user[LANG]).get_keyboard()
-            update.message.reply_text("Savat bo'sh 😬", reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+            update.message.reply_text("Savat bo'sh 😬", reply_markup=reply_keyb_markup)
             if BASKET in user_data:
                 del user_data[BASKET]
-            inline_keyboard = InlineKeyboard(books_keyboard, user[LANG]).get_keyboard()
-            message = update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyboard)
+            inline_keyb_markup = InlineKeyboard(books_keyboard, user[LANG]).get_markup()
+            message = update.message.reply_photo(PHOTOS_URL + 'kitappuz_photo.jpg', reply_markup=inline_keyb_markup)
             state = BOOKS
         user_data[MESSAGE_ID] = message.message_id
 
@@ -289,9 +289,9 @@ def confirmation_callback(update: Update, context: CallbackContext):
             callback_query.edit_message_text(edit_text)
         except TelegramError:
             pass
-        reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
+        reply_keyb_markup = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_markup()
         callback_query.message.reply_text('❌ Buyurma bekor qilindi !', quote=True)
-        callback_query.message.reply_text('📖 Menyu', reply_markup=reply_keyboard)
+        callback_query.message.reply_text('📖 Menyu', reply_markup=reply_keyb_markup)
 
     elif callback_query.data == 'confirm':
         order_data = {
@@ -313,18 +313,18 @@ def confirmation_callback(update: Update, context: CallbackContext):
             text_for_admin += [f'Status: {wrap_tags("qabul qilish kutilmoqda")}']
             text_for_admin = '\n'.join(text_for_admin)
             text_for_client = text_for_admin
-            inline_keyboard = InlineKeyboard(orders_keyboard, user[LANG], order_id).get_keyboard()
+            inline_keyb_markup = InlineKeyboard(orders_keyboard, user[LANG], order_id).get_markup()
 
             for ADMIN in ACTIVE_ADMINS:
-                context.bot.send_message(ADMIN, text_for_admin, reply_markup=inline_keyboard)
+                context.bot.send_message(ADMIN, text_for_admin, reply_markup=inline_keyb_markup)
             try:
                 callback_query.edit_message_text(text_for_client)
             except TelegramError:
                 pass
             text = "Buyurtmangiz administratorga yetkazildi.\nTez orada siz bilan bog'lanamiz 😉\n\n" \
                    "Buyurtmangiz uchun tashakkur !"
-            reply_keyboard = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_keyboard()
-            callback_query.message.reply_text(text, reply_markup=reply_keyboard)
+            reply_keyb_markup = ReplyKeyboard(client_menu_keyboard, user[LANG]).get_markup()
+            callback_query.message.reply_text(text, reply_markup=reply_keyb_markup)
 
     user_data.clear()
     return ConversationHandler.END
