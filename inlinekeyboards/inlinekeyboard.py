@@ -205,5 +205,5 @@ class InlineKeyboard(object):
             ])
         return inline_keyboard
 
-    def get_keyboard(self):
+    def get_markup(self):
         return self.__keyboard

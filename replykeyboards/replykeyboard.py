@@ -16,5 +16,5 @@ class ReplyKeyboard(object):
             reply_keyboard[0][0].request_contact = True
         return ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True)
 
-    def get_keyboard(self):
+    def get_markup(self):
         return self.__create_reply_keyboard()
