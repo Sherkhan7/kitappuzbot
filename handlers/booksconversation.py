@@ -120,7 +120,7 @@ def order_callback(update: Update, context: CallbackContext):
 
     if callback_query.data == '-' or callback_query.data == '+' or callback_query.data.isdigit():
         if not callback_query.data.isdigit():
-            button = update.callback_query.message.reply_markup.inline_keyb_markup[0][1]
+            button = update.callback_query.message.reply_markup.inline_keyboard[0][1]
             counter = int(button.text) - 1 if callback_query.data == '-' else int(button.text) + 1
 
             if counter in range(1, 6):
