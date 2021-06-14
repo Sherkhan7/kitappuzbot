@@ -22,7 +22,7 @@ from globalvariables import *
 from layouts import *
 from DB import *
 from helpers import wrap_tags, delete_message_by_message_id
-from handlers.editcontacusconversation import edit_contactus_conversation_fallback
+from handlers.editcontacusconversation import edit_contactus_conversation_fallback, back_btn_text
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
@@ -31,7 +31,6 @@ from inlinekeyboards.inlinekeyboardtypes import inline_keyboard_types
 from inlinekeyboards.inlinekeyboardvariables import *
 
 edit_books_btn_text = reply_keyboard_types[edit_bot_keyboard]['edit_books_btn'][f'text_uz']
-back_btn_text = reply_keyboard_types[back_keyboard]['back_btn'][f'text_uz']
 back_to_editing_btn_text = reply_keyboard_types[back_to_editing_keyboard]['back_to_editing_btn'][f'text_uz']
 next_btn_text = reply_keyboard_types[back_to_editing_keyboard]['next_btn'][f'text_uz']
 
@@ -81,6 +80,15 @@ def get_state_text(state, is_error=False):
 
     elif state == EDIT_BOOK_AUTHOR:
         text = "Kitob muallif(lar)ini kiriting :\n\nℹ Misol: <b>Robert Kiyosaki</b>"
+
+    elif state == USERNAME:
+        text = "🙂 Endi menga bolajak adminning taxallusi (username) ni yuboring :\n\n" \
+               "ℹ Misol: @sherzodbek_esanov yoki sherzodbek_esanov"
+        note_text = "\n\n⚠ Eslatma:\nFoydalanuvchi adminlikka tayinlanishidan avval bu foydalanuvchi " \
+                    f"@{BOT_USERNAME} dan ro'yxatdan o'tgan bo'lishi zarur !"
+        if is_error:
+            text = '‼ Kechirasiz, bunday taxallus (username) dagi foydalanuvchi bazadan topilmadi ! 😕'
+        text += wrap_tags(note_text)
     return text
 
 
@@ -168,8 +176,8 @@ def edit_books_callback(update: Update, context: CallbackContext):
             callback_query.delete_message()
         except TelegramError:
             callback_query.edit_message_reply_markup()
-        user_data[STATE] = EDIT_BOOK_TITLE
-        return EDIT_BOOK_TITLE
+        state = EDIT_BOOK_TITLE
+
     else:
         book_id = callback_query.data.split('_')[-1]
         book = get_book(book_id)
@@ -182,8 +190,10 @@ def edit_books_callback(update: Update, context: CallbackContext):
             media_photo = InputMediaPhoto(PHOTOS_URL + book[PHOTO], caption)
             callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
         user_data['book_id'] = book_id
-        user_data[STATE] = EDIT_BOOK
-        return EDIT_BOOK
+        state = EDIT_BOOK
+
+    user_data[STATE] = state
+    return EDIT_BOOK
 
 
 def edit_book_callback(update: Update, context: CallbackContext):

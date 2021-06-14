@@ -46,6 +46,24 @@ inline_keyboard_types = {
             "emoji": "+",
         }
     },
+    edit_admins_keyboard: {
+        "add_admin_btn": {
+            "text_uz": "Yangi admin qo'shish",
+            "emoji": "+",
+        }
+    },
+    edit_admin_keyboard: {
+        "delete_book_btn": {
+            "text_uz": "Adminni o'chirish",
+            "emoji": "🗑",
+            "data": "delete_admin"
+        },
+        "back_btn": {
+            "text_uz": "Ortga",
+            "emoji": "«",
+            "data": "back"
+        },
+    },
     edit_book_keyboard: {
         "edit_photo_btn": {
             "text_uz": "Kitob rasmini tahrirlash",

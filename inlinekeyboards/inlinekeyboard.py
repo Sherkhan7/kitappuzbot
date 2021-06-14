@@ -50,6 +50,12 @@ class InlineKeyboard(object):
         elif keyb_type == edit_book_keyboard:
             return self.__get_edit_book_keyboard(inline_keyboard_types[keyb_type], lang, data)
 
+        elif keyb_type == edit_admins_keyboard:
+            return self.__get_edit_admins_keyboard(inline_keyboard_types[keyb_type], lang, data)
+
+        elif keyb_type == edit_admin_keyboard:
+            return self.__get_edit_admin_keyboard(inline_keyboard_types[keyb_type], lang)
+
     @staticmethod
     def __get_books_keyboard(data):
         inline_keyboard = [
@@ -182,7 +188,7 @@ class InlineKeyboard(object):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_book')]
             if TITLE not in item else [InlineKeyboardButton(f"📝 {item[TITLE]}", callback_data=f'edit_book_{item[ID]}')]
-            for item in list(buttons.values()) + data
+            for item in list(buttons.values()) + list(data)
         ])
 
     @staticmethod
@@ -199,5 +205,21 @@ class InlineKeyboard(object):
             ])
         return inline_keyboard
 
-    def get_markup(self):
+    @staticmethod
+    def __get_edit_admins_keyboard(buttons, lang, data):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_admin')]
+            if FULLNAME not in item else [InlineKeyboardButton(f"👤 {item['fullname']}",
+                                                               callback_data=f'edit_admin_{item[TG_ID]}')]
+            for item in list(buttons.values()) + list(data)
+        ])
+
+    @staticmethod
+    def __get_edit_admin_keyboard(buttons, lang):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button['data'])]
+            for button in buttons.values()
+        ])
+
+    def get_markup(self) -> InlineKeyboardMarkup:
         return self.__keyboard

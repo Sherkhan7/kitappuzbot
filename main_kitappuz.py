@@ -12,6 +12,8 @@ def main():
 
     updater = Updater(TOKEN, persistence=my_persistence, defaults=defaults)
 
+    updater.dispatcher.add_handler(edit_admins_conversation_handler)
+
     updater.dispatcher.add_handler(edit_books_conversation_handler)
 
     updater.dispatcher.add_handler(edit_contactus_conversation_handler)

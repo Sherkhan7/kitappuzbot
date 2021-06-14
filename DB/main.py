@@ -1,6 +1,6 @@
 import pymysql.cursors
 from contextlib import closing
-from config import DB_CONFIG
+from config import DB_CONFIG, DEVELOPER_CHAT_ID
 
 
 def get_connection():
@@ -75,6 +75,13 @@ def get_all_books():
     return cursor.fetchall()
 
 
+def get_all_admins():
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f'SELECT * FROM users WHERE is_admin = TRUE AND tg_id != {DEVELOPER_CHAT_ID}')
+    return cursor.fetchall()
+
+
 def get_all_users():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
@@ -96,6 +103,13 @@ def get_books_by_ids(ids):
             sql = f'SELECT * FROM books WHERE id IN ({placeholder}) AND is_removed = FALSE ORDER BY id DESC'
             cursor.execute(sql, ids)
     return cursor.fetchall()
+
+
+def get_user_by_username(username):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM users WHERE username = %s', username)
+    return cursor.fetchone()
 
 
 def get_order_items_book_title(order_id):
@@ -160,14 +174,10 @@ def update_post_status(status, post_id):
     return 'updated' if connection.affected_rows() != 0 else 'not updated'
 
 
-def update_user_info(_id, **kwargs):
-    if 'lang' in kwargs.keys():
-        value = kwargs['lang']
-        sql = f'UPDATE testdb.users SET lang = %s WHERE tg_id = %s OR id = %s'
-
+def update_user_isadmin(is_admin, _id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute(sql, (value, _id, _id))
+            cursor.execute('UPDATE users SET is_admin = %s WHERE tg_id = %s', (is_admin, _id))
             connection.commit()
     return 'updated' if connection.affected_rows() != 0 else 'not updated'
 
