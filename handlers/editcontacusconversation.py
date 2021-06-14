@@ -20,7 +20,6 @@ from inlinekeyboards.inlinekeyboardvariables import *
 
 contact_us_btn_text = reply_keyboard_types[edit_bot_keyboard]['edit_contact_us_btn'][f'text_uz']
 back_btn_text = reply_keyboard_types[back_keyboard]['back_btn'][f'text_uz']
-not_pattern = f"^(.(?!({back_btn_text})))*$"
 
 
 def end_conversation(update: Update, context: CallbackContext, user, text, keyboard):
@@ -104,7 +103,7 @@ def edit_contactus_conversation_fallback(update: Update, context: CallbackContex
             keyboard = edit_bot_keyboard
         elif update.message.text == '/start' or update.message.text == '/menu':
             text = "📖 Menyu"
-            keyboard = admin_menu_keyboard
+            keyboard = admin_menu_keyboard if user[IS_ADMIN] else client_menu_keyboard
         return end_conversation(update, context, user, text, keyboard)
 
 
@@ -119,7 +118,7 @@ edit_contactus_conversation_handler = ConversationHandler(
                                                            pattern=r'^edit_[yn]_contactus|none$')]
     },
     fallbacks=[
-        MessageHandler(Filters.text, edit_contactus_conversation_fallback),
+        MessageHandler(Filters.text & (~Filters.update.edited_message), edit_contactus_conversation_fallback),
     ],
 
     persistent=True,
