@@ -16,48 +16,19 @@ from globalvariables import *
 from layouts import *
 from DB import *
 from helpers import wrap_tags, delete_message_by_message_id
-from handlers.editcontacusconversation import edit_contactus_conversation_fallback
+from handlers.editbooksconversation import (
+    edit_contactus_conversation_fallback,
+    get_state_text,
+    not_back_to_editing_btn_pattern,
+    back_to_editing_btn_text
+)
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
 from inlinekeyboards import InlineKeyboard
-from inlinekeyboards.inlinekeyboardtypes import inline_keyboard_types
 from inlinekeyboards.inlinekeyboardvariables import *
 
 edit_admins_btn_text = reply_keyboard_types[edit_bot_keyboard]['edit_admins_btn'][f'text_uz']
-back_btn_text = reply_keyboard_types[back_keyboard]['back_btn'][f'text_uz']
-back_to_editing_btn_text = reply_keyboard_types[back_to_editing_keyboard]['back_to_editing_btn'][f'text_uz']
-next_btn_text = reply_keyboard_types[back_to_editing_keyboard]['next_btn'][f'text_uz']
-
-not_back_btn_pattern = f"^(.(?!({back_btn_text})))*$"
-not_back_to_editing_btn_pattern = f"^(.(?!({back_to_editing_btn_text})))*$"
-next_btn_pattern = f'^{next_btn_text}'
-
-
-def get_state_text(state, is_error=False):
-    if state == USERNAME:
-        text = "🙂 Endi menga bolajak adminning taxallusi (username) ni yuboring :\n\n" \
-               "ℹ Misol: @sherzodbek_esanov yoki sherzodbek_esanov"
-        note_text = "\n\n⚠ Eslatma:\nFoydalanuvchi adminlikka tayinlanishidan avval bu foydalanuvchi " \
-                    f"@{BOT_USERNAME} dan ro'yxatdan o'tgan bo'lishi zarur !"
-        if is_error:
-            text = '‼ Kechirasiz, bunday taxallus (username) dagi foydalanuvchi bazadan topilmadi ! 😕'
-        text += wrap_tags(note_text)
-    return text
-
-
-def get_book_data_dict(user_data):
-    return {
-        TITLE: user_data[EDIT_BOOK_TITLE],
-        PRICE: user_data[EDIT_BOOK_PRICE],
-        PHOTO: user_data[EDIT_BOOK_PHOTO][-1].file_id,
-        YEAR: user_data[EDIT_BOOK_YEAR] if EDIT_BOOK_YEAR in user_data else None,
-        AUTHOR: user_data[EDIT_BOOK_AUTHOR] if EDIT_BOOK_AUTHOR in user_data else None,
-        AMOUNT: user_data[EDIT_BOOK_AMOUT] if EDIT_BOOK_AMOUT in user_data else None,
-        LANG: user_data[EDIT_BOOK_LANG] if EDIT_BOOK_LANG in user_data else None,
-        TRANSLATOR: user_data[EDIT_BOOK_TRANSLATOR] if EDIT_BOOK_TRANSLATOR in user_data else None,
-        COVER_TYPE: user_data[EDIT_BOOK_COVER] if EDIT_BOOK_COVER in user_data else None,
-    }
 
 
 def edit_admins_conversation_callback(update: Update, context: CallbackContext):
@@ -91,17 +62,18 @@ def edit_admins_callback(update: Update, context: CallbackContext):
             callback_query.delete_message()
         except TelegramError:
             callback_query.edit_message_reply_markup()
-        user_data[STATE] = USERNAME
-        return USERNAME
+        state = USERNAME
+
     else:
         user_tg_id = callback_query.data.split('_')[-1]
         admin = get_user(user_tg_id)
         inline_keyb_markup = InlineKeyboard(edit_admin_keyboard, user[LANG]).get_markup()
         callback_query.edit_message_text(get_user_info_layout(admin), reply_markup=inline_keyb_markup)
-
         user_data['admin_tg_id'] = user_tg_id
-        user_data[STATE] = EDIT_ADMIN
-        return EDIT_ADMIN
+        state = EDIT_ADMIN
+
+    user_data[STATE] = state
+    return state
 
 
 def edit_admin_callback(update: Update, context: CallbackContext):
@@ -154,66 +126,76 @@ def username_callback(update: Update, context: CallbackContext):
 
 def yes_no_confirm_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
+    user_data = context.user_data
     callback_query = update.callback_query
     data = callback_query.data.split('_')
     action = data[0]
     answer = data[1]
     admin_tg_id = data[-1]
+    _admin = get_user(admin_tg_id)
 
     if answer == 'y':
-        is_admin = False if action == 'delete' else True
+        if _admin[TG_ID] == user[TG_ID] and action == 'delete':
+            callback_query.answer("😕 Siz o'zingizni adminlikdan o'chira olmaysiz !", show_alert=True)
+            return
+        is_admin = True if action == 'makeadmin' else False
         if update_user_isadmin(is_admin, admin_tg_id) != 'updated':
             callback_query.answer("⚠ Foydalanuvchi avval adminlikka tayinlangan !", show_alert=True)
             return
+
+        if action == 'makeadmin':
+            opportunity_text = f"- Yangi buyurmalarni ko'rish/qabul qilish/bekor qilish\n" \
+                               f"- Qabul qilingan buyurmalarni ko'rish\n" \
+                               f"- Barcha foydalanuvchilarga xabar yuborish\n" \
+                               f"- Bot ni tahrirlash\n" \
+                               f"- Tarix ni ko'rish\n" \
+                               f"- Bazani yuklash"
+            text = f'Hurmatli {wrap_tags(_admin[FULLNAME])} ❕\n' \
+                   f'siz {wrap_tags(user[FULLNAME])} tomonidan @{BOT_USERNAME} ga ' \
+                   f'{wrap_tags("adminlikka tayinlandingiz !")} 😃\n\n' \
+                   f'🤖 /menu yoki /start kommandasi menga yuboring !\n\n' \
+                   f'Endi siz quyidagilarni bajara olasiz:\n{wrap_tags(opportunity_text)}'
+            alert_text = f"Foydalanuvchi {_admin[FULLNAME]} adminlikka muvaffaqiyatli tayinlandi 😉"
+
         else:
-            _admin = get_user(admin_tg_id)
-            if action == 'delete':
-                text = f"Hurmatli {wrap_tags(_admin[FULLNAME])} ❕,\n" \
-                       f"siz {wrap_tags(user[FULLNAME])} tomonidan @{BOT_USERNAME} ga " \
-                       f"{wrap_tags('adminlikdan olib tashlandingiz !')} 😬\n\n" \
-                       f"🤖 /menu yoki /start kommandasi menga yuboring !"
-                alert_text = f"Foydalanuvchi {_admin[FULLNAME]} adminlikdan muvaffaqiyatli olib tashlandi 🙂"
+            text = f"Hurmatli {wrap_tags(_admin[FULLNAME])} ❕\n" \
+                   f"siz {wrap_tags(user[FULLNAME])} tomonidan @{BOT_USERNAME} ga " \
+                   f"{wrap_tags('adminlikdan olib tashlandingiz !')} 😬\n\n" \
+                   f"🤖 /menu yoki /start kommandasi menga yuboring !"
+            alert_text = f"Foydalanuvchi {_admin[FULLNAME]} adminlikdan muvaffaqiyatli olib tashlandi 🙂"
 
-            else:
-                opportunity_text = f"- Yangi buyurmalarni ko'rish/qabul qilish/bekor qilish\n" \
-                                   f"- Qabul qilingan buyurmalarni ko'rish\n" \
-                                   f"- Barcha foydalanuvchilarga xabar yuborish\n" \
-                                   f"- Bot ni tahrirlash\n" \
-                                   f"- Tarix ni ko'rish\n" \
-                                   f"- Bazani yuklash"
-                text = f'Hurmatli {wrap_tags(_admin[FULLNAME])} ❕,\n' \
-                       f'siz {wrap_tags(user[FULLNAME])} tomonidan @{BOT_USERNAME} ga ' \
-                       f'{wrap_tags("adminlikka tayinlandingiz !")} 😃\n\n' \
-                       f'🤖 /menu yoki /start kommandasi menga yuboring !\n\n' \
-                       f'Endi siz quyidagilarni bajara olasiz:\n{wrap_tags(opportunity_text)}'
-                alert_text = f"Foydalanuvchi {_admin[FULLNAME]} adminlikka muvaffaqiyatli tayinlandi 😉"
+        # send message to the user (new admin or deleted admin)
+        try:
+            context.bot.send_message(admin_tg_id, text)
+        except TelegramError:
+            alert_text += "\n⚠ Ammo bu haqda foydalanuvchini xabardor qiling !"
 
-            try:
-                context.bot.send_message(admin_tg_id, text)
-            except TelegramError:
-                alert_text += "\n⚠ Ammo bu haqda foydalanuvchini xabardor qiling !"
-            callback_query.answer(alert_text, show_alert=True)
+        callback_query.answer(alert_text, show_alert=True)
+        return back_to_editing_callback(update, context)
 
-    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-    callback_query.message.reply_text('👥 ' + edit_admins_btn_text, reply_markup=reply_keyb_markup)
-
-    edit_msg_text = "Tahrirlash uchun adminni tanlang:"
-    inline_keyb_markup = InlineKeyboard(edit_admins_keyboard, user[LANG], get_all_admins()).get_markup()
-    callback_query.edit_message_text(edit_msg_text, reply_markup=inline_keyb_markup)
-    return EDIT_ADMINS
+    elif answer == 'n':
+        if action == 'makeadmin':
+            callback_query.answer('‼ Admin tasdiqlanmadi ! 🤔', show_alert=True)
+            return back_to_editing_callback(update, context)
+        else:
+            inline_keyb_markup = InlineKeyboard(edit_admin_keyboard, user[LANG]).get_markup()
+            callback_query.edit_message_text(get_user_info_layout(_admin), reply_markup=inline_keyb_markup)
+            user_data[STATE] = EDIT_ADMIN
+            return EDIT_ADMIN
 
 
 def back_to_editing_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
     inline_keyb_markup = InlineKeyboard(edit_admins_keyboard, user[LANG], get_all_admins()).get_markup()
+    message_obj = update.callback_query.message if update.callback_query else update.message
 
     reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-    update.message.reply_text('👥 ' + edit_admins_btn_text, reply_markup=reply_keyb_markup)
+    message_obj.reply_text('👥 ' + edit_admins_btn_text, reply_markup=reply_keyb_markup)
 
-    message = update.message.reply_text('Tahrirlash uchun adminni tanlang:', reply_markup=inline_keyb_markup)
-    user_data.clear()
+    message = message_obj.reply_text('Tahrirlash uchun adminni tanlang:', reply_markup=inline_keyb_markup)
     delete_message_by_message_id(context, user)
+    user_data.clear()
     user_data[STATE] = EDIT_ADMINS
     user_data[MESSAGE_ID] = message.message_id
     return EDIT_ADMINS

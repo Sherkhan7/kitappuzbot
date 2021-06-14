@@ -27,3 +27,5 @@ EDIT_BOOK_PHOTO, EDIT_BOOK_TITLE, EDIT_BOOK_PRICE, EDIT_BOOK_AMOUT, EDIT_BOOK_LA
 
 EDIT_BOOK_TRANSLATOR, EDIT_BOOK_URL, EDIT_BOOK_YEAR, EDIT_BOOK_COVER, EDIT_BOOK_AUTHOR = \
     ('edit_book_translator', 'edit_book_url', 'edit_book_year', 'edit_book_cover', 'edit_book_author')
+
+EDIT_ADMINS, EDIT_ADMIN = ('edit_admins', 'edit_admin')
