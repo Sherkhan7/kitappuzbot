@@ -46,14 +46,14 @@ reply_keyboard_types = {
         },
     },
     edit_bot_keyboard: {
+        "edit_admins_btn": {
+            "text_uz": "Adminlarni tahrirlash",
+            "emoji": "👥"
+        },
         "edit_books_btn": {
             "text_uz": "Kitoblarni tahrirlash",
             "emoji": "📚"
         },
-        # "edit_admins_btn": {
-        #     "text_uz": "Adminlarni tahrirlash",
-        #     "emoji": "👥"
-        # },
         "edit_contact_us_btn": {
             "text_uz": "«Biz bilan bog'lanish» ni tahrirlash",
             "emoji": "☎"
