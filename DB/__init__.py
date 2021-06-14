@@ -11,6 +11,8 @@ from .main import (
     get_order,
     get_orders_by_status,
     get_all_books,
+    get_all_admins,
+    get_user_by_username,
     get_books_by_ids,
     get_order_items_book_title,
     update_order_status,
@@ -25,7 +27,7 @@ from .main import (
     update_book_url,
     update_book_amount,
     update_book_year,
-    update_user_info,
+    update_user_isadmin,
     update_contact_us_text,
     delete_book,
 )
