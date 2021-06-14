@@ -164,7 +164,7 @@ def order_callback(update: Update, context: CallbackContext):
 
     elif callback_query.data == 'order':
         if get_book(user_data['book_id']):
-            quantity = int(callback_query.message.reply_markup.inline_keyb_markup[0][1].text)
+            quantity = int(callback_query.message.reply_markup.inline_keyboard[0][1].text)
             basket = {user_data['book_id']: quantity}
 
             if BASKET not in user_data:
@@ -337,7 +337,7 @@ def book_conversation_fallback(update: Update, context: CallbackContext):
     if back_obj or update.message.text == '/cancel' or update.message.text == '/start' \
             or update.message.text == '/menu':
         text = "📖 Menyu"
-        keyboard = client_menu_keyboard
+        keyboard = admin_menu_keyboard if user[IS_ADMIN] else client_menu_keyboard
         return end_conversation(update, context, user, text, keyboard)
 
 
