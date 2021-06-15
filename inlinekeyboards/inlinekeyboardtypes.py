@@ -44,24 +44,7 @@ inline_keyboard_types = {
         "add_book_btn": {
             "text_uz": "Yangi kitob qo'shish",
             "emoji": "+",
-        }
-    },
-    edit_admins_keyboard: {
-        "add_admin_btn": {
-            "text_uz": "Yangi admin qo'shish",
-            "emoji": "+",
-        }
-    },
-    edit_admin_keyboard: {
-        "delete_book_btn": {
-            "text_uz": "Adminni o'chirish",
-            "emoji": "🗑",
-            "data": "delete_admin"
-        },
-        "back_btn": {
-            "text_uz": "Ortga",
-            "emoji": "«",
-            "data": "back"
+            "data": "add_book"
         },
     },
     edit_book_keyboard: {
@@ -119,6 +102,43 @@ inline_keyboard_types = {
             "text_uz": "Kitobni o'chirish",
             "emoji": "🗑",
             "data": "delete_book"
+        },
+        "back_btn": {
+            "text_uz": "Ortga",
+            "emoji": "«",
+            "data": "back"
+        },
+    },
+    edit_admins_keyboard: {
+        "add_admin_btn": {
+            "text_uz": "Yangi admin qo'shish",
+            "emoji": "+",
+        }
+    },
+    edit_admin_keyboard: {
+        "delete_book_btn": {
+            "text_uz": "Adminni o'chirish",
+            "emoji": "🗑",
+            "data": "delete_admin"
+        },
+        "back_btn": {
+            "text_uz": "Ortga",
+            "emoji": "«",
+            "data": "back"
+        },
+    },
+    edit_actions_keyboard: {
+        "add_action_btn": {
+            "text_uz": "Yangi aksiya qo'shish",
+            "emoji": "+",
+            "data": "add_action"
+        },
+    },
+    edit_action_keyboard: {
+        "delete_action_btn": {
+            "text_uz": "Aksiyani o'chirish",
+            "emoji": "🗑",
+            "data": "delete_action"
         },
         "back_btn": {
             "text_uz": "Ortga",
