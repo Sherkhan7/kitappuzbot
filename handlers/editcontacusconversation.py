@@ -42,7 +42,7 @@ def edit_contactus_conversation_callback(update: Update, context: CallbackContex
     user_data = context.user_data
 
     reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-    update.message.reply_text("Yangi tekstni kiriting", reply_markup=reply_keyb_markup)
+    update.message.reply_text("Yangi matn/tekst ni yuboring", reply_markup=reply_keyb_markup)
 
     user_data[STATE] = EDIT_CONTACTUS_TEXT
     return EDIT_CONTACTUS_TEXT
