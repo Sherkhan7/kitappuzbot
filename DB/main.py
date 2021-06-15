@@ -68,11 +68,33 @@ def delete_book(_id):
     return 'updated' if connection.affected_rows() != 0 else 'not updated'
 
 
+def delete_action(_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('UPDATE actions SET is_active = FALSE WHERE id = %s', _id)
+            connection.commit()
+    return 'updated' if connection.affected_rows() != 0 else 'not updated'
+
+
 def get_all_books():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
             cursor.execute('SELECT * FROM books WHERE is_removed = FALSE')
     return cursor.fetchall()
+
+
+def get_all_actions():
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM actions WHERE is_active = TRUE')
+    return cursor.fetchall()
+
+
+def get_action(_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM actions WHERE id = %s', _id)
+    return cursor.fetchone()
 
 
 def get_all_admins():
