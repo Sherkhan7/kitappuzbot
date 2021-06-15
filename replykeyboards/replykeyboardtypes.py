@@ -54,6 +54,10 @@ reply_keyboard_types = {
             "text_uz": "Kitoblarni tahrirlash",
             "emoji": "📚"
         },
+        "edit_actions_btn": {
+            "text_uz": "Aksiyalarni tahrirlash",
+            "emoji": "💥"
+        },
         "edit_contact_us_btn": {
             "text_uz": "«Biz bilan bog'lanish» ni tahrirlash",
             "emoji": "☎"
