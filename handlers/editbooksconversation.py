@@ -39,46 +39,64 @@ next_btn_pattern = f'^{next_btn_text}'
 
 
 def get_state_text(state, is_error=False):
-    if state == EDIT_BOOK_TITLE:
-        text = 'Kitob nomini kiriting:'
+    if state == EDIT_BOOK_TITLE or state == EDIT_ACTION_TITLE:
+        text = 'Kitob nomini yuboring:' if state == EDIT_BOOK_TITLE \
+            else "Endi menga aksiyaning nomini yuboring :\n\n" \
+                 "ℹ Misol: 💥 Aksiya 6 + 1"
 
     elif state == EDIT_BOOK_LANG:
-        text = "Kitob qaysi tilda yozilganligini kiriting :\n\nℹ Misol: O'zbekcha"
+        text = "Kitob qaysi tilda yozilganligini yuboring :\n\nℹ Misol: O'zbekcha"
 
     elif state == EDIT_BOOK_TRANSLATOR:
-        text = "Kitob tarjimon(lar)ini kiriting :\n\nℹ Misol: Sherzodbek Esanov"
+        text = "Kitob tarjimon(lar)ini yuboring :\n\nℹ Misol: Sherzodbek Esanov"
 
     elif state == EDIT_BOOK_COVER:
-        text = "Kitob muqovasi turini kiriting :\n\nℹ Misol: Qattik yoki yumshoq"
+        text = "Kitob muqovasi turini yuboring :\n\nℹ Misol: Qattik yoki yumshoq"
 
-    elif state == EDIT_BOOK_PHOTO:
-        text = "Kitob uchun rasm yuboring:\n\nℹ Rasmni siqilgan formatda yuboring"
+    elif state == EDIT_BOOK_PHOTO or state == EDIT_ACTION_PHOTO:
+        _text = 'Kitob' if state == EDIT_BOOK_PHOTO else 'Aksiya'
+        text = f"{_text} uchun rasm yuboring:\n\nℹ Rasmni siqilgan formatda yuboring"
         if is_error:
             text = '⚠ Kechirasiz, rasmni siqilgan formatda yuboring !'
 
-    elif state == EDIT_BOOK_PRICE:
-        text = "Kitob narxini kiriting (raqamlar bilan):\n\nℹ Misol: 200 000"
+    elif state == EDIT_BOOK_PRICE or state == EDIT_ACTION_PRICE:
+        text = "Kitob narxini yuboring (raqamlar bilan):\n\nℹ Misol: 200 000"
         if is_error:
-            text = "⚠ Narxni raqamlar bilan kiriting !\n\nℹ Maksimum: 1 000 000 so'm"
+            text = "⚠ Narxni raqamlar bilan yuboring !\n\nℹ Maksimum: 2 000 000 so'm"
+
+        if state == EDIT_ACTION_PRICE:
+            text = "Akiya bo'yicha umumiy narxni yuboring (raqamlar bilan):\n\nℹ Misol: 1 200 000"
+            if is_error:
+                text = "⚠ Narxni raqamlar bilan yuboring !\n\nℹ Maksimum: 5 000 000 so'm"
 
     elif state == EDIT_BOOK_URL:
-        text = "Kitob haqida URL(link) ni kiriting :\n\nℹ Misol: https://telegra.ph/Rework-12-08"
+        text = "Kitob haqida URL(link) ni yuboring :\n\nℹ Misol: https://telegra.ph/Rework-12-08"
         if is_error:
             text = "❗ Bunday URL(link) mavjud emas !\n" \
-                   "URL(link) ni quyidagi formatda kiriting:\n\nℹ Misol: https://telegra.ph/Rework-12-08"
+                   "URL(link) ni quyidagi formatda yuboring:\n\nℹ Misol: https://telegra.ph/Rework-12-08"
 
     elif state == EDIT_BOOK_AMOUT:
-        text = "Kitob hajmini kiriting (raqamlar bilan) :\n\nℹ Misol: 256"
+        text = "Kitob hajmini yuboring (raqamlar bilan) :\n\nℹ Misol: 256"
         if is_error:
-            text = "⚠ Kitob hajmini raqamlar bilan kiriting !\n\nℹ Maksimum: 1 000 bet"
+            text = "⚠ Kitob hajmini raqamlar bilan yuboring !\n\nℹ Maksimum: 1 000 bet"
 
     elif state == EDIT_BOOK_YEAR:
-        text = "Kitob nashrdan chiqqan yilni kiriting (raqamlar bilan) :\n\nℹ Misol: 2000"
+        text = "Kitob nashrdan chiqqan yilni yuboring (raqamlar bilan) :\n\nℹ Misol: 2000"
         if is_error:
-            text = f"⚠ Kitob nashrdan chiqqan yilni raqamlar bilan kiriting !\n\nℹ Maksimum: {datetime.now().year} yil"
+            text = f"⚠ Kitob nashrdan chiqqan yilni raqamlar bilan yuboring !\n\nℹ Maksimum: {datetime.now().year} yil"
 
-    elif state == EDIT_BOOK_AUTHOR:
-        text = "Kitob muallif(lar)ini kiriting :\n\nℹ Misol: <b>Robert Kiyosaki</b>"
+    elif state == EDIT_BOOK_AUTHOR or state == EDIT_ACTION_TEXT:
+        text = "Kitob muallif(lar)ini yuboring :\n\nℹ Misol: <b>Robert Kiyosaki</b>"
+        if state == EDIT_ACTION_TEXT:
+            text = "Aksiya uchun matn/tekst ni yuboring :\n\nℹ Misol:\n\n" \
+                   "📕 Ilon Mask:\n" \
+                   "1 X 0 so'm 100 000 so'm\n" \
+                   "______________________\n" \
+                   "📕 Drive:\n" \
+                   "1 X 200 000 so'm\n" \
+                   "______________________\n" \
+                   "📕 Savdo chempionlari:\n" \
+                   "1 X 300 000 so'm"
 
     elif state == USERNAME:
         text = "🙂 Endi menga bolajak adminning taxallusi (username) ni yuboring :\n\n" \
@@ -504,7 +522,8 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
             state = EDIT_BOOKS
             if 'book_id' in user_data:
                 del user_data['book_id']
-        user_data[STATE] = EDIT_BOOKS
+
+        user_data[STATE] = state
         return state
 
     elif data[0] == 'continue' and data[-1] == 'adding':
@@ -535,41 +554,16 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
 
     elif data[0] == 'confirm' and data[-1] == 'book':
         if data[1] == 'y':
-            caption = "Tahrirlash uchun kitobni tanlang:"
-            photo = PHOTOS_URL + 'kitappuz_photo.jpg'
-
             if insert_data(get_book_data_dict(user_data), 'books'):
                 callback_query.answer("Yangi kitob qo'shildi 😉", show_alert=True)
-                reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-                callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
+        else:
+            callback_query.answer("Kitob tasdiqlanmadi 🙂", show_alert=True)
 
-                inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
-                message = callback_query.message.reply_photo(photo, caption=caption, reply_markup=inline_keyb_markup)
-                try:
-                    callback_query.delete_message()
-                except TelegramError:
-                    callback_query.edit_message_reply_markup()
-                user_data.clear()
-                user_data[STATE] = EDIT_BOOKS
-                user_data[MESSAGE_ID] = message.message_id
-                return EDIT_BOOKS
-
-        if data[1] == 'n':
-            caption = "Tahrirlash uchun kitobni tanlang:"
-            photo = PHOTOS_URL + 'kitappuz_photo.jpg'
-            media_photo = InputMediaPhoto(photo, caption)
-            inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
-            callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
-            callback_query.answer('Kitob tasdiqlanmadi 🙂', show_alert=True)
-
-            reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-            callback_query.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
-
-            message_id = user_data.pop(MESSAGE_ID)
-            user_data.clear()
-            user_data[STATE] = EDIT_BOOKS
-            user_data[MESSAGE_ID] = message_id
-            return EDIT_BOOKS
+        try:
+            callback_query.delete_message()
+        except TelegramError:
+            pass
+        return back_to_editing_callback(update, context)
 
 
 def back_to_editing_callback(update: Update, context: CallbackContext):
@@ -578,11 +572,11 @@ def back_to_editing_callback(update: Update, context: CallbackContext):
     photo = PHOTOS_URL + 'kitappuz_photo.jpg'
     caption = "Tahrirlash uchun kitobni tanlang:"
     inline_keyb_markup = InlineKeyboard(edit_books_keyboard, user[LANG], get_all_books()).get_markup()
+    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
+    message_obj = update.callback_query.message if update.callback_query else update.message
     state = EDIT_BOOKS
 
-    reply_keyb_markup = ReplyKeyboard(back_keyboard, user[LANG]).get_markup()
-    update.message.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
-
+    message_obj.reply_text('📚 ' + edit_books_btn_text, reply_markup=reply_keyb_markup)
     if 'book_id' in user_data:
         book = get_book(user_data['book_id'])
         caption = get_book_layout(book, user[LANG])
@@ -593,9 +587,9 @@ def back_to_editing_callback(update: Update, context: CallbackContext):
         user_data.clear()
     # this try except used for send old books' photo like rework.jpg, drive.jpg etc.
     try:
-        message = update.message.reply_photo(photo, caption, reply_markup=inline_keyb_markup)
+        message = message_obj.reply_photo(photo, caption, reply_markup=inline_keyb_markup)
     except TelegramError:
-        message = update.message.reply_photo(PHOTOS_URL + photo, caption, reply_markup=inline_keyb_markup)
+        message = message_obj.reply_photo(PHOTOS_URL + photo, caption, reply_markup=inline_keyb_markup)
     delete_message_by_message_id(context, user)
     user_data[STATE] = state
     user_data[MESSAGE_ID] = message.message_id
