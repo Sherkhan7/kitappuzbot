@@ -22,7 +22,7 @@ from globalvariables import *
 from layouts import *
 from DB import *
 from helpers import wrap_tags, delete_message_by_message_id
-from handlers.editcontacusconversation import edit_contactus_conversation_fallback, back_btn_text
+from handlers.editcontacusconversation import edit_contactus_conversation_fallback
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
@@ -34,7 +34,6 @@ edit_books_btn_text = reply_keyboard_types[edit_bot_keyboard]['edit_books_btn'][
 back_to_editing_btn_text = reply_keyboard_types[back_to_editing_keyboard]['back_to_editing_btn'][f'text_uz']
 next_btn_text = reply_keyboard_types[back_to_editing_keyboard]['next_btn'][f'text_uz']
 
-not_back_btn_pattern = f"^(.(?!({back_btn_text})))*$"
 not_back_to_editing_btn_pattern = f"^(.(?!({back_to_editing_btn_text})))*$"
 next_btn_pattern = f'^{next_btn_text}'
 
@@ -193,7 +192,7 @@ def edit_books_callback(update: Update, context: CallbackContext):
         state = EDIT_BOOK
 
     user_data[STATE] = state
-    return EDIT_BOOK
+    return state
 
 
 def edit_book_callback(update: Update, context: CallbackContext):
@@ -326,7 +325,7 @@ def edit_book_price_callback(update: Update, context: CallbackContext):
 def edit_book_author_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         update_book_author(update.message.text, user_data['book_id'])
@@ -342,7 +341,7 @@ def edit_book_author_callback(update: Update, context: CallbackContext):
 def edit_book_lang_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         update_book_lang(update.message.text, user_data['book_id'])
@@ -358,7 +357,7 @@ def edit_book_lang_callback(update: Update, context: CallbackContext):
 def edit_book_translator_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         update_book_translator(update.message.text, user_data['book_id'])
@@ -374,7 +373,7 @@ def edit_book_translator_callback(update: Update, context: CallbackContext):
 def edit_book_cover_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         update_book_cover(update.message.text, user_data['book_id'])
@@ -390,7 +389,7 @@ def edit_book_cover_callback(update: Update, context: CallbackContext):
 def edit_book_url_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         # Here validators.url(update.message.text) just retuns validators.ValidationFailure not throwing it
@@ -416,7 +415,7 @@ def edit_book_url_callback(update: Update, context: CallbackContext):
 def edit_book_amout_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         book_amout = update.message.text.replace(' ', '')
@@ -444,7 +443,7 @@ def edit_book_year_callback(update: Update, context: CallbackContext):
     user = get_user(update.effective_user.id)
     user_data = context.user_data
     ask_text = "Yangi kitobni tasdiqlaysizmi ?"
-    next_obj = re.search(next_btn_text, update.message.text)
+    next_obj = re.search(next_btn_pattern, update.message.text)
 
     if 'book_id' in user_data:
         book_year = update.message.text.replace(' ', '')
