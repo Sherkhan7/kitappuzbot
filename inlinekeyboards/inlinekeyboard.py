@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+from config import DEVELOPER_CHAT_ID
 from DB import get_all_books, get_all_actions
 from globalvariables import *
 from inlinekeyboards.inlinekeyboardtypes import *
@@ -217,8 +218,8 @@ class InlineKeyboard(object):
     def __get_edit_admins_keyboard(buttons, lang, data):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_admin')]
-            if FULLNAME not in item else [InlineKeyboardButton(f"👤 {item['fullname']}",
-                                                               callback_data=f'edit_admin_{item[TG_ID]}')]
+            if FULLNAME not in item else
+            [InlineKeyboardButton(f"👤 {item['fullname']}", callback_data=f'edit_admin_{item[TG_ID]}')]
             for item in list(buttons.values()) + list(data)
         ])
 
