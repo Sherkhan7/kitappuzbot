@@ -93,7 +93,7 @@ def get_all_actions():
 def get_action(_id):
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:
-            cursor.execute('SELECT * FROM actions WHERE id = %s', _id)
+            cursor.execute('SELECT * FROM actions WHERE id = %s and is_active = TRUE', _id)
     return cursor.fetchone()
 
 
