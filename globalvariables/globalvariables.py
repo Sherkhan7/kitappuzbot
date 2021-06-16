@@ -28,4 +28,8 @@ EDIT_BOOK_PHOTO, EDIT_BOOK_TITLE, EDIT_BOOK_PRICE, EDIT_BOOK_AMOUT, EDIT_BOOK_LA
 EDIT_BOOK_TRANSLATOR, EDIT_BOOK_URL, EDIT_BOOK_YEAR, EDIT_BOOK_COVER, EDIT_BOOK_AUTHOR = \
     ('edit_book_translator', 'edit_book_url', 'edit_book_year', 'edit_book_cover', 'edit_book_author')
 
-EDIT_ADMINS, EDIT_ADMIN = ('edit_admins', 'edit_admin')
+EDIT_ADMINS, EDIT_ADMIN, EDIT_ACTIONS, EDIT_ACTION, EDIT_ACTION_TITLE, EDIT_ACTION_PHOTO = \
+    ('edit_admins', 'edit_admin', 'edit_actions', 'edit_action', 'edit_action_title', 'edit_action_photo')
+
+EDIT_ACTION_PRICE, EDIT_ACTIOON_PRICE, EDIT_ACTION_TEXT = \
+    ('edit_action_price', 'edit_actioon_price', 'edit_action_text')

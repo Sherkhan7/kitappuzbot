@@ -1,6 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from DB import get_all_books
+from config import DEVELOPER_CHAT_ID
+from DB import get_all_books, get_all_actions
 from globalvariables import *
 from inlinekeyboards.inlinekeyboardtypes import *
 
@@ -56,11 +57,19 @@ class InlineKeyboard(object):
         elif keyb_type == edit_admin_keyboard:
             return self.__get_edit_admin_keyboard(inline_keyboard_types[keyb_type], lang)
 
+        elif keyb_type == edit_actions_keyboard:
+            return self.__get_edit_actions_keyboard(inline_keyboard_types[keyb_type], lang, data)
+
+        elif keyb_type == edit_action_keyboard:
+            return self.__get_edit_action_keyboard(inline_keyboard_types[keyb_type], lang)
+
     @staticmethod
     def __get_books_keyboard(data):
         inline_keyboard = [
-            [InlineKeyboardButton(f"📗 {book[TITLE]}", callback_data=f"book_{book[ID]}")]
-            for book in get_all_books()
+            [InlineKeyboardButton(f"📗 {item[TITLE]}", callback_data=f"book_{item[ID]}")]
+            if AUTHOR in item else
+            [InlineKeyboardButton(f"💥 {item[TITLE]}", callback_data=f"action_{item[ID]}")]
+            for item in get_all_books() + list(get_all_actions())
         ]
         if data:
             inline_keyboard.append([InlineKeyboardButton('🛒 Savat', callback_data='basket')])
@@ -186,7 +195,7 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_edit_books_keyboard(buttons, lang, data):
         return InlineKeyboardMarkup([
-            [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_book')]
+            [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data=item['data'])]
             if TITLE not in item else [InlineKeyboardButton(f"📝 {item[TITLE]}", callback_data=f'edit_book_{item[ID]}')]
             for item in list(buttons.values()) + list(data)
         ])
@@ -209,13 +218,29 @@ class InlineKeyboard(object):
     def __get_edit_admins_keyboard(buttons, lang, data):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data='add_admin')]
-            if FULLNAME not in item else [InlineKeyboardButton(f"👤 {item['fullname']}",
-                                                               callback_data=f'edit_admin_{item[TG_ID]}')]
+            if FULLNAME not in item else
+            [InlineKeyboardButton(f"👤 {item['fullname']}", callback_data=f'edit_admin_{item[TG_ID]}')]
             for item in list(buttons.values()) + list(data)
         ])
 
     @staticmethod
     def __get_edit_admin_keyboard(buttons, lang):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button['data'])]
+            for button in buttons.values()
+        ])
+
+    @staticmethod
+    def __get_edit_actions_keyboard(buttons, lang, data):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"{item['emoji']} {item[f'text_{lang}']}", callback_data=item['data'])]
+            if TITLE not in item else
+            [InlineKeyboardButton(f"💥 {item[TITLE]}", callback_data=f'edit_action_{item[ID]}')]
+            for item in list(buttons.values()) + list(data)
+        ])
+
+    @staticmethod
+    def __get_edit_action_keyboard(buttons, lang):
         return InlineKeyboardMarkup([
             [InlineKeyboardButton(f"{button['emoji']} {button[f'text_{lang}']}", callback_data=button['data'])]
             for button in buttons.values()

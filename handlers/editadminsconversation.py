@@ -20,7 +20,7 @@ from handlers.editbooksconversation import (
     edit_contactus_conversation_fallback,
     get_state_text,
     not_back_to_editing_btn_pattern,
-    back_to_editing_btn_text
+    back_to_editing_btn_pattern
 )
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
@@ -221,7 +221,7 @@ edit_admins_conversation_handler = ConversationHandler(
     },
 
     fallbacks=[
-        MessageHandler(Filters.regex(f'{back_to_editing_btn_text}$') & (~Filters.update.edited_message)
+        MessageHandler(Filters.regex(back_to_editing_btn_pattern) & (~Filters.update.edited_message)
                        & (~Filters.command), back_to_editing_callback),
         MessageHandler(Filters.text & (~Filters.update.edited_message), edit_admins_conversation_fallback),
     ],
