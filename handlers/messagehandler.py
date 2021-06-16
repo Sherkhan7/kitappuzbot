@@ -40,18 +40,26 @@ def message_handler_callback(update: Update, context: CallbackContext):
 
                 if waiting_orders:
                     for order in waiting_orders:
-                        order_items = get_order_items_book_title(order[ID])
                         client = get_user(order[USER_ID])
-                        new_dict = dict()
-                        label = '[Yangi buyurtma]'
-                        if order['with_action']:
-                            label += ' [🔥MEGA AKSIYA🔥]'
+                        order_items = get_order_items_book_title(order[ID])
+                        label = wrap_tags('[Yangi buyurtma]')
 
-                        for item in order_items:
-                            new_dict.update({item['book_id']: item['quantity']})
+                        if order_items:
+                            new_dict = dict()
+                            if order['with_action']:
+                                label = f'[🔥MEGA AKSIYA🔥] {label}'
 
-                        text_for_admin = f'🆔 {order[ID]} '
-                        text_for_admin += get_basket_layout(new_dict, user[LANG], data=label)
+                            for item in order_items:
+                                new_dict.update({item['book_id']: item['quantity']})
+                            layout = get_basket_layout(new_dict, user[LANG], '')
+                        else:
+                            if order['with_action'] and order['action_id']:
+                                action = get_action(order['action_id'])
+                                label = f"[ {action[TITLE]} ] {label}"
+                                layout = f"{action['text']}\n"
+
+                        text_for_admin = f'🆔 {order[ID]} {label}\n\n'
+                        text_for_admin += layout
                         text_for_admin += f'\nMijoz: {wrap_tags(client[FULLNAME])}\n' \
                                           f'Tel: {wrap_tags(order[PHONE_NUMBER])}\n'
                         text_for_admin += f'Telegram: {wrap_tags("@" + client[USERNAME])}\n' \

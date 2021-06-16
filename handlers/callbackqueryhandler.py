@@ -37,10 +37,10 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             elif yes_no_obj:
                 data = yes_no_obj.string.split('_')
                 status = 'canceled' if data[0] == 'c' else 'received'
-                action = data[1]
+                answer = data[1]
                 order_id = data[-1]
 
-                if action == 'n':
+                if answer == 'n':
                     keyboard = orders_keyboard
                     data = order_id
 
@@ -49,10 +49,11 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
 
                     if order[STATUS] == 'waiting':
                         if status == 'canceled':
-                            status_text = 'rad etilgan'
+                            status_text = 'rad qilindi'
                             client_text = 'Buyurtma rad qilindi'
+                            inline_keyb_markup = None
                         else:
-                            status_text = 'qabul qilingan'
+                            status_text = 'qabul qilindi'
                             client_text = 'Buyurtma qabul qilindi'
 
                         if update_order_status(status, order_id):
@@ -70,13 +71,13 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                                                      reply_markup=inline_keyb_markup)
 
                     elif order[STATUS] == 'received':
-                        status_text = 'buyurtma avval qabul qilingan !'
+                        status_text = 'avval qabul qilingan'
 
                     elif order[STATUS] == 'delivered':
-                        status_text = 'buyurtma avval yetkazilgan !'
+                        status_text = 'avval yetkazilgan'
 
                     elif order[STATUS] == 'canceled':
-                        status_text = 'buyurtma avval rad qilingan !'
+                        status_text = 'avval rad qilingan'
 
                     edit_msg_text = callback_query.message.text_html.split('\n')
                     edit_msg_text[0] = ' '.join(edit_msg_text[0].split()[:2])
@@ -86,7 +87,7 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
             # here `UnboundLocalError: local variable 'edit_msg_text' referenced before assignment` error will be rised
             try:
                 callback_query.edit_message_text(edit_msg_text)
-                callback_query.answer(status_text, show_alert=True)
+                callback_query.answer(f"Buyurtma {status_text} ❕", show_alert=True)
 
             except UnboundLocalError:
                 inline_keyb_markup = InlineKeyboard(keyboard, user[LANG], data=data).get_markup()
