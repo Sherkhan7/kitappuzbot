@@ -15,8 +15,13 @@ from telegram.ext import (
 from config import *
 from globalvariables import *
 from DB import *
+from handlers.editbooksconversation import (
+    edit_contactus_conversation_fallback,
+    get_state_text,
+    not_back_to_editing_btn_pattern,
+    back_to_editing_btn_pattern,
+)
 from helpers import delete_message_by_message_id
-from handlers.editbooksconversation import edit_contactus_conversation_fallback, get_state_text
 from replykeyboards import ReplyKeyboard
 from replykeyboards.replykeyboardtypes import reply_keyboard_types
 from replykeyboards.replykeyboardvariables import *
@@ -24,8 +29,6 @@ from inlinekeyboards import InlineKeyboard
 from inlinekeyboards.inlinekeyboardvariables import *
 
 edit_actions_btn_text = reply_keyboard_types[edit_bot_keyboard]['edit_actions_btn'][f'text_uz']
-back_to_editing_btn_text = reply_keyboard_types[back_to_editing_keyboard]['back_to_editing_btn'][f'text_uz']
-not_back_to_editing_btn_pattern = f"^(.(?!({back_to_editing_btn_text})))*$"
 
 
 def get_action_data_dict(user_data):
@@ -180,7 +183,7 @@ def yes_no_confirm_callback(update: Update, context: CallbackContext):
             caption = "Tahrirlash uchun aksiyani tanlang:"
             photo = PHOTOS_URL + 'kitappuz_photo.jpg'
             media_photo = InputMediaPhoto(photo, caption)
-            inline_keyb_markup = InlineKeyboard(edit_actions_keyboard, user[LANG], get_all_books()).get_markup()
+            inline_keyb_markup = InlineKeyboard(edit_actions_keyboard, user[LANG], get_all_actions()).get_markup()
 
             try:
                 callback_query.edit_message_media(media_photo, reply_markup=inline_keyb_markup)
@@ -258,7 +261,7 @@ edit_actions_conversation_handler = ConversationHandler(
     },
 
     fallbacks=[
-        MessageHandler(Filters.regex(f'{back_to_editing_btn_text}$') & (~Filters.update.edited_message)
+        MessageHandler(Filters.regex(back_to_editing_btn_pattern) & (~Filters.update.edited_message)
                        & (~Filters.command), back_to_editing_callback),
         MessageHandler(Filters.text, edit_books_conversation_fallback),
     ],
