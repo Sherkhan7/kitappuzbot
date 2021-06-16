@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from DB import get_all_books
+from DB import get_all_books, get_all_actions
 from globalvariables import *
 from inlinekeyboards.inlinekeyboardtypes import *
 
@@ -65,8 +65,10 @@ class InlineKeyboard(object):
     @staticmethod
     def __get_books_keyboard(data):
         inline_keyboard = [
-            [InlineKeyboardButton(f"📗 {book[TITLE]}", callback_data=f"book_{book[ID]}")]
-            for book in get_all_books()
+            [InlineKeyboardButton(f"📗 {item[TITLE]}", callback_data=f"book_{item[ID]}")]
+            if AUTHOR in item else
+            [InlineKeyboardButton(f"💥 {item[TITLE]}", callback_data=f"action_{item[ID]}")]
+            for item in get_all_books() + list(get_all_actions())
         ]
         if data:
             inline_keyboard.append([InlineKeyboardButton('🛒 Savat', callback_data='basket')])

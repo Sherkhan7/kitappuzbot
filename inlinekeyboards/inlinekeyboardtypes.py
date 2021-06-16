@@ -162,7 +162,7 @@ inline_keyboard_types = {
         "order_btn": {
             "text_uz": "Buyurtma berish",
             "data": "order",
-            "emoji": "🛒",
+            "emoji": "💸",
         },
         "back_btn": {
             "text_uz": "Ortga",
