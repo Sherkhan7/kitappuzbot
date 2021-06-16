@@ -97,6 +97,13 @@ def get_action(_id):
     return cursor.fetchone()
 
 
+def get_action_data(_id):
+    with closing(get_connection()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT * FROM actions WHERE id = %s', _id)
+    return cursor.fetchone()
+
+
 def get_all_admins():
     with closing(get_connection()) as connection:
         with connection.cursor() as cursor:

@@ -38,7 +38,7 @@ def import_database():
     workbook = xlsxwriter.Workbook(full_path)
     bold = workbook.add_format({'bold': True})
 
-    # The workbook object is then used to add new
+    # The workbook object is used to add new
     # users_worksheet via the add_worksheet() method.
     users_worksheet = workbook.add_worksheet('users')
     orders_worksheet = workbook.add_worksheet('orders')
@@ -85,7 +85,7 @@ def import_database():
             "with": 25,
         },
         "E1": {
-            "header": "Buyurtma qilgan kitoplari",
+            "header": "Buyurtma qilingan kitoblar",
             "with": 35,
         },
         "F1": {
@@ -111,7 +111,7 @@ def import_database():
     write_data_headers(orders_worksheet, orders_fields_list)
     row = 1
     # Use the users_worksheet object to write
-    # data via the write() method.
+    # data via write() method.
     for user in get_all_users():
         selected_fields = [
             user[ID],
@@ -133,15 +133,23 @@ def import_database():
         order_items = get_order_items_book_title(order[ID])
         books_str = ''
         summa = 0
-        action = 'None' if not order['with_action'] else 'Mega aksiya'
         status = 'Yetkazilgan' if order[STATUS] == 'delivered' else 'Bekor qilingan' if order[STATUS] == 'canceled' \
             else 'Qabul qilingan' if order[STATUS] == 'received' else 'Qaubul qilish kutilmoqda'
-        for order_item in order_items:
-            book = get_book_data(order_item['book_id'])
-            books_str += f"{book[TITLE]}: {order_item['quantity']} ta\n" \
-                         f"Narxi: {book[PRICE]:,} so'm\n" \
-                         f"{'-' * 10}\n"
-            summa += book[PRICE] * order_item['quantity']
+
+        if order_items:
+            for order_item in order_items:
+                book = get_book_data(order_item['book_id'])
+                books_str += f"{book[TITLE]}: {order_item['quantity']} ta\n" \
+                             f"Narxi: {book[PRICE]:,} so'm\n" \
+                             f"{'-' * 10}\n"
+                summa += book[PRICE] * order_item['quantity']
+                action = 'None' if not order['with_action'] else 'Mega aksiya'
+        elif 'action_id' in order:
+            action_data = get_action_data(order['action_id'])
+            books_str = action_data['text']
+            summa = action_data[PRICE]
+            action = action_data[TITLE]
+
         summa = f'{summa:,}'.replace(',', ' ')
         selected_fields = [
             order[ID],
