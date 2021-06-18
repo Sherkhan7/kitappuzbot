@@ -376,10 +376,9 @@ def confirmation_callback(update: Update, context: CallbackContext):
             ]
             insert_order_items(data_values, [ORDER_ID, 'book_id', 'quantity'], 'order_items')
 
-        text_for_admin = callback_query.message.text_html.split('\n')
-        text_for_admin[0] = f'🆔 {order_id} {text_for_admin[0].split(" ", 2)[-1]} {wrap_tags("[Yangi buyurtma]")}'
-        text_for_admin += [f'Status: {wrap_tags("qabul qilish kutilmoqda")}']
-        text_for_admin = '\n'.join(text_for_admin)
+        text_for_admin = f'🆔 {order_id} {wrap_tags("[Yangi buyurtma]")}\n\n'
+        text_for_admin += callback_query.message.text_html
+        text_for_admin += f'\n\nStatus: {wrap_tags("qabul qilish kutilmoqda")}'
         text_for_client = text_for_admin
         inline_keyb_markup = InlineKeyboard(orders_keyboard, user[LANG], order_id).get_markup()
 

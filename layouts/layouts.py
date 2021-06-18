@@ -34,8 +34,8 @@ def get_basket_layout(orders, lang, data=None):
             layout += f'{index + 1}) 📕 {wrap_tags(book[TITLE])}:\n' \
                       f'{quantity_and_price}\n' \
                       f'{"_" * 22}\n\n'
-        data = data if data is not None else '🛒 Savat\n\n'
-        layout = wrap_tags(data) + layout
+        data = data if data is not None else '🛒 Savat'
+        layout = wrap_tags(data) + '\n\n' + layout
         layout += f"Jami: {total:,} so'm\n".replace(',', ' ')
         return layout
 
