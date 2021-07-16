@@ -382,6 +382,7 @@ def confirmation_callback(update: Update, context: CallbackContext):
         text_for_client = text_for_admin
         inline_keyb_markup = InlineKeyboard(orders_keyboard, user[LANG], order_id).get_markup()
 
+        # Send message to all Admins and DEVELOPER_CHAT_ID too
         for admin in get_all_admins():
             context.bot.send_message(admin[TG_ID], text_for_admin, reply_markup=inline_keyb_markup)
             context.bot.send_message(DEVELOPER_CHAT_ID, text_for_admin, reply_markup=inline_keyb_markup)
