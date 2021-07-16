@@ -66,9 +66,12 @@ def inline_keyboards_handler_callback(update: Update, context: CallbackContext):
                                                                     order_id).get_markup()
 
                             # send message to a client
-                            context.bot.send_message(order[USER_TG_ID], client_text,
-                                                     reply_to_message_id=order[MESSAGE_ID],
-                                                     reply_markup=inline_keyb_markup)
+                            try:
+                                context.bot.send_message(order[USER_TG_ID], client_text,
+                                                         reply_to_message_id=order[MESSAGE_ID],
+                                                         reply_markup=inline_keyb_markup)
+                            except TelegramError:
+                                pass
 
                     elif order[STATUS] == 'received':
                         status_text = 'avval qabul qilingan'
