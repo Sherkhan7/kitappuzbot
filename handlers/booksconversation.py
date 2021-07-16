@@ -385,7 +385,9 @@ def confirmation_callback(update: Update, context: CallbackContext):
         # Send message to all Admins and DEVELOPER_CHAT_ID too
         for admin in get_all_admins():
             context.bot.send_message(admin[TG_ID], text_for_admin, reply_markup=inline_keyb_markup)
-            context.bot.send_message(DEVELOPER_CHAT_ID, text_for_admin, reply_markup=inline_keyb_markup)
+        
+        # Send message DEVELOPER_CHAT_ID too
+        context.bot.send_message(DEVELOPER_CHAT_ID, text_for_admin, reply_markup=inline_keyb_markup)
 
         try:
             callback_query.edit_message_text(text_for_client)
